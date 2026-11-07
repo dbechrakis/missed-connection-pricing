@@ -1,0 +1,5 @@
+# Assumptions, not facts. Every number here is a parameter with a sensitivity run.
+connections:
+  mct_min: 45               # minimum connection time (default)
+  mct_sensitivity: [35, 60] # re-run label at these values
+  max_extra_slack_min: 180  # window is [MCT, MCT + 180] scheduled minutes
