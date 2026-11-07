@@ -1,4 +1,53 @@
 {
+  "asos": {
+    "files": {
+      "ATL.csv": "d5a8f1c1a8163c4f6b6b1d3444612e0c4ed1c542e18a5d2483f0552f70add6d7",
+      "CLT.csv": "5db0efccdb2c663516dc0be0d88ee4f2b91edacd4ac627f2a0744ec5b69563bb",
+      "DEN.csv": "5277fc2b9595bd8d2e08717ea0569d64655278f8c1473a6593f86cfbb6dd795f",
+      "DFW.csv": "5a0e51537fce29c01487b04b6b20539fb8b49fcb05683c496511db171d286284",
+      "ORD.csv": "41d6accf0972e9b923b6b8fbfb9fe3fb9730540d01f6b15eb8dc14810e1b032a"
+    },
+    "ingested": "2026-11-07",
+    "rows": 103068
+  },
+  "db1b": {
+    "2024Q1": {
+      "coupon_sha256": "278df94da3431f557d20c49449015e1a550847c7ffa251dc0e80838ef98d68e2",
+      "ingested": "2026-11-07",
+      "market_sha256": "bc2176c8eec0a8a537a3ce0bd26b02ed6843c08aa7da63faadd888ccb0a4c1bc",
+      "rows": 101118
+    },
+    "2024Q2": {
+      "coupon_sha256": "f80913bfa77cb01902994fa92a9fb0f5dd0e8c0e51b35d0c4c4a63f5d5ff54c0",
+      "ingested": "2026-11-07",
+      "market_sha256": "13518c99a2e59892cb76d81800559e8c48a49fca7de05229ed990c18d0ac83f7",
+      "rows": 113649
+    },
+    "2024Q3": {
+      "coupon_sha256": "326c110ebe88954cdbe93e85ce85eb29af0ec31bd6e57b75272355fad29cbe46",
+      "ingested": "2026-11-07",
+      "market_sha256": "b67439c62446f8bc98dfdca72e1cd05a5727d92bd9ffd57e744d459094cc55cf",
+      "rows": 113841
+    },
+    "2024Q4": {
+      "coupon_sha256": "425cd9473e261b5b6d795f77f3135d69ce6f91c309a4bde55b8e9b0d41228b0b",
+      "ingested": "2026-11-07",
+      "market_sha256": "e129d9f32abc0c920abfe485a109af95cb8862af80073ab17c400a3b0cc04145",
+      "rows": 114688
+    },
+    "2025Q1": {
+      "coupon_sha256": "eb92846fda135f13cea6ebb83b22fe4f2bcc0dd409a18bbe457088aa142d63dc",
+      "ingested": "2026-11-07",
+      "market_sha256": "6541728831788264d4c7da33ba20eb69d1e65d3bf97f75c32ae79e7084725b41",
+      "rows": 105462
+    },
+    "2025Q2": {
+      "coupon_sha256": "e85283b924d50ca824a1edbe764dbd25f7c1338ecdfa1738f8ce5c15ece66d5e",
+      "ingested": "2026-11-07",
+      "market_sha256": "e137271888e48ff2b6eb404d0f2ea532b3266aba64362249b42d05858ad87db2",
+      "rows": 120223
+    }
+  },
   "hubs": [
     "ATL",
     "ORD",

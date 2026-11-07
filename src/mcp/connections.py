@@ -148,3 +148,27 @@ if __name__ == "__main__":
     a = p.parse_args()
     for mct in a.mct:
         build(mct, cfg["max_extra_slack_min"], a.start, a.end)
+
+
+WEIGHTS = ROOT / "data" / "parquet" / "db1b" / "route_weights.parquet"
+
+
+def weighted_sql(connections_glob: str, weights_path: str = WEIGHTS.as_posix()) -> str:
+    """Connections joined to DB1B route weights, with a per-connection weight.
+
+    A route (carrier, A, hub, B) has many scheduled pairings; giving each one the
+    route's full passenger count would count a busy route once per pairing. So the
+    route's passengers are split evenly across its pairings: weights then sum to
+    the route's passengers, and a route with 40 pairings counts as much as one with 4.
+    Connections on routes absent from DB1B are dropped (reported as coverage).
+    """
+    return f"""
+    SELECT k.*, w.passengers / count(*) OVER (
+             PARTITION BY k.carrier, k.origin, k.hub, k.destination) AS weight,
+           w.fare_mean
+    FROM read_parquet('{connections_glob}') k
+    JOIN read_parquet('{weights_path}') w
+      ON k.carrier = w.carrier AND k.origin = w.origin
+     AND k.hub = w.hub AND k.destination = w.destination
+    WHERE k.status = '{OK}'
+    """

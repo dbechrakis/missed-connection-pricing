@@ -173,14 +173,139 @@ def ingest_asos(raw_dir: Path = ASOS_RAW, out: Path = ASOS_OUT) -> int:
     return n
 
 
+DB1B_RAW = ROOT / "data" / "raw" / "db1b"
+DB1B_OUT = ROOT / "data" / "parquet" / "db1b"
+FARE_MIN, FARE_MAX = 20.0, 5000.0  # drop $0/$1 placeholder fares and data-entry outliers
+
+
+def db1b_routes_sql(coupon_csv: str, market_csv: str, quarter: str) -> str:
+    """One row per (carrier, A, hub, B) for one quarter: passengers and mean fare.
+
+    A route is a *market* with exactly 2 coupons (one stop) where both coupons
+    are flown by the same reporting carrier, are consecutive (SeqNum 1 -> 2),
+    meet at one of our hubs, and the first coupon does not end a trip (Break<>'A').
+    Joining Coupon to Market on MktID gives the fare of that exact A->H->B market.
+    Passengers is a 10%-sample count, so only relative sizes mean anything.
+    """
+    hub_list = ", ".join(f"'{h}'" for h in HUBS)
+    return f"""
+    WITH m AS (
+      SELECT TRY_CAST(MktID AS BIGINT) AS mkt_id,
+             TRY_CAST(Passengers AS DOUBLE) AS pax,
+             TRY_CAST(MktFare AS DOUBLE) AS fare
+      FROM read_csv('{market_csv}', header=true, all_varchar=true)
+      WHERE TRY_CAST(MktCoupons AS INTEGER) = 2
+        AND TRY_CAST(BulkFare AS DOUBLE) = 0
+        AND TRY_CAST(MktFare AS DOUBLE) BETWEEN {FARE_MIN} AND {FARE_MAX}
+    ),
+    c AS (
+      SELECT TRY_CAST(MktID AS BIGINT) AS mkt_id, TRY_CAST(SeqNum AS INTEGER) AS seq,
+             Origin AS origin, Dest AS dest, RPCarrier AS carrier, COALESCE(Break, '') AS brk
+      FROM read_csv('{coupon_csv}', header=true, all_varchar=true)
+    )
+    SELECT '{quarter}' AS quarter, c1.carrier, c1.origin, c1.dest AS hub, c2.dest AS destination,
+           sum(m.pax) AS passengers, count(*) AS n_markets,
+           sum(m.pax * m.fare) / sum(m.pax) AS fare_mean
+    FROM c c1
+    JOIN c c2 ON c1.mkt_id = c2.mkt_id AND c1.seq = 1 AND c2.seq = 2
+    JOIN m ON m.mkt_id = c1.mkt_id
+    WHERE c1.dest IN ({hub_list}) AND c1.dest = c2.origin
+      AND c1.carrier = c2.carrier AND c1.brk <> 'A' AND c1.origin <> c2.dest
+    GROUP BY ALL
+    """
+
+
+def ingest_db1b(year: int, q: int, raw_dir: Path = DB1B_RAW, out_dir: Path = DB1B_OUT) -> int:
+    """Coupon + Market zips for one quarter -> routes Parquet (the raw CSV is ~2 GB, so it is
+    extracted to a temp file, queried, and deleted)."""
+    out = out_dir / "routes" / f"year={year}" / f"quarter={q}.parquet"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    tmp = []
+    try:
+        for kind in ("Coupon", "Market"):
+            with zipfile.ZipFile(raw_dir / f"{kind}_{year}_{q}.zip") as z:
+                (member,) = [n for n in z.namelist() if n.lower().endswith(".csv")]
+                dst = raw_dir / f"{kind}_{year}_{q}.csv"
+                with z.open(member) as src, dst.open("wb") as f:
+                    while chunk := src.read(1 << 24):
+                        f.write(chunk)
+                tmp.append(dst)
+        con = duckdb.connect()
+        con.execute(
+            f"COPY ({db1b_routes_sql(tmp[0].as_posix(), tmp[1].as_posix(), f'{year}Q{q}')}) "
+            f"TO '{out.as_posix()}' (FORMAT parquet, COMPRESSION zstd)"
+        )
+        (n,) = con.execute(f"SELECT count(*) FROM '{out.as_posix()}'").fetchone()
+        con.close()
+    finally:
+        for t in tmp:
+            t.unlink(missing_ok=True)
+    return n
+
+
+TRAIN_QUARTERS = ("2024Q1", "2024Q2", "2024Q3", "2024Q4", "2025Q1", "2025Q2")  # Jan 2024 - Jun 2025
+
+
+def build_route_weights(out_dir: Path = DB1B_OUT, quarters=TRAIN_QUARTERS) -> int:
+    """Pool the TRAIN quarters into one weight per (carrier, A, hub, B).
+
+    Test quarters (2025Q3/Q4) are not published and must not be used anyway: weights
+    are a train-only statistic, applied unchanged to the holdout (spec: Method 4).
+    """
+    src = (out_dir / "routes" / "*" / "*.parquet").as_posix()
+    out = out_dir / "route_weights.parquet"
+    qs = ", ".join(f"'{q}'" for q in quarters)
+    con = duckdb.connect()
+    con.execute(
+        f"""
+        COPY (
+          SELECT carrier, origin, hub, destination,
+                 sum(passengers) AS passengers,
+                 sum(passengers * fare_mean) / sum(passengers) AS fare_mean
+          FROM read_parquet('{src}')
+          WHERE quarter IN ({qs})
+          GROUP BY ALL
+        ) TO '{out.as_posix()}' (FORMAT parquet, COMPRESSION zstd)
+        """
+    )
+    (n,) = con.execute(f"SELECT count(*) FROM '{out.as_posix()}'").fetchone()
+    return n
+
+
 def main(argv=None):
     p = argparse.ArgumentParser()
     p.add_argument("--start", default="2024-01")
     p.add_argument("--end", default="2025-12")
     p.add_argument("--force", action="store_true", help="rebuild existing Parquet")
+    p.add_argument("--source", choices=["ontime", "db1b", "asos"], default="ontime")
     a = p.parse_args(argv)
 
     manifest = json.loads(MANIFEST.read_text()) if MANIFEST.exists() else {}
+
+    if a.source == "asos":
+        manifest["asos"] = {"rows": ingest_asos(), "ingested": date.today().isoformat(),
+                            "files": {f.name: sha256(f) for f in sorted(ASOS_RAW.glob("*.csv"))}}
+        MANIFEST.write_text(json.dumps(manifest, indent=2, sort_keys=True))
+        print(f"asos: {manifest['asos']['rows']:,} rows")
+        return
+    if a.source == "db1b":
+        entry = manifest.setdefault("db1b", {})
+        for q in TRAIN_QUARTERS:
+            y, qn = int(q[:4]), int(q[-1])
+            out = DB1B_OUT / "routes" / f"year={y}" / f"quarter={qn}.parquet"
+            if out.exists() and q in entry and not a.force:
+                print(f"{q}: skip (already ingested)")
+                continue
+            n = ingest_db1b(y, qn)
+            entry[q] = {"rows": n, "ingested": date.today().isoformat(),
+                        **{k.lower() + "_sha256": sha256(DB1B_RAW / f"{k}_{y}_{qn}.zip")
+                           for k in ("Coupon", "Market")}}
+            MANIFEST.write_text(json.dumps(manifest, indent=2, sort_keys=True))
+            print(f"{q}: {n:,} route rows")
+        print(f"route_weights: {build_route_weights():,} rows")
+        MANIFEST.write_text(json.dumps(manifest, indent=2, sort_keys=True))
+        return
+
     files = manifest.setdefault("ontime", {})
     manifest["hubs"] = list(HUBS)
 
