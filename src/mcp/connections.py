@@ -158,13 +158,16 @@ def weighted_sql(connections_glob: str, weights_path: str = WEIGHTS.as_posix()) 
 
     A route (carrier, A, hub, B) has many scheduled pairings; giving each one the
     route's full passenger count would count a busy route once per pairing. So the
-    route's passengers are split evenly across its pairings: weights then sum to
-    the route's passengers, and a route with 40 pairings counts as much as one with 4.
+    route's passengers are split evenly across its pairings *within the same month*:
+    each month then sums to the route's passengers, and a route with 40 pairings
+    counts as much as one with 4. The split is per month, not over the whole period,
+    so a row's weight never depends on schedules from later (test) months.
     Connections on routes absent from DB1B are dropped (reported as coverage).
     """
     return f"""
     SELECT k.*, w.passengers / count(*) OVER (
-             PARTITION BY k.carrier, k.origin, k.hub, k.destination) AS weight,
+             PARTITION BY k.carrier, k.origin, k.hub, k.destination,
+                         date_trunc('month', k.out_sched_dep)) AS weight,
            w.fare_mean
     FROM read_parquet('{connections_glob}') k
     JOIN read_parquet('{weights_path}') w
@@ -172,3 +175,18 @@ def weighted_sql(connections_glob: str, weights_path: str = WEIGHTS.as_posix()) 
      AND k.hub = w.hub AND k.destination = w.destination
     WHERE k.status = '{OK}'
     """
+
+
+WEIGHTED = ROOT / "data" / "parquet" / "connections_weighted"
+
+
+def write_weighted(mct: int = 45, start: str = "2024-01", end: str = "2025-12") -> None:
+    """Materialise weighted connections once, month by month (the per-month weight
+    split only needs that month's file, so memory stays small)."""
+    con = duckdb.connect()
+    for y, m in _months(start, end):
+        src = OUT / f"mct={mct}" / f"year={y}" / f"month={m:02d}.parquet"
+        dst = WEIGHTED / f"mct={mct}" / f"year={y}" / f"month={m:02d}.parquet"
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        con.execute(f"COPY ({weighted_sql(src.as_posix())}) TO '{dst.as_posix()}' "
+                    f"(FORMAT parquet, COMPRESSION zstd)")

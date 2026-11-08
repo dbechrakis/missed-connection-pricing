@@ -60,7 +60,7 @@ def test_weights_split_route_passengers_across_pairings(tmp_path):
     # Route has 100 passengers and 4 scheduled pairings -> 25 each, summing back to 100.
     con = duckdb.connect()
     con.execute("CREATE TABLE k AS SELECT 'DL' carrier,'RDU' origin,'CLT' hub,'LAS' destination,'ok' status, "
-                "i AS slack_min FROM range(4) t(i)")
+                "i AS slack_min, TIMESTAMP '2025-03-10 12:00' + to_minutes(i) AS out_sched_dep FROM range(4) t(i)")
     con.execute("CREATE TABLE w AS SELECT 'DL' carrier,'RDU' origin,'CLT' hub,'LAS' destination,"
                 "100.0 passengers, 250.0 fare_mean")
     k, w = tmp_path / "k.parquet", tmp_path / "w.parquet"
@@ -70,3 +70,23 @@ def test_weights_split_route_passengers_across_pairings(tmp_path):
     assert len(rows) == 4
     weights = [r[-2] for r in rows]
     assert weights == [25.0] * 4 and sum(weights) == 100.0
+
+
+def test_weight_split_is_per_month_and_ignores_other_months(tmp_path):
+    # March has 4 pairings, April has 1. Each month's weights sum to the route's 100 passengers,
+    # and adding April rows must not change March's weights (no look-ahead into later months).
+    con = duckdb.connect()
+    con.execute("CREATE TABLE k AS SELECT 'DL' carrier,'RDU' origin,'CLT' hub,'LAS' destination,'ok' status, "
+                "i AS slack_min, TIMESTAMP '2025-03-10 12:00' + to_minutes(i) AS out_sched_dep FROM range(4) t(i)")
+    con.execute("CREATE TABLE w AS SELECT 'DL' carrier,'RDU' origin,'CLT' hub,'LAS' destination,"
+                "100.0 passengers, 250.0 fare_mean")
+    w = tmp_path / "w.parquet"
+    con.execute(f"COPY w TO '{w.as_posix()}' (FORMAT parquet)")
+    march_only = tmp_path / "k1.parquet"
+    con.execute(f"COPY k TO '{march_only.as_posix()}' (FORMAT parquet)")
+    con.execute("INSERT INTO k VALUES ('DL','RDU','CLT','LAS','ok', 9, TIMESTAMP '2025-04-10 12:00')")
+    both = tmp_path / "k2.parquet"
+    con.execute(f"COPY k TO '{both.as_posix()}' (FORMAT parquet)")
+    q = lambda f: dict((r[-3].month, r[-2]) for r in con.execute(weighted_sql(f.as_posix(), w.as_posix())).fetchall())
+    assert q(march_only) == {3: 25.0}
+    assert q(both) == {3: 25.0, 4: 100.0}
