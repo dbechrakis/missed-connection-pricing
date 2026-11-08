@@ -128,3 +128,24 @@ def test_overnight_threshold_is_a_parameter():
     rows = [("DL", D10, 1, 2000, "ATL", "MIA"), ("DL", D11, 2, 100, "ATL", "MIA")]   # 5h wait, next date
     assert severity(rows, min_wait=240)[1]["overnight"] is True
     assert severity(rows, min_wait=360)[1]["overnight"] is False
+
+
+# ---- guard: a calibrator's zero must never become a $0 price ----------------------------------
+
+def test_floor_turns_a_zero_probability_into_a_positive_price():
+    from mcp.pricing import load_guards
+    g = load_guards()
+    assert price(0.0, 0, CFG) == 0.0                                   # without the guard, the defect
+    assert price(0.0, 0, CFG, g) == pytest.approx(g["min_p_miss"] * 75 / 0.65)
+
+
+def test_floor_does_not_touch_probabilities_above_it():
+    from mcp.pricing import load_guards
+    g = load_guards()
+    p = np.array([0.02, 0.1, 0.4])
+    assert price(p, 1, CFG, g) == pytest.approx(price(p, 1, CFG))
+
+
+def test_guard_floor_is_below_every_validated_bucket_rate_so_it_only_catches_the_tail():
+    from mcp.pricing import load_guards
+    assert 0 < load_guards()["min_p_miss"] < 0.02                      # the lowest slack-bucket miss rate was ~2.7%

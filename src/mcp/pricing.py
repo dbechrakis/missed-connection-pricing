@@ -35,8 +35,16 @@ MODEL = ROOT / "models" / "pmiss.joblib"
 RESULTS = ROOT / "results"
 
 
+GUARDS = ROOT / "config" / "guards.yaml"
+
+
 def load_config(path=CONFIG) -> dict:
     return yaml.safe_load(path.read_text())["pricing"]
+
+
+def load_guards(path=GUARDS) -> dict:
+    """Post-validation guardrails (config/guards.yaml). Kept apart so the frozen pricing config is untouched."""
+    return yaml.safe_load(path.read_text())["guards"]
 
 
 # ---- severity -------------------------------------------------------------------------------
@@ -90,8 +98,13 @@ def expected_cost(p, overnight, cfg: dict):
     return np.asarray(p) * (cfg["rebooking_cost"] + cfg["overnight_cost"] * np.asarray(overnight))
 
 
-def price(p, overnight, cfg: dict):
-    """Premium that would run at the target loss ratio if p were exactly right."""
+def price(p, overnight, cfg: dict, guards: dict | None = None):
+    """Premium that would run at the target loss ratio if p were exactly right.
+    With `guards`, P(miss) never falls below the floor, so a calibrator's zero cannot become a $0 price.
+    The validation backtests did not use the guard (it changes under 0.4% of weight)."""
+    p = np.asarray(p, float)
+    if guards:
+        p = np.maximum(p, guards["min_p_miss"])
     return expected_cost(p, overnight, cfg) / cfg["target_loss_ratio"]
 
 
@@ -131,7 +144,8 @@ def main() -> None:
     bundle = joblib.load(MODEL)
     df["p"] = score(df, bundle)
     df["bucket"] = bucket_of(df["slack_min"])
-    df["price"] = price(df["p"], df["overnight"], cfg)
+    guards = load_guards()
+    df["price"] = price(df["p"], df["overnight"], cfg, guards)
     df["offer"] = offer(df["price"], df["fare"], cfg)
     w = df["weight"]
 

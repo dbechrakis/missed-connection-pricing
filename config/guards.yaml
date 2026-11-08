@@ -1,0 +1,9 @@
+# Guardrails added AFTER the validation windows were frozen. They do not change any published
+# validation number (config/pricing.yaml and the model hashes in VALIDATION.md are untouched); they
+# protect the product from cases the validation showed are possible but extremely rare.
+guards:
+  # Isotonic calibration can output exactly 0 at its lowest step (210 of 6.0M scored rows, 0.0075% of
+  # weight, on development data). A probability of 0 would price protection at $0.
+  # Floor = the observed miss rate among the 2% lowest raw predictions on development data (0.89%),
+  # rounded up: no connection is priced as safer than the safest connections actually were.
+  min_p_miss: 0.009
