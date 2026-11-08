@@ -52,3 +52,27 @@ One line per decision: what, why, and what it costs. Raw material for `method.md
 - **Calibration drifts.** Fit on 2024 (7.60% miss), the baseline under-predicts Jan–Jun 2025 (8.41%) in nearly every bin. Underpricing is the risk, which is what the spec's later-window recalibration is for.
 - Early and late departures miss most; July 2024 is the worst month (11.8%).
 - Matched vs unmatched routes miss at similar rates, so dropping unmatched routes does not bias the weighted view.
+
+## Features and models (step 5)
+
+| Decision | Why | Cost / caveat |
+| --- | --- | --- |
+| Booking-time features only; outcome columns are on a forbidden list a test enforces | A price is quoted before the day; actual times, cancellations and that day's weather are day-of information | Low ceiling: little of what makes a connection fail is known at booking |
+| Route-history stats are leave-one-month-out for FIT rows, full-FIT for later rows | A row's own outcome must not be inside its own feature, or the model over-trusts it on new data | Slight mismatch between 11-month and 12-month history, checked: feature means match across windows |
+| Shrink route stats toward the all-route mean (K=30) | A route with 3 flights should not look perfect or terrible | K is a judgement |
+| VALID split into VALID1 (choose the model) and VALID2 (calibrate only) | Choosing and calibrating on the same months makes the calibration score flattering | Calibration judged on the second half of VALID2 |
+| Feature set chosen by Brier on VALID1 only | The calibration months must not influence the choice | Differences between candidates are small; treat as a tie among the top ones |
+| **Dropped `month` and the weather climatology** | With one fit year, `month` memorises 2024's calendar; climatology (one year of monthly shares) is the same thing in other words. Both made VALID1 worse | The spec's storm/snow climatology did not earn its place. A pre-2024 climatology (small download) could be tested |
+| Refit the chosen model on FIT + VALID1, calibrate on VALID2 | More recent data and a second Jan-Mar; the isotonic fit stays out-of-sample | Compared against fit-only on the same eval half: 0.08228 vs 0.08243 raw |
+| Isotonic regression for calibration | Non-parametric, monotone, standard; millions of rows so it will not overfit | Cannot extrapolate a level shift (see below) |
+
+### Step 5 results (weighted, validation windows only)
+
+| Window | Baseline | Chosen GBM | Chosen + isotonic |
+| --- | --- | --- | --- |
+| VALID1 Jan-Mar 2025 (Brier) | 0.06853 | 0.06822 (-0.5%) | n/a |
+| VALID2 May 16-Jun 30 (Brier) | 0.08405 | 0.08228 (-2.1%) | 0.08189 (-2.6%) |
+| VALID2 May 16-Jun 30 (ECE) | 0.0217 | 0.0213 | 0.0138 |
+
+- **The real limit is level drift, not model class.** Observed miss rate: 7.6% (2024), 7.8% (Jan-Mar 2025), 9.1% (Apr-Jun 2025). After calibration the model still predicts 8.4% against 9.8% observed on May 16-Jun 30. A static price will lag a rising level; the backtest must show this as a sensitivity, not hide it in "model skill".
+- Features beyond hub, slack and the schedule add little signal (Brier within 0.0682-0.0685 across candidates). Honest reading: booking-time information is mostly slack.

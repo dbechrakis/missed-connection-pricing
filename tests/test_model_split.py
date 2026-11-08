@@ -21,6 +21,8 @@ def d(s):
 def test_windows_are_chronological_and_disjoint():
     f, v, t, te = (WINDOWS[k] for k in ("FIT", "VALID", "TRAIN", "TEST"))
     assert f[1] == v[0] and v[1] == te[0]            # contiguous, no gap, no overlap
+    v1, v2 = WINDOWS["VALID1"], WINDOWS["VALID2"]
+    assert v1[0] == v[0] and v1[1] == v2[0] and v2[1] == v[1]   # VALID = VALID1 then VALID2
     assert t == (f[0], v[1])                         # TRAIN is exactly FIT + VALID
     assert d(f[0]) < d(f[1]) < d(v[1]) < d(te[1])    # strictly increasing in time
 

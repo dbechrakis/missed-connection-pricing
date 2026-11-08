@@ -5,7 +5,9 @@ half-open [start, end). Chronological, never random: a random split would train 
 February 2025 and test on January 2025, which the pricing could never do.
 
     FIT    2024-01 .. 2024-12   fit models and baselines
-    VALID  2025-01 .. 2025-06   inner validation: model selection and calibration
+    VALID1 2025-01 .. 2025-03   model selection (hyperparameters, feature ablations)
+    VALID2 2025-04 .. 2025-06   calibration only (isotonic fit); never used to pick a model
+    VALID  VALID1 + VALID2      inner validation overall
     TRAIN  FIT + VALID          refit window for the final model; all EDA and statistics
     TEST   2025-07 .. 2025-12   touched once, for the backtest (spec: Validation)
 
@@ -16,6 +18,8 @@ from __future__ import annotations
 
 WINDOWS = {
     "FIT": ("2024-01-01", "2025-01-01"),
+    "VALID1": ("2025-01-01", "2025-04-01"),
+    "VALID2": ("2025-04-01", "2025-07-01"),
     "VALID": ("2025-01-01", "2025-07-01"),
     "TRAIN": ("2024-01-01", "2025-07-01"),
     "TEST": ("2025-07-01", "2026-01-01"),
