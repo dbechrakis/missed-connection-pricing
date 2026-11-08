@@ -1,0 +1,22 @@
+{
+ "source": "https://www.gsa.gov/travel/plan-book/per-diem-rates/per-diem-rates-results?action=perdiems_report&fiscal_year=2026&zip=75261",
+ "retrieved": "2026-11-08",
+ "mie": 80.0,
+ "county": "Dallas",
+ "city": "Dallas",
+ "standard_rate": false,
+ "lodging": {
+  "10": 170.0,
+  "11": 170.0,
+  "12": 170.0,
+  "1": 191.0,
+  "2": 191.0,
+  "3": 191.0,
+  "4": 170.0,
+  "5": 170.0,
+  "6": 170.0,
+  "7": 170.0,
+  "8": 170.0,
+  "9": 170.0
+ }
+}

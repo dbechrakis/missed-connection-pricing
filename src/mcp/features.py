@@ -21,10 +21,11 @@ import duckdb
 from mcp.connections import ROOT, WEIGHTED
 from mcp.ingest import HUBS
 from mcp.split import where
+from mcp.variant import sfx
 
-FLIGHTS = (ROOT / "data" / "parquet" / "ontime" / "*" / "*.parquet").as_posix()
+FLIGHTS = (ROOT / "data" / "parquet" / sfx("ontime") / "*" / "*.parquet").as_posix()
 ASOS = (ROOT / "data" / "parquet" / "asos" / "hourly.parquet").as_posix()
-OUT = ROOT / "data" / "parquet" / "features"
+OUT = ROOT / "data" / "parquet" / sfx("features")
 
 K = 30.0  # shrinkage: a route with few flights is pulled toward the all-route FIT average
 

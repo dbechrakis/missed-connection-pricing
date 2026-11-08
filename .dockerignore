@@ -1,0 +1,11 @@
+.venv/
+data/
+results/
+docs/
+notebooks/
+tests/
+.git/
+.claude/
+.serena/
+**/__pycache__/
+**/*.pyc

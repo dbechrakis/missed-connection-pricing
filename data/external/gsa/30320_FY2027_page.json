@@ -1,0 +1,22 @@
+{
+ "source": "https://www.gsa.gov/travel/plan-book/per-diem-rates/per-diem-rates-results?action=perdiems_report&fiscal_year=2027&zip=30320",
+ "retrieved": "2026-11-08",
+ "mie": 86.0,
+ "county": "Fulton / Dekalb",
+ "city": "Atlanta",
+ "standard_rate": false,
+ "lodging": {
+  "10": 188.0,
+  "11": 188.0,
+  "12": 188.0,
+  "1": 207.0,
+  "2": 207.0,
+  "3": 207.0,
+  "4": 188.0,
+  "5": 188.0,
+  "6": 188.0,
+  "7": 188.0,
+  "8": 188.0,
+  "9": 188.0
+ }
+}

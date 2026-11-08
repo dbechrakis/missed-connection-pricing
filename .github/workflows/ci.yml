@@ -18,3 +18,27 @@ jobs:
           cache: pip
       - run: pip install -r requirements.txt
       - run: python -m pytest -q
+
+  # The API in its container must answer exactly what the code answers (450 quotes), refuse bad input,
+  # run as a non-root user on a read-only filesystem, and report the model hashes frozen in VALIDATION.md.
+  container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build the API image
+        run: docker build -t mcp-api .
+      - name: Run it read-only as a non-root user
+        run: |
+          docker run -d --name api -p 8000:8000 --read-only --tmpfs /tmp mcp-api
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:8000/health && break; sleep 1; done
+          test "$(docker inspect --format '{{.Config.User}}' api)" = "api"
+      - name: The container's answers must equal the code's
+        run: PYTHONPATH=src python scripts/check_container.py http://127.0.0.1:8000
+      - name: Audit the serving dependencies for known vulnerabilities
+        run: pip install pip-audit && pip-audit -r requirements-api.txt
+      - name: Container logs on failure
+        if: failure()
+        run: docker logs api

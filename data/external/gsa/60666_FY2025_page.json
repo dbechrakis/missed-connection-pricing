@@ -1,0 +1,22 @@
+{
+ "source": "https://www.gsa.gov/travel/plan-book/per-diem-rates/per-diem-rates-results?action=perdiems_report&fiscal_year=2025&zip=60666",
+ "retrieved": "2026-11-08",
+ "mie": 92.0,
+ "county": "Cook / Lake",
+ "city": "Chicago",
+ "standard_rate": false,
+ "lodging": {
+  "10": 223.0,
+  "11": 223.0,
+  "12": 142.0,
+  "1": 142.0,
+  "2": 142.0,
+  "3": 142.0,
+  "4": 234.0,
+  "5": 234.0,
+  "6": 234.0,
+  "7": 202.0,
+  "8": 202.0,
+  "9": 223.0
+ }
+}

@@ -1,0 +1,22 @@
+{
+ "source": "https://www.gsa.gov/travel/plan-book/per-diem-rates/per-diem-rates-results?action=perdiems_report&fiscal_year=2026&zip=28208",
+ "retrieved": "2026-11-08",
+ "mie": 80.0,
+ "county": "Mecklenburg",
+ "city": "Charlotte",
+ "standard_rate": false,
+ "lodging": {
+  "10": 131.0,
+  "11": 131.0,
+  "12": 131.0,
+  "1": 131.0,
+  "2": 131.0,
+  "3": 131.0,
+  "4": 131.0,
+  "5": 131.0,
+  "6": 131.0,
+  "7": 131.0,
+  "8": 131.0,
+  "9": 131.0
+ }
+}

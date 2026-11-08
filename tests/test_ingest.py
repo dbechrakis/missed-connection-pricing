@@ -13,7 +13,8 @@ def row(date, origin, dest, dep="1200", arr="1400", dep_delay="5.00", cancelled=
             "Tail_Number": "N1", "Origin": origin, "Dest": dest, "CRSDepTime": dep, "DepTime": dep,
             "DepDelay": dep_delay, "CRSArrTime": arr, "ArrTime": arr, "ArrDelay": "0.00",
             "Cancelled": cancelled, "CancellationCode": "", "Diverted": diverted,
-            "CRSElapsedTime": "120.00", "ActualElapsedTime": "120.00", "Distance": "600.00"}
+            "CRSElapsedTime": "120.00", "ActualElapsedTime": "120.00", "Distance": "600.00",
+            "CarrierDelay": "12.00", "WeatherDelay": "", "NASDelay": "3.00", "SecurityDelay": "", "LateAircraftDelay": ""}
     return ",".join(vals[c] for c in ingest.COLUMNS) + ",x,"
 
 
@@ -41,3 +42,6 @@ def test_filter_types_and_cancelled_kept(tmp_path, monkeypatch):
     assert by_dest["LAX"]["dep_delay_min"] == 5.0 and by_dest["LAX"]["cancelled"] is False
     assert by_dest["JFK"]["cancelled"] is True and by_dest["JFK"]["dep_hhmm"] is None
     assert not (tmp_path / "2025_03.csv").exists()  # temp CSV cleaned up
+    # delay causes: numbers parse, blanks become nulls (BTS leaves them empty unless the flight was 15+ minutes late)
+    assert by_dest["LAX"]["delay_carrier_min"] == 12.0 and by_dest["LAX"]["delay_nas_min"] == 3.0
+    assert by_dest["LAX"]["delay_weather_min"] is None

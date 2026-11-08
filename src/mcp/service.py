@@ -14,7 +14,8 @@ import json
 import re
 from pathlib import Path
 
-from mcp.connections import ROOT
+# No pipeline imports: the serving image needs only FastAPI, so the project root is found from this file's location.
+ROOT = Path(__file__).resolve().parents[2]
 
 PRICES = ROOT / "site" / "prices.js"
 MODELS = {"v1": ROOT / "models" / "pmiss.joblib", "v2": ROOT / "models" / "pmiss_v2.joblib"}

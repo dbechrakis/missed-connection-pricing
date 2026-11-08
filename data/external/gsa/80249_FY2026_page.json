@@ -1,0 +1,22 @@
+{
+ "source": "https://www.gsa.gov/travel/plan-book/per-diem-rates/per-diem-rates-results?action=perdiems_report&fiscal_year=2026&zip=80249",
+ "retrieved": "2026-11-08",
+ "mie": 92.0,
+ "county": "Denver / Adams / Arapahoe / Jefferson",
+ "city": "Denver / Aurora",
+ "standard_rate": false,
+ "lodging": {
+  "10": 215.0,
+  "11": 165.0,
+  "12": 165.0,
+  "1": 165.0,
+  "2": 165.0,
+  "3": 165.0,
+  "4": 215.0,
+  "5": 215.0,
+  "6": 215.0,
+  "7": 215.0,
+  "8": 215.0,
+  "9": 215.0
+ }
+}

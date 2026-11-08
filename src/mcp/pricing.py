@@ -28,9 +28,10 @@ from mcp.connections import ROOT
 from mcp.features import FLIGHTS, build
 from mcp.ingest import HUBS
 from mcp.model import BUCKET_MIN, N_BUCKETS, bucket_of, _codes
+from mcp.variant import sfx
 
 CONFIG = ROOT / "config" / "pricing.yaml"
-SEVERITY = ROOT / "data" / "parquet" / "severity" / "severity.parquet"
+SEVERITY = ROOT / "data" / "parquet" / "severity" / f"{sfx('severity')}.parquet"
 MODEL = ROOT / "models" / "pmiss.joblib"
 RESULTS = ROOT / "results"
 
@@ -192,7 +193,7 @@ if __name__ == "__main__":
 
     if "--full-severity" in sys.argv:
         # the severity table over every flight ingested (used by the 2026 holdout and the demo)
-        full = SEVERITY.with_name("severity_full.parquet")
+        full = SEVERITY.with_name(f"{sfx('severity_full')}.parquet")      # v3 never overwrites v1's table
         print(f"severity_full rows: {build_severity(out=full):,}")
     else:
         main()

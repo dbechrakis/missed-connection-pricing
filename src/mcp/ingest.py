@@ -24,16 +24,23 @@ from pathlib import Path
 
 import duckdb
 
+from mcp.variant import MARKETING, sfx
+
 HUBS = ("ATL", "ORD", "DFW", "DEN", "CLT")
 
-URL = (
+URL_REPORTING = (
     "https://transtats.bts.gov/PREZIP/"
     "On_Time_Reporting_Carrier_On_Time_Performance_1987_present_{y}_{m}.zip"
 )
+URL_MARKETING = (
+    "https://transtats.bts.gov/PREZIP/"
+    "On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_{y}_{m}.zip"
+)
+URL = URL_MARKETING if MARKETING else URL_REPORTING
 
 ROOT = Path(__file__).resolve().parents[2]
-RAW = ROOT / "data" / "raw" / "ontime"
-OUT = ROOT / "data" / "parquet" / "ontime"
+RAW = ROOT / "data" / "raw" / ("marketing" if MARKETING else "ontime")
+OUT = ROOT / "data" / "parquet" / sfx("ontime")
 MANIFEST = ROOT / "data" / "manifest.json"
 
 # Source column -> (output name, DuckDB type). Only what later steps need.
@@ -58,7 +65,27 @@ COLUMNS = {
     "CRSElapsedTime": ("crs_elapsed_min", "DOUBLE"),
     "ActualElapsedTime": ("actual_elapsed_min", "DOUBLE"),
     "Distance": ("distance_mi", "DOUBLE"),
+    # Minutes of arrival delay attributed to each cause (reported only for flights arriving 15+ minutes late).
+    # Used to split missed connections into what the airline is responsible for and what it is not.
+    "CarrierDelay": ("delay_carrier_min", "DOUBLE"),
+    "WeatherDelay": ("delay_weather_min", "DOUBLE"),
+    "NASDelay": ("delay_nas_min", "DOUBLE"),
+    "SecurityDelay": ("delay_security_min", "DOUBLE"),
+    "LateAircraftDelay": ("delay_late_aircraft_min", "DOUBLE"),
 }
+
+
+# The marketing-carrier table (v3): the same flight fields, but the carrier is the brand network that sells it,
+# and the operating airline is kept alongside. (Its "Operating_Airline " header has a trailing space, so the
+# IATA code column is used instead.)
+COLUMNS_MARKETING = {
+    "FlightDate": ("flight_date", "DATE"),
+    "Marketing_Airline_Network": ("carrier", "VARCHAR"),
+    "IATA_Code_Operating_Airline": ("operating_carrier", "VARCHAR"),
+    "Flight_Number_Operating_Airline": ("flight_number", "INTEGER"),
+    **{k: v for k, v in COLUMNS.items() if k not in ("FlightDate", "Reporting_Airline", "Flight_Number_Reporting_Airline")},
+}
+ACTIVE_COLUMNS = COLUMNS_MARKETING if MARKETING else COLUMNS
 
 
 def months(start: str, end: str):
@@ -78,7 +105,7 @@ def sha256(path: Path) -> str:
 
 
 def download(y: int, m: int) -> Path:
-    dest = RAW / f"{y}_{m:02d}.zip"
+    dest = RAW / (f"{y}_{m}.zip" if MARKETING else f"{y}_{m:02d}.zip")
     if dest.exists():
         return dest
     RAW.mkdir(parents=True, exist_ok=True)
@@ -110,7 +137,7 @@ def to_parquet(zip_path: Path, y: int, m: int) -> int:
         else f"(TRY_CAST(NULLIF(TRIM(\"{src}\"), '') AS DOUBLE) = 1) AS {name}"
         if typ == "BOOLEAN"
         else f"NULLIF(TRIM(\"{src}\"), '') AS {name}"
-        for src, (name, typ) in COLUMNS.items()
+        for src, (name, typ) in ACTIVE_COLUMNS.items()
     )
     hubs = ", ".join(f"'{h}'" for h in HUBS)
     con = duckdb.connect()
@@ -175,6 +202,8 @@ def ingest_asos(raw_dir: Path = ASOS_RAW, out: Path = ASOS_OUT) -> int:
 
 DB1B_RAW = ROOT / "data" / "raw" / "db1b"
 DB1B_OUT = ROOT / "data" / "parquet" / "db1b"
+# v1 pairs coupons by the reporting carrier; v3 by the ticketing carrier, the brand on the ticket
+DB1B_CARRIER = "TkCarrier" if MARKETING else "RPCarrier"
 FARE_MIN, FARE_MAX = 20.0, 5000.0  # drop $0/$1 placeholder fares and data-entry outliers
 
 
@@ -200,7 +229,7 @@ def db1b_routes_sql(coupon_csv: str, market_csv: str, quarter: str) -> str:
     ),
     c AS (
       SELECT TRY_CAST(MktID AS BIGINT) AS mkt_id, TRY_CAST(SeqNum AS INTEGER) AS seq,
-             Origin AS origin, Dest AS dest, RPCarrier AS carrier, COALESCE(Break, '') AS brk
+             Origin AS origin, Dest AS dest, {DB1B_CARRIER} AS carrier, COALESCE(Break, '') AS brk
       FROM read_csv('{coupon_csv}', header=true, all_varchar=true)
     )
     SELECT '{quarter}' AS quarter, c1.carrier, c1.origin, c1.dest AS hub, c2.dest AS destination,
@@ -218,7 +247,7 @@ def db1b_routes_sql(coupon_csv: str, market_csv: str, quarter: str) -> str:
 def ingest_db1b(year: int, q: int, raw_dir: Path = DB1B_RAW, out_dir: Path = DB1B_OUT) -> int:
     """Coupon + Market zips for one quarter -> routes Parquet (the raw CSV is ~2 GB, so it is
     extracted to a temp file, queried, and deleted)."""
-    out = out_dir / "routes" / f"year={year}" / f"quarter={q}.parquet"
+    out = out_dir / sfx("routes") / f"year={year}" / f"quarter={q}.parquet"
     out.parent.mkdir(parents=True, exist_ok=True)
     tmp = []
     try:
@@ -252,8 +281,8 @@ def build_route_weights(out_dir: Path = DB1B_OUT, quarters=TRAIN_QUARTERS) -> in
     Test quarters (2025Q3/Q4) are not published and must not be used anyway: weights
     are a train-only statistic, applied unchanged to the holdout (spec: Method 4).
     """
-    src = (out_dir / "routes" / "*" / "*.parquet").as_posix()
-    out = out_dir / "route_weights.parquet"
+    src = (out_dir / sfx("routes") / "*" / "*.parquet").as_posix()
+    out = out_dir / f"{sfx('route_weights')}.parquet"
     qs = ", ".join(f"'{q}'" for q in quarters)
     con = duckdb.connect()
     con.execute(
@@ -289,10 +318,10 @@ def main(argv=None):
         print(f"asos: {manifest['asos']['rows']:,} rows")
         return
     if a.source == "db1b":
-        entry = manifest.setdefault("db1b", {})
+        entry = manifest.setdefault(sfx("db1b"), {})
         for q in TRAIN_QUARTERS:
             y, qn = int(q[:4]), int(q[-1])
-            out = DB1B_OUT / "routes" / f"year={y}" / f"quarter={qn}.parquet"
+            out = DB1B_OUT / sfx("routes") / f"year={y}" / f"quarter={qn}.parquet"
             if out.exists() and q in entry and not a.force:
                 print(f"{q}: skip (already ingested)")
                 continue
@@ -306,7 +335,7 @@ def main(argv=None):
         MANIFEST.write_text(json.dumps(manifest, indent=2, sort_keys=True))
         return
 
-    files = manifest.setdefault("ontime", {})
+    files = manifest.setdefault(sfx("ontime"), {})
     manifest["hubs"] = list(HUBS)
 
     for y, m in months(a.start, a.end):

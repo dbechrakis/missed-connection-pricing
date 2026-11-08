@@ -1,0 +1,138 @@
+{
+  "definition": "Why connections are missed, and which misses the airline already pays for.\n\nUS airlines commit, on the DOT Airline Customer Service Dashboard, to rebook and to cover meals and hotels when a\ndisruption is within their control (crew, maintenance, their own operations). They do not for weather or the air\ntraffic system. So the protection product has unique value only in the gap: misses the airline is not responsible for.\n\nBTS reports causes for every inbound flight:\n  cancelled  cancellation_code  A carrier, B weather, C national air system (NAS: air traffic control, volume,\n                                 non-extreme weather), D security\n  late       minutes attributed to carrier, weather, NAS, security and late-arriving aircraft, reported only for\n             flights 15+ minutes late; the dominant cause is the one with the most minutes\n  diverted   no cause reported\n\n\"Airline-controllable\" is reported two ways, because late-arriving aircraft is ambiguous (it is often the airline's own\nearlier delay passed on, but BTS does not say): STRICT = carrier only; BROAD = carrier + late-arriving aircraft.\nA miss after a small delay (under 15 minutes, no cause reported) is 'unattributed'.",
+  "all_misses": {
+    "carrier": 0.2814712183242435,
+    "late_aircraft": 0.3256136001291212,
+    "weather": 0.13215708542731083,
+    "nas": 0.1389635637412697,
+    "security": 0.0009546780299713451,
+    "diverted": 0.03429739128149418,
+    "unattributed": 0.08654246306658923,
+    "controllable_strict": 0.2814712183242435,
+    "controllable_broad": 0.6070848184533647,
+    "gap_strict": 0.7185287816757565,
+    "gap_broad": 0.3929151815466353
+  },
+  "overnight_misses": {
+    "carrier": 0.2105526940139069,
+    "late_aircraft": 0.4105347198643978,
+    "weather": 0.11314294008146411,
+    "nas": 0.15444501348832235,
+    "security": 0.0008338208137657157,
+    "diverted": 0.036477085406233956,
+    "unattributed": 0.0740137263319092,
+    "controllable_strict": 0.2105526940139069,
+    "controllable_broad": 0.6210874138783047,
+    "gap_strict": 0.7894473059860931,
+    "gap_broad": 0.3789125861216953
+  },
+  "by_hub": {
+    "ATL": {
+      "carrier": 0.3647792258772891,
+      "late_aircraft": 0.29200632271181043,
+      "weather": 0.09953759771917207,
+      "nas": 0.10709642182344509,
+      "security": 0.00094656184877407,
+      "diverted": 0.03263894731029339,
+      "unattributed": 0.10299492270921587,
+      "controllable_strict": 0.3647792258772891,
+      "controllable_broad": 0.6567855485890995,
+      "gap_strict": 0.6352207741227109,
+      "gap_broad": 0.34321445141090046
+    },
+    "ORD": {
+      "carrier": 0.272774879339963,
+      "late_aircraft": 0.2684763869768118,
+      "weather": 0.12958838245445767,
+      "nas": 0.21531678227005585,
+      "security": 0.00044409233360292706,
+      "diverted": 0.028353697187136814,
+      "unattributed": 0.08504577943797191,
+      "controllable_strict": 0.272774879339963,
+      "controllable_broad": 0.5412512663167748,
+      "gap_strict": 0.7272251206600371,
+      "gap_broad": 0.4587487336832252
+    },
+    "DFW": {
+      "carrier": 0.2277778005386011,
+      "late_aircraft": 0.3726198362759071,
+      "weather": 0.199489415914862,
+      "nas": 0.09994151592994324,
+      "security": 0.0009040597960266092,
+      "diverted": 0.03808089711134249,
+      "unattributed": 0.0611864744333175,
+      "controllable_strict": 0.2277778005386011,
+      "controllable_broad": 0.6003976368145082,
+      "gap_strict": 0.7722221994613989,
+      "gap_broad": 0.3996023631854918
+    },
+    "DEN": {
+      "carrier": 0.2738512472117165,
+      "late_aircraft": 0.28618166578153975,
+      "weather": 0.08055252346149362,
+      "nas": 0.21739601229096503,
+      "security": 0.0008645154613146611,
+      "diverted": 0.049275046836483295,
+      "unattributed": 0.09187898895648719,
+      "controllable_strict": 0.2738512472117165,
+      "controllable_broad": 0.5600329129932562,
+      "gap_strict": 0.7261487527882835,
+      "gap_broad": 0.4399670870067438
+    },
+    "CLT": {
+      "carrier": 0.24698880316867033,
+      "late_aircraft": 0.3951671990341621,
+      "weather": 0.15498705844078797,
+      "nas": 0.09352224827610524,
+      "security": 0.0014548660812196386,
+      "diverted": 0.017387480125319474,
+      "unattributed": 0.09049234487373528,
+      "controllable_strict": 0.24698880316867033,
+      "controllable_broad": 0.6421560022028324,
+      "gap_strict": 0.7530111968313297,
+      "gap_broad": 0.3578439977971676
+    }
+  },
+  "by_year": {
+    "2024": {
+      "carrier": 0.2897132703074049,
+      "late_aircraft": 0.34416722756771945,
+      "weather": 0.12074466050027115,
+      "nas": 0.11962550323700473,
+      "security": 0.0010471308484224604,
+      "diverted": 0.02790218185959829,
+      "unattributed": 0.09680002567957907,
+      "controllable_strict": 0.2897132703074049,
+      "controllable_broad": 0.6338804978751243,
+      "gap_strict": 0.7102867296925951,
+      "gap_broad": 0.36611950212487565
+    },
+    "2025": {
+      "carrier": 0.2684547940159671,
+      "late_aircraft": 0.31740946411163035,
+      "weather": 0.13400958935404284,
+      "nas": 0.16058007172787625,
+      "security": 0.0007786363497399207,
+      "diverted": 0.033924729956984714,
+      "unattributed": 0.08484271448375895,
+      "controllable_strict": 0.2684547940159671,
+      "controllable_broad": 0.5858642581275975,
+      "gap_strict": 0.7315452059840328,
+      "gap_broad": 0.41413574187240254
+    },
+    "2026": {
+      "carrier": 0.2895849120791557,
+      "late_aircraft": 0.3114243399720418,
+      "weather": 0.1457981957409424,
+      "nas": 0.133653847238307,
+      "security": 0.0010918924147943021,
+      "diverted": 0.044111680580526696,
+      "unattributed": 0.07433513197423203,
+      "controllable_strict": 0.2895849120791557,
+      "controllable_broad": 0.6010092520511975,
+      "gap_strict": 0.7104150879208443,
+      "gap_broad": 0.3989907479488025
+    }
+  },
+  "rows": 11848321
+}

@@ -15,9 +15,10 @@ import duckdb
 import yaml
 
 from mcp.ingest import HUBS, ROOT
+from mcp.variant import sfx
 
-SRC = ROOT / "data" / "parquet" / "ontime"
-OUT = ROOT / "data" / "parquet" / "connections"
+SRC = ROOT / "data" / "parquet" / sfx("ontime")
+OUT = ROOT / "data" / "parquet" / sfx("connections")
 CONFIG = ROOT / "config" / "pricing.yaml"
 
 # Status values. Only 'ok' rows enter model training; the rest are counted
@@ -140,7 +141,7 @@ def _months(start, end):
     return months(start, end)
 
 
-WEIGHTS = ROOT / "data" / "parquet" / "db1b" / "route_weights.parquet"
+WEIGHTS = ROOT / "data" / "parquet" / "db1b" / f"{sfx('route_weights')}.parquet"
 
 
 def weighted_sql(connections_glob: str, weights_path: str = WEIGHTS.as_posix()) -> str:
@@ -167,7 +168,7 @@ def weighted_sql(connections_glob: str, weights_path: str = WEIGHTS.as_posix()) 
     """
 
 
-WEIGHTED = ROOT / "data" / "parquet" / "connections_weighted"
+WEIGHTED = ROOT / "data" / "parquet" / sfx("connections_weighted")
 
 
 def write_weighted(mct: int = 45, start: str = "2024-01", end: str = "2025-12") -> None:
