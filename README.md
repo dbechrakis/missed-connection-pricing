@@ -106,4 +106,4 @@ VALIDATION.md   the pre-registered protocols and results, including what went wr
 
 [BTS Airline On-Time Performance](https://transtats.bts.gov/DatabaseInfo.asp?QO_VQ=EFD) · [BTS DB1B Origin and Destination Survey](https://transtats.bts.gov/DatabaseInfo.asp?QO_VQ=EFI) · [Iowa Environmental Mesonet ASOS](https://mesonet.agron.iastate.edu/request/download.phtml). All public. No company data is used anywhere in this project.
 
-Author: [Dimitris Bechrakis](https://github.com/dbechrakis)
+Author: [Dimitris Bechrakis](https://github.com/dbechrakis) · [MIT License](LICENSE)
