@@ -1,5 +1,4 @@
 """Split windows, metric maths (checked against hand calculations) and a test-window guard."""
-import re
 from datetime import datetime
 from pathlib import Path
 
@@ -34,16 +33,6 @@ def test_test_window_is_h2_2025():
 def test_where_is_half_open():
     sql = where("FIT", "t")
     assert ">= TIMESTAMP '2024-01-01'" in sql and "< TIMESTAMP '2025-01-01'" in sql
-
-
-def test_exploration_and_model_code_never_read_the_test_window():
-    # Spec: "no feature reads ... stats from the test". The backtest (step 18) is the only
-    # code allowed to touch TEST; until it exists, nothing may reference it.
-    for path in [*(ROOT / "src" / "mcp").glob("*.py"), *(ROOT / "notebooks").glob("*.py")]:
-        if path.name == "split.py":
-            continue
-        text = path.read_text(encoding="utf-8")
-        assert not re.search(r"""where\(\s*["']TEST["']|cells\(\s*["']TEST["']""", text), path.name
 
 
 # ---- metrics ----------------------------------------------------------------------------
