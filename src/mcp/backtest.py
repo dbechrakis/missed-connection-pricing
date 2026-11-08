@@ -170,7 +170,7 @@ def score_month(con, path: str, predicate: str, bundle: dict, base_rates: pd.Dat
     raw = bundle["gbm"].predict_proba(_codes(df[bundle["features"]], bundle["cats"]))[:, 1]
     df["p_gbm_raw"], df["p_gbm_iso"] = raw, bundle["isotonic"].predict(raw)
     day = df["out_sched_dep"].dt.normalize()
-    df["week"] = (day - pd.to_timedelta(df["out_sched_dep"].dt.dayofweek, unit="D")).astype(str)
+    df["week"] = (day - pd.to_timedelta(df["out_sched_dep"].dt.day_of_week, unit="D")).astype(str)
     df["month"] = df["out_sched_dep"].dt.month
     return df, int(bad.sum())
 
@@ -225,7 +225,7 @@ def figures(res: dict) -> None:
         ax.bar(x + (i - 1) * 0.27, r, 0.27, yerr=err, color=col[m], capsize=3, label=m.replace("_", " "))
     ax.axhline(1, color="k", lw=1, ls="--")
     ax.set(xticks=x, xticklabels=hubs, ylabel="Realized ÷ target loss ratio", title="H2 2025 backtest by hub (1.0 = on target)")
-    ax.legend(frameon=False)
+    ax.legend(frameon=False, ncol=3, loc="upper center", bbox_to_anchor=(0.5, -0.1))
     fig.tight_layout(); fig.savefig(FIG / "backtest_by_hub.png"); plt.close(fig)
     # 2. versus theta
     fig, ax = plt.subplots(figsize=(7, 4))
@@ -254,9 +254,10 @@ def figures(res: dict) -> None:
     fig.tight_layout(); fig.savefig(FIG / "backtest_reliability.png"); plt.close(fig)
     # 4. level by month
     fig, ax = plt.subplots(figsize=(7, 3.8))
-    mo = sorted(res["by_month"])
-    ax.plot(mo, [res["by_month"][m]["observed"] * 100 for m in mo], marker="o", color="k", lw=2, label="observed")
-    ax.plot(mo, [res["by_month"][m]["pred_iso"] * 100 for m in mo], marker="o", color=col["gbm_iso"], lw=2, label="predicted (calibrated)")
+    mo = sorted(res["by_month"], key=int)
+    xs = [int(m) for m in mo]
+    ax.plot(xs, [res["by_month"][m]["observed"] * 100 for m in mo], marker="o", color="k", lw=2, label="observed")
+    ax.plot(xs, [res["by_month"][m]["pred_iso"] * 100 for m in mo], marker="o", color=col["gbm_iso"], lw=2, label="predicted (calibrated)")
     ax.set(xlabel="Month of 2025", ylabel="Missed connections (%)", title="Level check: observed vs predicted by month")
     ax.legend(frameon=False)
     fig.tight_layout(); fig.savefig(FIG / "backtest_level.png"); plt.close(fig)

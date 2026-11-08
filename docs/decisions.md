@@ -103,3 +103,23 @@ One line per decision: what, why, and what it costs. Raw material for `method.md
 - 36% of connections would be overnight if missed, 42% among those that actually missed (tight connections skew to thin routes). Median wait if missed: 265 min.
 - **The "do not sell below N minutes" cut-off is driven by the WTP cap, not the model.** With the cap at 10% the cut-off is 45-60 minutes; at 5% it is 60-105; at 15% there is none. The result line in the README must say "under these assumptions".
 - The calibrator carries the Apr-Jun 2025 level (9.1%), so mean predicted P(miss) on 2024 rows (9.1%) sits above what 2024 saw (7.9%). That is intended for pricing H2 2025, and is exactly what the backtest tests.
+
+## Backtest (step 7)
+
+| Decision | Why | Cost / caveat |
+| --- | --- | --- |
+| Protocol and frozen hashes committed **before** the test window was read | So nothing can be tuned on it; a git diff proves it | The window is now spent: later improvements cannot be validated on it |
+| Headline = realized ÷ target = cost-weighted calibration ratio | Depends on P(miss), only weakly on assumed dollar costs | Dollar assumptions still set price levels and the offered set |
+| Purchase weight ∝ P(miss)^θ, shown as a curve over θ | Who buys cannot be known from public data; no single θ is defensible | The adverse-selection claim is "tiering protects at any θ > 0", not a number |
+| Flat price compared in two forms, incl. a hindsight oracle | The oracle is the strongest possible flat price, so its loss is adverse selection alone | Oracle is unattainable in practice |
+| Weekly block bootstrap for intervals | Days within a week are correlated | 27 weeks only |
+| Whole test window scored, no sampling | Exact numbers, no sampling error | 3 minutes of compute |
+| A pipeline smoke test on Apr-Jun 2025 before the real run | To find bugs without touching the test window | Those months are in-sample for the calibrator, so only code paths were checked |
+
+### Result and what it means (details in VALIDATION.md)
+
+- Realized ÷ target = **0.909 [0.822, 1.004]**: a 59% loss ratio against a 65% target. Priced slightly high.
+- The uncalibrated model is better calibrated on H2 than the calibrated product: the isotonic fit carried Apr-Jun's 9.1% level into a half-year that ran at 7.9%.
+- Month-by-month the observed rate swung 5.8%-10.4% while the model predicted a flat 9%: no seasonality.
+- Flat pricing is fine if buyers ignore risk and ruinous if they do not (1.4x target at theta 0.5, 1.9x at 1). Tiered stays near 0.9 throughout.
+- **Open question for improvement, not for this window:** a calibration window of a full year, or a seasonal term when more years exist.
