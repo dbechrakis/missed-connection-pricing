@@ -178,3 +178,21 @@ def test_readme_and_validation_v3_numbers_match_the_results():
     nights = [sum(v[fy]["lodging"].values()) / 12 + v[fy]["mie"] for v in rates.values() for fy in v]
     assert f"${min(nights):.0f} to ${max(nights):.0f}" in README
     assert f"{100 * (1 - 180 / min(nights)):.0f} to {100 * (1 - 180 / max(nights)):.0f}% too low" in README
+
+
+def test_decision_memo_numbers_match_the_results():
+    memo = (ROOT / "docs" / "decision-memo.md").read_text(encoding="utf-8")
+    c = json.loads((ROOT / "results" / "causes_v3.json").read_text())
+    a, o = c["all_misses"], c["overnight_misses"]
+    for needle in (f"**{a['carrier']:.1%}**", f"**{a['late_aircraft']:.1%}**", f"**{a['gap_broad']:.1%} to {a['gap_strict']:.1%}**",
+                   f"{o['gap_strict']:.1%} of the overnight", f"Dallas, {c['by_hub']['DFW']['weather']:.0%} of misses from weather",
+                   f"Chicago, {c['by_hub']['ORD']['nas']:.0%} from air traffic"):
+        assert needle in memo, needle
+    dev = json.loads((ROOT / "results" / "v3_dev.json").read_text())["results"]["primary"]
+    m = dev["monthly"].values()
+    assert f"**{min(m):.2f} to {max(m):.2f} times**" in memo
+    assert f"**${dev['mean_price_overnight']:.0f}**" in memo
+    assert f"**{dev['offered_within_cap']['0.05']['share_of_overnight_offered']:.0%}**" in memo
+    cap = dev["offered_within_cap"]["0.05"]["realized_over_target"]["ratio"]
+    assert f"**{cap / dev['overall']['ratio'] - 1:.0%} worse**" in memo
+    assert "**60.5%**" in memo and "117%" in memo and "68.2%" in memo

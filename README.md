@@ -1,8 +1,12 @@
 # Missed-connection protection pricing
 
-> **Prices fixed before the test ran a 60.5% loss ratio on 37.1 million connections from January to August 2026 (95% interval 55.4% to 66.1%) against a 65% target. A flat price would have run 117% if buyers favour risky connections. Under an assumed 10% price cap, fewer than half of the connections under about 60 minutes can be priced within the cap at DEN, CLT, DFW and ORD (Atlanta has no such limit), so protection should be offered selectively there; at a 5% cap that line moves to 75 to 105 minutes. It comes from the assumed cap and costs, not from the data.**
+**The decision, in three lines** ([one-page memo](docs/decision-memo.md)):
 
-**[Try the live demo](https://dbechrakis.github.io/missed-connection-pricing/)** · [Product brief](docs/product-brief.md) · [Method](docs/method.md) · [Validation](VALIDATION.md) · [Decision log](docs/decisions.md)
+1. **Price per connection, never one flat price.** Prices fixed before the test ran a **60.5%** loss ratio on 37.1 million unseen connections from January to August 2026 (95% interval 55.4% to 66.1%), against a 65% target. A flat price would have run 117% if buyers favour risky connections.
+2. **Refuse to sell where the price is too large a share of the fare.** Under an assumed 10% price cap, fewer than half of the connections under about 60 minutes can be priced within the cap at DEN, CLT, DFW and ORD (Atlanta has no such limit). At a 5% cap that line moves to 75 to 105 minutes. It comes from the assumed cap and costs, not from the data.
+3. **Airlines already pay for much of this, so the product worth building covers the gap they leave.** That is the hotel night after a weather or air-traffic disruption. It carries a correlated weather risk the margin must absorb, and is [pre-registered](PREREGISTRATION_2026H2_V3.md) on September to December 2026.
+
+**[Try the live demo](https://dbechrakis.github.io/missed-connection-pricing/)** · [Decision memo](docs/decision-memo.md) · [Product brief](docs/product-brief.md) · [Method](docs/method.md) · [Validation](VALIDATION.md) · [Decision log](docs/decisions.md)
 
 How much should an online travel agency charge to protect a connection, and on which connections should it not offer protection at all? This repository answers with a price table by hub, airline and connection time, and an offer rule, built only from public data, with a validation designed so the answer cannot be flattered.
 
