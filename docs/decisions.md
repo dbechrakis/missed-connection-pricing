@@ -148,3 +148,15 @@ One line per decision: what, why, and what it costs. Raw material for `method.md
 | H2 (selection strength) is sized separately and is cheap | It uses risk variation that already exists in offered connections | Needs enough range of risk across offers |
 | Price floor of 0.9% P(miss) in `config/guards.yaml`, not in `pricing.yaml` | The calibrator gave exactly 0 for 0.0075% of weight; a $0 price is never acceptable | Applies to the product from now on, not to the frozen validation numbers; the frozen config hash stays true |
 | Brief written as a generic agency, no internal facts | The repo is public; the author works in the same industry | Real costs and rules must replace the assumptions |
+
+## The demo (step 10)
+
+| Decision | Why | Cost / caveat |
+| --- | --- | --- |
+| No month input | The model has no seasonal term, so the control would change nothing; a flagship should not show a control that does nothing | The spec's four inputs became three, plus the next-flight option |
+| The demo is the frozen v1 model | Month-free by construction and validated on the clean 2026 holdout (60.5% loss ratio) | Its calibration level is stale; v2 with monthly recalibration is the operating policy described in the brief |
+| Every number on the page comes from `site/prices.js`, built from the results files | Nothing is typed by hand, so the page cannot drift from the validation | Rebuild with `python -m mcp.demo` after any new results |
+| Three decision states: offer (at least 90% of such connections within the cap), mixed, do not offer (at most 10%) | Testing showed one averaged price can contradict the cap when same-day and next-day cases are mixed | The 90/10 thresholds are mine; they only set wording |
+| "If missed, the next flight leaves..." selector | The price depends on it (hotel or not), and it is the traveller-relevant unknown | Typical case uses the observed mix |
+| Static page, no libraries, data in a script file | Opens instantly, works offline, no cold start; zero spend | Chart is hand-drawn SVG |
+| Deploy by GitHub Actions from `site/` | The spec wants a `site/` folder; Actions allows that without moving it | Pages on a private repository needs a paid plan; the repo becomes public at launch |

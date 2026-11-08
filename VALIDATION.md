@@ -175,7 +175,7 @@ Run once with the frozen artefacts of 3B. Nothing was changed after seeing the n
 | **v1 as shipped** (frozen since Part 1) | **0.931 [0.853, 1.017]** | **60.5%** [55.4, 66.1] |
 | v2 static (nothing from 2026) | 0.826 [0.759, 0.896] | 53.7% [49.4, 58.3] |
 | **v2 rolling** (pre-registered product) | **0.958 [0.875, 1.043]** | **62.3%** [56.9, 67.8] |
-| Flat price, training average | 1.050 [0.963, 1.143] | 68.3% |
+| Flat price, training average | 1.050 [0.963, 1.143] | 68.2% |
 | Flat price, hindsight oracle | 1.000 by construction | 65.0% |
 
 > On data never seen during development, the frozen v1 ran a **60.5% loss ratio** and v2 with monthly recalibration a **62.3%**, against a **65% target**. Both intervals contain 65%. The 2024 baseline ran 76%.

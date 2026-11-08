@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Missed-connection pricing</title>
+<meta name="description" content="What should a travel agency charge to protect a connection, and when should it not offer protection at all? Priced per connection from public flight data.">
+<style>
+:root {
+  --bg: #fbfaf7; --surface: #ffffff; --ink: #1d2433; --muted: #5b6475; --line: #e3e0d8;
+  --accent: #0b5cab; --accent-soft: #e6f0fb; --good: #1b7a46; --good-soft: #e5f4ea; --mid: #8a5a00; --mid-soft: #fbf1d9;
+  --warn: #a4380f; --warn-soft: #fbece6; --chart-grid: #ece9e1; --chart-line: #0b5cab; --chart-cap: #a4380f;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12151c; --surface: #1a1f2a; --ink: #e8eaf0; --muted: #a2a9b8; --line: #2b3242;
+    --accent: #6cb0f5; --accent-soft: #1b2b40; --good: #6fd09a; --good-soft: #15291f; --mid: #e8c36a; --mid-soft: #2e2716;
+    --warn: #f19a78; --warn-soft: #34201a; --chart-grid: #2b3242; --chart-line: #6cb0f5; --chart-cap: #f19a78;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12151c; --surface: #1a1f2a; --ink: #e8eaf0; --muted: #a2a9b8; --line: #2b3242;
+  --accent: #6cb0f5; --accent-soft: #1b2b40; --good: #6fd09a; --good-soft: #15291f; --mid: #e8c36a; --mid-soft: #2e2716;
+  --warn: #f19a78; --warn-soft: #34201a; --chart-grid: #2b3242; --chart-line: #6cb0f5; --chart-cap: #f19a78;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+main { max-width: 940px; margin: 0 auto; padding: 28px 16px 56px; }
+h1 { font-size: clamp(1.6rem, 4vw, 2.2rem); line-height: 1.15; margin: 0 0 8px; letter-spacing: -0.01em; }
+h2 { font-size: 1.15rem; margin: 40px 0 10px; }
+p { margin: 0 0 12px; }
+a { color: var(--accent); }
+.lede { color: var(--muted); font-size: 1.05rem; max-width: 62ch; }
+.banner { background: var(--accent-soft); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; margin: 20px 0 24px; }
+.banner strong { font-variant-numeric: tabular-nums; }
+.grid { display: grid; grid-template-columns: 330px 1fr; gap: 20px; align-items: start; }
+@media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
+label, .label { display: block; font-size: .82rem; color: var(--muted); margin: 14px 0 6px; font-weight: 600; letter-spacing: .02em; text-transform: uppercase; }
+label:first-child { margin-top: 0; }
+select { width: 100%; padding: 10px 12px; border-radius: 9px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font: inherit; }
+input[type=range] { width: 100%; accent-color: var(--accent); }
+.range-out { display: flex; justify-content: space-between; align-items: baseline; font-variant-numeric: tabular-nums; }
+.range-out b { font-size: 1.25rem; }
+fieldset { border: 0; padding: 0; margin: 0; }
+.radio { display: flex; gap: 8px; align-items: flex-start; margin: 6px 0; font-size: .95rem; text-transform: none; letter-spacing: 0; font-weight: 400; color: var(--ink); }
+.radio input { margin-top: 4px; accent-color: var(--accent); }
+.hint { color: var(--muted); font-size: .85rem; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 14px; }
+.metric { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+.metric .k { font-size: .78rem; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; font-weight: 600; }
+.metric .v { font-size: 1.7rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.metric .s { font-size: .82rem; color: var(--muted); }
+.decision { border-radius: 12px; padding: 14px 16px; margin-bottom: 14px; border: 1px solid var(--line); }
+.decision.offer { background: var(--good-soft); border-color: var(--good); }
+.decision.nooffer { background: var(--warn-soft); border-color: var(--warn); }
+.decision.mixed { background: var(--mid-soft); border-color: var(--mid); }
+.decision .t { font-weight: 700; font-size: 1.1rem; }
+.decision.offer .t { color: var(--good); } .decision.nooffer .t { color: var(--warn); } .decision.mixed .t { color: var(--mid); }
+.note { font-size: .85rem; color: var(--muted); margin-top: 8px; }
+svg { width: 100%; height: auto; display: block; }
+.axis text { fill: var(--muted); font-size: 11px; }
+.legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: .85rem; color: var(--muted); margin-top: 6px; }
+.legend i { display: inline-block; width: 18px; height: 3px; vertical-align: middle; margin-right: 6px; border-radius: 2px; }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+ul { padding-left: 1.2rem; margin: 0 0 12px; } li { margin: 6px 0; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; font-size: .95rem; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+th { color: var(--muted); font-weight: 600; font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; }
+footer { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
+</head>
+<body>
+<main>
+  <h1>What should a missed-connection guarantee cost?</h1>
+  <p class="lede">Priced per connection from how often that kind of connection actually fails, and not offered at all where the price would be too high a share of the fare.</p>
+
+  <div class="banner" id="banner" role="note"></div>
+
+  <div class="grid">
+    <section class="card" aria-label="Choose a connection">
+      <label for="hub">Connecting airport</label>
+      <select id="hub"></select>
+
+      <label for="carrier">Airline (same on both flights)</label>
+      <select id="carrier"></select>
+
+      <div class="label" id="slack-label">Time between flights</div>
+      <div class="range-out"><b id="slack-out"></b><span class="hint">scheduled</span></div>
+      <input id="slack" type="range" min="45" max="225" step="15" aria-labelledby="slack-label">
+
+      <fieldset>
+        <legend class="label">If it is missed, the next flight to the destination leaves</legend>
+        <label class="radio"><input type="radio" name="sc" value="typical" checked><span>As it usually does for this kind of connection <span class="hint" id="ov-hint"></span></span></label>
+        <label class="radio"><input type="radio" name="sc" value="same"><span>Later the same day</span></label>
+        <label class="radio"><input type="radio" name="sc" value="next"><span>The next day (hotel needed)</span></label>
+      </fieldset>
+      <p class="hint" style="margin-top:12px">Connection time is in 15-minute steps, reported as the start of the step.</p>
+    </section>
+
+    <section class="card" aria-live="polite" aria-label="Result">
+      <div class="metrics">
+        <div class="metric"><div class="k">Chance it is missed</div><div class="v" id="m-p"></div><div class="s" id="m-p-s"></div></div>
+        <div class="metric"><div class="k">Expected claim cost</div><div class="v" id="m-cost"></div><div class="s">per protected connection</div></div>
+        <div class="metric"><div class="k">Price</div><div class="v" id="m-price"></div><div class="s" id="m-price-s"></div></div>
+      </div>
+      <div class="decision" id="decision"><div class="t" id="d-title"></div><div id="d-body"></div></div>
+      <div id="chart-wrap">
+        <svg id="chart" viewBox="0 0 620 270" role="img" aria-labelledby="chart-title chart-desc">
+          <title id="chart-title">Price by connection time</title><desc id="chart-desc"></desc>
+        </svg>
+        <div class="legend"><span><i style="background:var(--chart-line)"></i>Price of protection</span><span><i style="background:var(--chart-cap)"></i>Most we would charge (cap)</span></div>
+      </div>
+      <p class="note" id="formula"></p>
+    </section>
+  </div>
+
+  <h2>Why not one price for everyone?</h2>
+  <p id="why"></p>
+  <table aria-label="Loss ratio by pricing method on 2026 data">
+    <thead><tr><th>Pricing</th><th>Loss ratio, buyers ignore risk</th><th>Loss ratio, buyers favour risky connections*</th></tr></thead>
+    <tbody id="why-body"></tbody>
+  </table>
+  <p class="hint" style="margin-top:8px">*A loss ratio of 65% is the target; above it the product loses money. Who really buys protection cannot be known from public data, so the project shows a range of buyer behaviour. "Favour risky" is one point on it (selection strength 1 on the scale used in the validation). The flat price is the average claim cost in the training period divided by the target.</p>
+
+  <h2>What this does not tell you</h2>
+  <ul>
+    <li><b>Connections are synthetic.</b> They are every same-airline pairing of an arriving and a departing flight at five US hubs; the data does not say which passengers actually connected.</li>
+    <li><b>The costs, the 65% target and the 10% cap are assumptions</b> ($<span id="a-r"></span> to rebook, $<span id="a-n"></span> more if the next flight is the next day). The results barely depend on the dollar amounts, but the prices do.</li>
+    <li><b>Demand is untested.</b> On one ticket an airline usually rebooks a missed connection for free, so the offer has to cover something extra. How many people would buy, and at what price, needs an experiment (see the product brief).</li>
+    <li><b>No seasonal price.</b> One year of history could not separate seasons from one-off events, so the model has no month term and these prices are the same all year.</li>
+    <li><b>Hubs are not equally well priced.</b> Chicago runs about 16% too cheap and Charlotte and Dallas about 12% too dear in the validation; fixing this is the next step.</li>
+    <li><b>Five airports, same-airline connections, US domestic, data to August 2026.</b></li>
+  </ul>
+
+  <footer>
+    <p>Built from public data only: BTS On-Time Performance, BTS DB1B ticket sample and NOAA/IEM weather. No company data is used.
+    <a href="https://github.com/dbechrakis/missed-connection-pricing">Code and method</a> ·
+    <a href="https://github.com/dbechrakis/missed-connection-pricing/blob/main/VALIDATION.md">How it was tested</a> ·
+    <a href="https://github.com/dbechrakis/missed-connection-pricing/blob/main/docs/product-brief.md">Product brief</a></p>
+  </footer>
+</main>
+
+<script src="prices.js"></script>
+<script>
+(function () {
+  var D = window.PRICES, A = D.assumptions, V = D.validation;
+  var $ = function (id) { return document.getElementById(id); };
+  var money = function (x) { return "$" + (x >= 100 ? x.toFixed(0) : x.toFixed(2)).replace(/\.00$/, ""); };
+  var pct = function (x, d) { return (x * 100).toFixed(d === undefined ? 1 : d) + "%"; };
+  var st = { hub: D.hubs[0], carrier: "ALL", slack: 45, sc: "typical" };
+
+  var HUB_NAMES = { ATL: "Atlanta (ATL)", CLT: "Charlotte (CLT)", DEN: "Denver (DEN)", DFW: "Dallas–Fort Worth (DFW)", ORD: "Chicago O'Hare (ORD)" };
+  var CARRIER = { AA: "American", DL: "Delta", UA: "United", WN: "Southwest", F9: "Frontier", "9E": "Endeavor", OH: "PSA", OO: "SkyWest", MQ: "Envoy", YX: "Republic" };
+
+  function cell(hub, carrier, slack) {
+    for (var i = 0; i < D.cells.length; i++) {
+      var c = D.cells[i];
+      if (c.hub === hub && c.carrier === carrier && c.slack === slack) return c;
+    }
+    return null;
+  }
+
+  function fillSelects() {
+    $("hub").innerHTML = D.hubs.map(function (h) { return '<option value="' + h + '">' + (HUB_NAMES[h] || h) + "</option>"; }).join("");
+    fillCarriers();
+  }
+  function fillCarriers() {
+    var list = D.carriers[st.hub] || [];
+    $("carrier").innerHTML = '<option value="ALL">All airlines at this hub</option>' +
+      list.map(function (c) { return '<option value="' + c + '">' + (CARRIER[c] || c) + " (" + c + ")</option>"; }).join("");
+    st.carrier = "ALL"; $("carrier").value = "ALL";
+  }
+
+  function render() {
+    var c = cell(st.hub, st.carrier, st.slack), fallback = false;
+    if (!c) { c = cell(st.hub, "ALL", st.slack); fallback = true; }
+    $("slack-out").textContent = st.slack + "–" + (st.slack + 14) + " minutes";
+    var price = c["price_" + st.sc], share = c["offer_" + st.sc];
+    var cost = price * A.target_loss_ratio;
+    $("m-p").textContent = pct(c.p);
+    $("m-p-s").textContent = "about 1 in " + Math.round(1 / c.p);
+    $("m-cost").textContent = money(cost);
+    $("m-price").textContent = money(price);
+    $("m-price-s").textContent = pct(price / c.fare) + " of a " + money(c.fare) + " average fare";
+    $("ov-hint").textContent = "(" + pct(c.ov, 0) + " of the time it is the next day)";
+
+    var state = share >= 0.9 ? "offer" : share <= 0.1 ? "nooffer" : "mixed", dec = $("decision");
+    dec.className = "decision " + state;
+    if (state === "offer") {
+      $("d-title").textContent = "Offer protection at " + money(price);
+      $("d-body").innerHTML = "For " + pct(share, 0) + " of connections like this the price is within " + pct(A.wtp_cap_pct, 0) + " of the fare.";
+    } else if (state === "mixed") {
+      $("d-title").textContent = "Offer on some connections only";
+      $("d-body").innerHTML = "The average price here is " + money(price) + ", but it depends on the connection: only " + pct(share, 0) +
+        " of connections like this are within " + pct(A.wtp_cap_pct, 0) + " of the fare (cheaper when the next flight is the same day, or when the fare is higher). " +
+        "Offer where the price fits; otherwise warn the traveller or show a longer connection. Try the options on the left.";
+    } else {
+      $("d-title").textContent = "Do not offer protection here";
+      $("d-body").innerHTML = "Only " + pct(share, 0) + " of connections like this could be priced within " + pct(A.wtp_cap_pct, 0) +
+        " of the fare. Better to warn the traveller about the tight connection, or show an itinerary with more time, than to sell protection at a price they would refuse.";
+    }
+    $("formula").innerHTML = "Price = chance of missing × claim cost ÷ " + pct(A.target_loss_ratio, 0) + " target loss ratio. The claim cost is $" + A.rebooking_cost +
+      " to rebook, plus $" + A.overnight_cost + " if the next flight is the next day. Averages over " + c.n.toLocaleString() + " sampled connections" +
+      (fallback ? ". <b>Few connections were seen for this airline at this time, so the figures are for all airlines at the hub.</b>" : ".");
+    drawChart(c);
+  }
+
+  function drawChart(cur) {
+    var W = 620, H = 270, L = 52, R = 14, T = 14, B = 40;
+    var rows = D.buckets.map(function (s) { return cell(st.hub, st.carrier, s) || cell(st.hub, "ALL", s); });
+    var cap = rows.map(function (r) { return A.wtp_cap_pct * r.fare; });
+    var prices = rows.map(function (r) { return r["price_" + st.sc]; });
+    var ymax = Math.max.apply(null, prices.concat(cap)) * 1.08, x0 = D.buckets[0], x1 = D.buckets[D.buckets.length - 1];
+    var X = function (s) { return L + (s - x0) / (x1 - x0) * (W - L - R); };
+    var Y = function (v) { return T + (1 - v / ymax) * (H - T - B); };
+    var step = ymax > 80 ? 20 : ymax > 40 ? 10 : 5, g = "";
+    for (var v = 0; v <= ymax; v += step) {
+      g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + Y(v) + '" y2="' + Y(v) + '" stroke="var(--chart-grid)"/>' +
+           '<text x="' + (L - 8) + '" y="' + (Y(v) + 4) + '" text-anchor="end">$' + v + "</text>";
+    }
+    D.buckets.forEach(function (s, i) { if (i % 2 === 0) g += '<text x="' + X(s) + '" y="' + (H - 16) + '" text-anchor="middle">' + s + "</text>"; });
+    g += '<text x="' + ((L + W - R) / 2) + '" y="' + (H - 2) + '" text-anchor="middle">Scheduled time between flights (minutes)</text>';
+    var pts = function (arr) { return arr.map(function (v, i) { return X(D.buckets[i]) + "," + Y(v); }).join(" "); };
+    g += '<polyline fill="none" stroke="var(--chart-cap)" stroke-width="2" stroke-dasharray="6 4" points="' + pts(cap) + '"/>';
+    g += '<polyline fill="none" stroke="var(--chart-line)" stroke-width="3" points="' + pts(prices) + '"/>';
+    var cx = X(st.slack), cy = Y(cur["price_" + st.sc]);
+    g += '<circle cx="' + cx + '" cy="' + cy + '" r="6" fill="var(--chart-line)" stroke="var(--surface)" stroke-width="2"/>';
+    var svg = $("chart");
+    svg.innerHTML = '<title id="chart-title">Price by connection time</title><desc id="chart-desc">Price of protection falls from ' + money(prices[0]) +
+      " at " + x0 + " minutes to " + money(prices[prices.length - 1]) + " at " + x1 + ' minutes.</desc><g class="axis">' + g + "</g>";
+  }
+
+  function fillStatic() {
+    var h = V.holdout, t = V.target;
+    $("banner").innerHTML = "On <strong>" + (h.connections / 1e6).toFixed(1) + " million connections from " + h.window + "</strong>, which nothing in the project had seen while it was built, " +
+      "these prices ran a <strong>" + pct(h.v1.loss_ratio) + " loss ratio</strong> against a <strong>" + pct(t, 0) + " target</strong> (95% interval " + pct(h.v1.lo) + " to " + pct(h.v1.hi) + "). " +
+      "Average rates fitted on 2024 alone would have run <strong>" + pct(h.baseline.loss_ratio, 0) + "</strong>. " +
+      '<a href="https://github.com/dbechrakis/missed-connection-pricing/blob/main/VALIDATION.md">How this was tested</a>.';
+    $("why").innerHTML = "Tight connections fail far more often than loose ones, so their protection costs about eight times as much to provide. A single average price is too cheap for the people most likely to claim, and those are the ones who buy it. On the same 2026 data:";
+    $("why-body").innerHTML =
+      "<tr><td>Priced per connection (this demo)</td><td>" + pct(h.v1.loss_ratio) + "</td><td>" + pct(h.tiered_theta1 * t) + "</td></tr>" +
+      "<tr><td>One flat price</td><td>" + pct(h.flat_theta0 * t) + "</td><td>" + pct(h.flat_theta1 * t) + "</td></tr>";
+    $("a-r").textContent = A.rebooking_cost; $("a-n").textContent = A.overnight_cost;
+  }
+
+  $("hub").addEventListener("change", function (e) { st.hub = e.target.value; fillCarriers(); render(); });
+  $("carrier").addEventListener("change", function (e) { st.carrier = e.target.value; render(); });
+  $("slack").addEventListener("input", function (e) { st.slack = +e.target.value; render(); });
+  Array.prototype.forEach.call(document.getElementsByName("sc"), function (r) { r.addEventListener("change", function (e) { st.sc = e.target.value; render(); }); });
+
+  fillSelects(); fillStatic(); render();
+})();
+</script>
+</body>
+</html>

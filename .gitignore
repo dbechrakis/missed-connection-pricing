@@ -8,3 +8,4 @@ docs/spec.md
 docs/*.docx
 .serena/
 models/
+.claude/
