@@ -328,7 +328,7 @@ Seat availability, live severity, cross-carrier connections and a seasonal term 
 | Monthly realized ÷ expected, range and spread | 0.81 to 1.20, standard deviation 0.15 |
 | Weekly realized ÷ expected, spread | standard deviation 0.29 |
 
-**The finding is about the thresholds, not the model.** A month's realized level moves with a standard deviation of about 0.15 around what was expected, so a ±10% band is inside ordinary month-to-month noise and would fire most months; the hub band of ±20% fires on about 38% of hub-months. The bands in the brief (±10% overall, ±20% per hub) are assumptions I chose before this run and **have not been retuned to make it look calmer**. Used as written, the job would be too jumpy to act on monthly. A sensible next version triggers on a rolling window of several months, or on a band sized from the measured spread, and that choice belongs in the next pre-registration, not here.
+**The finding is about the thresholds, not the model.** A month's realized level moves with a standard deviation of about 0.15 around what was expected, so a ±10% band is inside ordinary month-to-month noise and would fire most months; the hub band of ±20% fires on about 38% of hub-months. The bands in the brief (±10% overall, ±20% per hub) are assumptions I chose before this run and **have not been retuned to make it look calmer**. Used as written, the job would be too jumpy to act on monthly. A sensible next version triggers on a rolling window of several months, or on a band sized from the measured spread, and that is done in 4J and in `PREREGISTRATION_2026H2_ADDENDUM.md`.
 
 
 ### 4H. What the day itself would add: value of information (development data)
@@ -358,3 +358,15 @@ While preparing the pre-registration for the next window, the hash of `config/pr
 - **Fix:** the file is now stored and checked out with Unix endings on every system (`.gitattributes` pins the hashed text files), its true hash is `75e1db9fda3e188955a0201ea9a29ae317c88deec5619395cfe2bfd89a9e8979`, the pre-registration uses that hash, and a test fails if it drifts. Part 1 keeps its original text with a footnote.
 - **Anyone can reproduce it on any system:** `python -c "import hashlib;print(hashlib.sha256(open('config/pricing.yaml','rb').read().replace(b'\r\n',b'\n')).hexdigest())"` prints `75e1db9fda3e188955a0201ea9a29ae317c88deec5619395cfe2bfd89a9e8979`.
 - The other frozen files were checked the same way and match their committed versions byte for byte: the two model files, `config/guards.yaml` and `models/v2_state.json`.
+
+
+### 4J. A principled alert rule, and what it cannot see
+
+The 4G finding led to a replacement rule: alert on the claim-weighted realized ÷ expected over the last 3 months, outside 1 ± 2σ/√3, with σ measured on the **2025** walk-forward only (0.119 overall from 6 months, 0.267 per hub from 30 hub-months, giving bands of ±0.137 and ±0.308). The rule, its parameters and the expectations for the next window are frozen in `PREREGISTRATION_2026H2_ADDENDUM.md` (config hash `bcf4e04866706278…`). The author had seen the 2026 spread before writing it, so the derivation is from 2025 data but not blind.
+
+| 2026 replay (spent data, a consistency check) | Old single-month bands | Rolling rule |
+| --- | --- | --- |
+| Overall "recalibrate" alerts | 5 of 8 months | 0 of 6 checked months |
+| Hub alerts | 15 of 40 hub-months | 1 of 30 hub checks (Chicago, April: rolling ratio 1.36) |
+
+**What the quiet costs.** The rule is slow and its hub band is wide, so it cannot see steady small gaps. Chicago ran about 16% under-priced and Charlotte and Dallas about 12% over-priced across the 2026 test, and none of that alerts: it sits inside ±0.31. Alerting less is only a gain if the alerts that remain are the ones that matter; here a persistent hub error is exactly what goes unflagged. Detecting it needs a cumulative rule or a hub-level calibration, which this project has not built.

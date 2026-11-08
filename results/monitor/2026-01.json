@@ -1,13 +1,13 @@
 {
   "month": "2026-01",
-  "observed_rate": 0.09026467180670693,
-  "predicted_rate": 0.11150449543134408,
-  "realized_over_expected": 0.805321330554123,
+  "observed_rate": 0.09026467180670694,
+  "predicted_rate": 0.11150449543134407,
+  "realized_over_expected": 0.8053213305541229,
   "by_hub": {
     "ATL": 0.9163429820586876,
-    "CLT": 0.8633292608647716,
+    "CLT": 0.8633292608647715,
     "DEN": 0.6835698266579331,
-    "DFW": 0.7619729004855388,
+    "DFW": 0.7619729004855387,
     "ORD": 0.899278976569581
   },
   "weekly": {
@@ -20,10 +20,36 @@
   "flag_threshold": 1.5292890201664702,
   "flagged_weeks": [],
   "actions": [
+    "hold: building history"
+  ],
+  "claims": 62644704.57750413,
+  "expected": 77788458.0983342,
+  "claims_by_hub": {
+    "ATL": 15428147.746960536,
+    "CLT": 10699469.743562087,
+    "DEN": 15421710.228514079,
+    "DFW": 12675327.089181472,
+    "ORD": 8420049.769285962
+  },
+  "expected_by_hub": {
+    "ATL": 16836651.8312817,
+    "CLT": 12393266.658012662,
+    "DEN": 22560548.501552418,
+    "DFW": 16634879.115916844,
+    "ORD": 9363111.991570579
+  },
+  "legacy_single_month_actions": [
     "recalibrate: overall realized/expected 0.81 is outside 1 +- 10%",
     "review hub DEN: realized/expected 0.68 is outside 1 +- 20%",
     "review hub DFW: realized/expected 0.76 is outside 1 +- 20%"
   ],
+  "rolling": {
+    "status": "building history",
+    "months": [
+      "2026-01"
+    ],
+    "actions": []
+  },
   "known_months_used": [
     "2025-10",
     "2025-11",

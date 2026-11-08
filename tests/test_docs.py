@@ -106,3 +106,27 @@ def test_pricing_config_hash_is_reproducible_on_any_operating_system():
     assert h == "75e1db9fda3e188955a0201ea9a29ae317c88deec5619395cfe2bfd89a9e8979"
     assert h in (ROOT / "VALIDATION.md").read_text(encoding="utf-8")
     assert h in (ROOT / "PREREGISTRATION_2026H2.md").read_text(encoding="utf-8")
+
+
+# ---- the addendum -------------------------------------------------------------------------------------------
+
+def test_addendum_hash_and_parameters_match_the_monitoring_config():
+    import hashlib
+    import yaml
+    text = (ROOT / "PREREGISTRATION_2026H2_ADDENDUM.md").read_text(encoding="utf-8")
+    raw = (ROOT / "config" / "monitoring.yaml").read_bytes()
+    assert hashlib.sha256(raw).hexdigest() in text
+    cfg = yaml.safe_load(raw)["monitoring"]
+    assert f"{cfg['sigma_overall']:.3f}" in text and f"{cfg['sigma_hub']:.3f}" in text and cfg["window_months"] == 3 and cfg["z"] == 2.0
+
+
+def test_addendum_states_the_limit_that_the_quiet_costs_sensitivity_and_that_it_was_not_blind():
+    text = (ROOT / "PREREGISTRATION_2026H2_ADDENDUM.md").read_text(encoding="utf-8")
+    assert "Not blind" in text and "costs sensitivity" in text and "A1" in text and "A3" in text
+
+
+def test_addendum_commands_exist():
+    text = (ROOT / "PREREGISTRATION_2026H2_ADDENDUM.md").read_text(encoding="utf-8")
+    src = (ROOT / "src" / "mcp" / "monitor.py").read_text(encoding="utf-8")
+    for flag in ("--accept-preregistration", "--dry", "--legacy-bands", "--replay"):
+        assert flag in text and flag in src

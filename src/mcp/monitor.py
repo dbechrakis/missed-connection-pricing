@@ -28,6 +28,7 @@ from mcp.connections import ROOT
 from mcp.experiment import pause_threshold
 
 STATE = ROOT / "models" / "v2_state.json"
+MONITORING = ROOT / "config" / "monitoring.yaml"
 REPORTS = ROOT / "results" / "monitor"
 LEVEL_BAND = 0.10          # overall realized/expected outside 1 +- band: recalibrate (the brief's +-10% band; an assumption)
 HUB_BAND = 0.20            # one hub outside 1 +- band: review that hub
@@ -67,6 +68,9 @@ def drift_report(df, label: str, cfg: dict, cv_week: float, cv_claim: float, pol
 
     overall = ratio(d)
     by_hub = {h: ratio(g) for h, g in d.groupby("hub")}
+    sums = {"claims": float(d["_claim"].sum()), "expected": float(d["_exp"].sum()),
+            "claims_by_hub": {h: float(g["_claim"].sum()) for h, g in d.groupby("hub")},
+            "expected_by_hub": {h: float(g["_exp"].sum()) for h, g in d.groupby("hub")}}
     weekly = {wk: ratio(g) for wk, g in d.groupby("week")}
     thr = pause_threshold(cv_week, cv_claim, policies_per_week or 1e12)
     flagged = sorted(wk for wk, r in weekly.items() if r > thr)
@@ -80,7 +84,7 @@ def drift_report(df, label: str, cfg: dict, cv_week: float, cv_claim: float, pol
         actions.append("pause review: two flagged weeks in a row")
     return {"month": label, "observed_rate": float(d["_y"].sum() / d["_w"].sum()), "predicted_rate": float(d["_p"].sum() / d["_w"].sum()),
             "realized_over_expected": overall, "by_hub": by_hub, "weekly": weekly, "flag_threshold": thr,
-            "flagged_weeks": flagged, "actions": actions or ["hold: within band"]}
+            "flagged_weeks": flagged, "actions": actions or ["hold: within band"], **sums}
 
 
 def month_flag_run(weekly: dict, thr: float):
@@ -90,10 +94,45 @@ def month_flag_run(weekly: dict, thr: float):
         yield a > thr and b > thr
 
 
+# ---- the rolling rule (bands sized from 2025 data; see mcp.bands and VALIDATION.md 4J) --------------------------
+
+def band(sigma: float, k: int, z: float) -> float:
+    """Half-width around 1 for a rolling k-month ratio whose monthly spread is sigma (same formula as mcp.bands)."""
+    return float(z * sigma / np.sqrt(k))
+
+
+def load_monitoring(path=MONITORING) -> dict:
+    import yaml
+    return yaml.safe_load(path.read_text(encoding="utf-8"))["monitoring"]
+
+
+def rolling_check(history: list[dict], mon: dict) -> dict:
+    """Alert when the realized/expected ratio over the last `window_months` months is outside 1 +- z x sigma / sqrt(window).
+
+    `history` is the reports up to and including the current month; ratios are claims over expected claims summed over
+    the window (claim-weighted, not an average of ratios). With fewer months than the window there is no alert."""
+    k = mon["window_months"]
+    hist = sorted(history, key=lambda r: r["month"])[-k:]
+    if len(hist) < k:
+        return {"status": "building history", "months": [h["month"] for h in hist], "actions": []}
+    b_all = band(mon["sigma_overall"], k, mon["z"])
+    b_hub = band(mon["sigma_hub"], k, mon["z"])
+    ratio = sum(h["claims"] for h in hist) / sum(h["expected"] for h in hist)
+    hubs = {hub: sum(h["claims_by_hub"].get(hub, 0.0) for h in hist) / sum(h["expected_by_hub"][hub] for h in hist)
+            for hub in hist[-1]["expected_by_hub"]}
+    actions = []
+    if abs(ratio - 1) > b_all:
+        actions.append(f"recalibrate: rolling {k}-month realized/expected {ratio:.2f} is outside 1 +- {b_all:.2f}")
+    actions += [f"review hub {h}: rolling {k}-month realized/expected {r:.2f} is outside 1 +- {b_hub:.2f}"
+                for h, r in sorted(hubs.items()) if abs(r - 1) > b_hub]
+    return {"status": "checked", "months": [h["month"] for h in hist], "ratio": float(ratio), "band": b_all,
+            "by_hub": {h: float(r) for h, r in hubs.items()}, "band_hub": b_hub, "actions": actions}
+
+
 # ---- the monthly step -------------------------------------------------------------------------------
 
 def step(df, label: str, state: list[MonthStats], policy: str, k: int, cfg: dict, cv_week: float, cv_claim: float,
-         lag: int = 0, policies_per_week: float | None = None):
+         lag: int = 0, policies_per_week: float | None = None, history: list[dict] | None = None, monitoring: dict | None = None):
     """Price `label` from the months already known, report drift, and return the report and the new state.
 
     `df` needs hub, week, y, weight, overnight and p_raw (the uncalibrated model probability). The month's own
@@ -104,6 +143,14 @@ def step(df, label: str, state: list[MonthStats], policy: str, k: int, cfg: dict
     cal = make_calibrator(policy, k, known)
     priced = df.assign(p=cal(df["p_raw"].to_numpy(), df["hub"].to_numpy()))
     report = drift_report(priced, label, cfg, cv_week, cv_claim, policies_per_week)
+    if monitoring is not None:
+        # the rolling rule replaces the single-month bands; the old verdict is kept for comparison
+        roll = rolling_check(list(history or []) + [report], monitoring)
+        report["legacy_single_month_actions"] = report["actions"]
+        keep = [a for a in report["actions"] if a.startswith("pause review")]
+        report["rolling"] = roll
+        base = roll["actions"] or (["hold: within the rolling band"] if roll["status"] == "checked" else ["hold: building history"])
+        report["actions"] = base + keep                # a weekly pause review adds to the verdict, it never replaces it
     report.update(known_months_used=[s.month for s in sorted(known, key=lambda s: s.month)[-k:]] if known else [], lag=lag)
     new = list(state) + [month_stats(label, df["hub"], df["y"], df["weight"], df["p_raw"])]
     return report, new
@@ -151,6 +198,8 @@ def main(argv=None) -> int:
     p.add_argument("--replay", nargs=2, metavar=("FROM", "TO"))
     p.add_argument("--lag", type=int, default=0, help="booking-lead lag in months (default 0)")
     p.add_argument("--accept-preregistration", action="store_true")
+    p.add_argument("--dry", action="store_true", help="do not overwrite the saved state")
+    p.add_argument("--legacy-bands", action="store_true", help="use the original single-month +-10%%/+-20%% bands")
     a = p.parse_args(argv)
     months = [a.month] if a.month else list(months_between(*a.replay)) if a.replay else []
     if not months:
@@ -163,13 +212,19 @@ def main(argv=None) -> int:
     design = json.loads((ROOT / "results" / "experiment_design.json").read_text())["inputs"]
     state = load_state() if (STATE.exists() and not a.replay) else list(v2["cal_stats"])
     REPORTS.mkdir(parents=True, exist_ok=True)
+    mon = None if a.legacy_bands or not MONITORING.exists() else load_monitoring()
+    history = [json.loads(f.read_text()) for f in sorted(REPORTS.glob("*.json")) if f.stem < months[0] and "claims" in json.loads(f.read_text())]
     for label in months:
         df = score_month(label, v2)
         report, state = step(df, label, state, v2["policy"], v2["k"], cfg, design["cv_week_ratio"],
-                             design["cv_claim_per_policy"], lag=a.lag)
+                             design["cv_claim_per_policy"], lag=a.lag, history=history, monitoring=mon)
+        history.append(report)
         (REPORTS / f"{label}.json").write_text(json.dumps(report, indent=2))
         print(f"{label}: realized/expected {report['realized_over_expected']:.3f}  hubs "
               + " ".join(f"{h} {r:.2f}" for h, r in sorted(report['by_hub'].items())) + f"  -> {'; '.join(report['actions'])}", flush=True)
+    if a.dry:
+        print("dry run: state not saved")
+        return 0
     save_state(state)
     print(f"state saved: {len(state)} months through {max(s.month for s in state)}")
     return 0

@@ -1,0 +1,10 @@
+monitoring:
+  window_months: 3
+  z: 2.0
+  sigma_overall: 0.1188
+  sigma_hub: 0.2671
+  derived_from: walk-forward Jul-Dec 2025 (GBM fitted through Mar 2025; each month
+    priced from earlier months only)
+  note: Alert when the rolling window_months ratio of realized to expected claims
+    is outside 1 +- z x sigma / sqrt(window_months). Sigma is the sd of the monthly
+    (overall) or hub-month ratio on 2025 data; 2026 plays no part in the derivation.
