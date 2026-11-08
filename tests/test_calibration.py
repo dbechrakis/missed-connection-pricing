@@ -72,3 +72,33 @@ def test_isotonic_fixes_a_level_shift():
     y = (rng.random(p.size) < p * 1.5).astype(float)          # reality is 50% riskier than the model says
     f = make_calibrator("iso_global", 1, [stats("2025-04", ["A"] * p.size, y, np.ones(p.size), p)])
     assert f(np.array([0.1]), ["A"])[0] == pytest.approx(0.15, abs=0.01)
+
+
+# ---- known months and booking lead ----------------------------------------------------------------
+
+def test_month_index_orders_months_across_a_year_boundary():
+    from mcp.calibration import month_index
+    assert month_index("2026-01") - month_index("2025-12") == 1
+    assert month_index("2026-03") - month_index("2025-10") == 5
+
+
+def test_known_months_lag_zero_is_every_strictly_earlier_month():
+    from mcp.calibration import known_months
+    ms = [stats(f"2025-{m:02d}", ["A"], [1], [1], [0.5]) for m in (10, 11, 12)] + [stats("2026-01", ["A"], [1], [1], [0.5])]
+    assert [s.month for s in known_months(ms, "2026-02", 0)] == ["2025-10", "2025-11", "2025-12", "2026-01"]
+    assert [s.month for s in known_months(ms, "2026-01", 0)] == ["2025-10", "2025-11", "2025-12"]   # not itself
+
+
+def test_known_months_with_a_booking_lead_skips_the_most_recent_months():
+    from mcp.calibration import known_months
+    ms = [stats(f"2025-{m:02d}", ["A"], [1], [1], [0.5]) for m in (10, 11, 12)] + [stats("2026-01", ["A"], [1], [1], [0.5])]
+    assert [s.month for s in known_months(ms, "2026-02", 1)] == ["2025-10", "2025-11", "2025-12"]     # January not yet usable
+    assert [s.month for s in known_months(ms, "2026-02", 2)] == ["2025-10", "2025-11"]
+    assert known_months(ms, "2025-11", 1) == []                      # nothing at least two months back
+
+
+def test_a_later_or_equal_month_can_never_be_known():
+    from mcp.calibration import known_months
+    ms = [stats("2026-05", ["A"], [1], [1], [0.5]), stats("2026-06", ["A"], [1], [1], [0.5])]
+    for lag in (0, 1, 2):
+        assert known_months(ms, "2026-05", lag) == [] and known_months(ms, "2026-04", lag) == []

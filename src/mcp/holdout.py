@@ -28,7 +28,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 from mcp import features as F  # noqa: E402
 from mcp.backtest import THETAS, _tag, aggregate, analyse, merge  # noqa: E402
-from mcp.calibration import make_calibrator, month_stats  # noqa: E402
+from mcp.calibration import known_months, make_calibrator, month_stats  # noqa: E402
 from mcp.connections import ROOT, WEIGHTED  # noqa: E402
 from mcp.model import _codes, bucket_of, cells, fit_rates  # noqa: E402
 from mcp.pricing import load_config  # noqa: E402
@@ -57,8 +57,18 @@ def predict(bundle: dict, df: pd.DataFrame) -> np.ndarray:
     return bundle["gbm"].predict_proba(_codes(df[bundle["features"]], bundle["cats"]))[:, 1]
 
 
-def run(months=range(1, 9), predicate: str | None = None, year: int = 2026) -> dict:
-    """Defaults are the real holdout. A caller may pass other months/year/predicate to smoke-test the path."""
+def attach_v2(df: pd.DataFrame, d2: pd.DataFrame) -> pd.DataFrame:
+    """Add v2's raw probability to the v1 frame by matching connections on their keys, never by row order.
+    Fails loudly if a key repeats or a connection has no match."""
+    out = df.merge(d2[KEYS + ["p_v2_raw"]], on=KEYS, how="left", validate="one_to_one")
+    assert out["p_v2_raw"].notna().all(), "v1 and v2 frames did not match row for row"
+    return out
+
+
+def run(months=range(1, 9), predicate: str | None = None, year: int = 2026, lags=(0,)) -> dict:
+    """Defaults are the real holdout. A caller may pass other months/year/predicate to smoke-test the path,
+    or extra booking-lead `lags` (post-hoc and exploratory: the pre-registered result is lag 0 only)."""
+    models = MODELS + tuple(f"v2_rolling_lag{l}" for l in lags if l)
     cfg = load_config()
     v1, v2 = joblib.load(V1_BUNDLE), joblib.load(V2_BUNDLE)
     base_rates = pd.DataFrame([(h, int(b), r) for (h, b), r in fit_rates(cells("FIT"), ("hub", "bucket")).items()],
@@ -85,8 +95,7 @@ def run(months=range(1, 9), predicate: str | None = None, year: int = 2026) -> d
         df = df[~bad].copy()
         dropped += int(bad.sum())
         d2["p_v2_raw"] = predict(v2, d2)
-        df = df.merge(d2[KEYS + ["p_v2_raw"]], on=KEYS, how="left", validate="one_to_one")
-        assert df["p_v2_raw"].notna().all(), "v1 and v2 frames did not match row for row"
+        df = attach_v2(df, d2)
         df["bucket"] = bucket_of(df["slack_min"])
         df = df.merge(base_rates, on=["hub", "bucket"], how="left")
         raw1 = predict(v1, df)
@@ -94,16 +103,20 @@ def run(months=range(1, 9), predicate: str | None = None, year: int = 2026) -> d
         hubs = df["hub"].to_numpy()
         df["p_v2_static"] = static_cal(df["p_v2_raw"].to_numpy(), hubs)
         label = f"{year}-{month:02d}"
-        df["p_v2_rolling"] = make_calibrator(v2["policy"], v2["k"], known)(df["p_v2_raw"].to_numpy(), hubs)
+        df["p_v2_rolling"] = make_calibrator(v2["policy"], v2["k"], known_months(known, label, 0))(df["p_v2_raw"].to_numpy(), hubs)
+        for lag in lags:
+            if lag:
+                df[f"p_v2_rolling_lag{lag}"] = make_calibrator(v2["policy"], v2["k"], known_months(known, label, lag))(
+                    df["p_v2_raw"].to_numpy(), hubs)
         day = df["out_sched_dep"].dt.normalize()
         df["week"] = (day - pd.to_timedelta(df["out_sched_dep"].dt.day_of_week, unit="D")).astype(str)
         df["month"] = df["out_sched_dep"].dt.month
-        parts.append(aggregate(df, cfg, MODELS, product=PRODUCT, buy=PRODUCT))
+        parts.append(aggregate(df, cfg, models, product=PRODUCT, buy=PRODUCT))
         # only now does this month's outcome become 'known' to the rolling policy, for the NEXT month
         known.append(month_stats(label, df["hub"], df["y"], df["weight"], df["p_v2_raw"]))
         kept += len(df)
         print(f"{label}: {len(df):,} connections scored (dropped {int(bad.sum())})", flush=True)
-    res = analyse(merge(parts, MODELS), cfg, flat_train, MODELS, PRODUCT)
+    res = analyse(merge(parts, models), cfg, flat_train, models, PRODUCT)
     res["rows"] = {"scored": kept, "dropped_missing_severity_or_fare": dropped}
     res["v2"] = {"feature_set": v2["feature_set"], "policy": v2["policy"], "k": v2["k"]}
     return res
@@ -158,5 +171,28 @@ def main() -> None:
         print(f"  {m:11s} {r['ratio']:.3f} [{r['lo']:.3f}, {r['hi']:.3f}]")
 
 
+def exploratory_lags(lags=(1, 2)) -> None:
+    """POST-HOC and exploratory. Re-scores the 2026 months a second time to ask how much the monthly
+    recalibration depends on seeing the whole previous month. The pre-registered result in results/holdout.json
+    is unchanged and remains the validation; this cannot be one. Writes results/holdout_lag_exploratory.json."""
+    res = run(lags=(0, *lags))
+    official = json.loads(RESULTS.read_text())["overall"]["v2_rolling"]["0"]["ratio"]
+    assert abs(res["overall"]["v2_rolling"]["0"]["ratio"] - official) < 1e-9, "lag 0 must reproduce the pre-registered run"
+    out = {"status": "post-hoc exploratory; not validation", "lag0_reproduces_preregistered_run": True,
+           "overall": {m: res["overall"][m] for m in res["overall"] if m.startswith("v2_rolling") or m == "v1_iso"},
+           "scores": {m: res["scores"][m] for m in res["scores"] if m.startswith("v2_rolling") or m == "v1_iso"},
+           "by_hub": {h: {m: v[m] for m in v if m.startswith("v2_rolling")} for h, v in res["by_hub"].items()}}
+    (ROOT / "results" / "holdout_lag_exploratory.json").write_text(json.dumps(out, indent=2, default=float))
+    print("\nexploratory: realized / target at theta=0, by how stale the calibrator is")
+    for m in out["overall"]:
+        r = out["overall"][m]["0"]
+        print(f"  {m:16s} {r['ratio']:.3f} [{r['lo']:.3f}, {r['hi']:.3f}]   ECE {out['scores'][m]['ece']:.4f}  mean pred {out['scores'][m]['mean_pred']:.4f}")
+
+
 if __name__ == "__main__":
-    main()
+    import sys
+
+    if "--exploratory-lags" in sys.argv:
+        exploratory_lags()
+    else:
+        main()

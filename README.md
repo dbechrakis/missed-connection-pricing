@@ -1,6 +1,6 @@
 # Missed-connection protection pricing
 
-> **Prices fixed before the test ran a 60.5% loss ratio on 37.1 million connections from January to August 2026 (95% interval 55.4% to 66.1%) against a 65% target. A flat price would have run 117% if buyers favour risky connections. Under a 10% price cap, protection should not be offered below about 60 minutes at DEN, CLT, DFW and ORD (45 at ATL); that cut-off moves to 75 to 105 minutes at a 5% cap, because it comes from an assumed cap, not from the data.**
+> **Prices fixed before the test ran a 60.5% loss ratio on 37.1 million connections from January to August 2026 (95% interval 55.4% to 66.1%) against a 65% target. A flat price would have run 117% if buyers favour risky connections. Under an assumed 10% price cap, fewer than half of the connections under about 60 minutes can be priced within the cap at DEN, CLT, DFW and ORD (Atlanta has no such limit), so protection should be offered selectively there; at a 5% cap that line moves to 75 to 105 minutes. It comes from the assumed cap and costs, not from the data.**
 
 **[Try the live demo](https://dbechrakis.github.io/missed-connection-pricing/)** · [Product brief](docs/product-brief.md) · [Method](docs/method.md) · [Validation](VALIDATION.md) · [Decision log](docs/decisions.md)
 
@@ -16,9 +16,13 @@ How much should an online travel agency charge to protect a connection, and on w
 
 ![2026 holdout by hub](docs/figures/holdout_by_hub.png)
 
-**3. Why not one price?** As buyers favour risky connections (θ rises), a flat price drifts to 2.7× the target; the per-connection price barely moves. At θ = 0 (buyers ignore risk) a flat price is about as good, so the case for tiering is robustness to *who buys*, which only an experiment can measure.
+**3. Why not one price?** If buyers lean toward the connections the model already rates as risky (θ rises), a flat price drifts to 2.7× the target while the per-connection price barely moves. At θ = 0 (buyers ignore risk) a flat price is about as good. This test is deliberately generous to tiering: a calibrated model cannot lose to selection on its own probability. The harder case, buyers who know something the model does not, is simulated in the fourth picture.
 
 ![Loss ratio against buyer self-selection](docs/figures/holdout_vs_selection.png)
+
+**4. What if buyers know more than the model?** Give every connection a hidden risk factor that buyers can see and the price cannot (spread κ, on a log scale), and let buyers favour risky connections with strength θ. Pricing per connection then runs at **exp(θκ²) × target** whatever the data (simulated on our real risk distribution to confirm), while a flat price suffers that *and* the selection on visible risk. At θ = 1: κ = 0.25 gives 1.06 (per connection) against 1.98 (flat); κ = 0.5 gives 1.27 against 2.36. κ cannot be measured from public data; the model's own errors by month and by hub put a floor of about 0.12 to 0.14 on it (about 2% exposure at θ = 1). So per-connection pricing is never worse than a flat price, but it is not immune; how exposed it is depends on something only an experiment can measure ([`mcp.selection`](src/mcp/selection.py), exploratory).
+
+![Selection on information the price does not have](docs/figures/selection_private_info.png)
 
 | Jan to Aug 2026, θ = 0 | Loss ratio (target 65%) | 95% interval |
 | --- | --- | --- |
@@ -33,22 +37,26 @@ How much should an online travel agency charge to protect a connection, and on w
 These are limits, not footnotes.
 
 - **The connections are synthetic.** They are every same-airline pairing of an arriving and a departing flight at five US hubs, weighted by real route traffic. The data does not say which passengers actually connected, so risk is modelled, not observed in travellers.
-- **The minimum connection time is an assumption** (45 minutes; 35 and 60 tested on the label). Same airline only, US domestic only.
+- **The minimum connection time is an assumption** (45 minutes; 35 and 60 were tested by rebuilding the whole population, since MCT also decides which pairings exist, so those rates are not a pure label sensitivity). Same airline only, US domestic only.
 - **Costs, the 65% target and the 10% price cap are assumptions** ($75 to rebook, $180 more if the next flight is the next day). The headline ratio hardly depends on the dollar amounts; the prices and the offer cut-off do.
 - **Demand is untested.** On one ticket an airline usually rebooks a missed connection for free, so protection must cover something extra. How many people would buy, at what price, and how strongly the riskiest connections self-select (θ) need an experiment ([designed in the brief](docs/product-brief.md#7-the-experiment)).
 - **Severity is a lower bound.** Seat availability on the next flight is not observable.
-- **No seasonal price.** A month term learned from two years partly memorises one-off events; the version that helped re-learns the *level* each month instead.
-- **Hubs are not equally well priced.** In every version Chicago (ORD) runs about 16% too cheap and Charlotte (CLT) and Dallas (DFW) about 12% too dear.
+- **No seasonal price in the demo.** v1 has no month term. v2 has one, and with a frozen calibrator it priced 2026 17% too high; because v2's good result also re-fits its calibrator every month, the 2026 test cannot say how much the month term itself helped.
+- **Hubs are not equally well priced.** The ordering persists in every version but one: Chicago (ORD) too cheap, Charlotte (CLT) and Dallas (DFW) too dear. On the 2026 test v1 (the demo's model) priced ORD about 7% too cheap and CLT and DFW about 18% and 16% too dear; v2 rolling about 16% too cheap and 12% and 12% too dear.
 - **Eight months, 35 weeks of clean test data.** The intervals are wide (about ±0.08 around the ratio).
-- **Learning the loss ratio takes about 27 weeks to ±10% at any volume**, because weather and operations hit all travellers in a week at once.
+- **Learning the loss ratio takes at least 27 weeks to ±10%**, however many policies are sold, because weather and operations hit all travellers in a week at once (89 weeks at 100 policies a week, 34 at 1,000).
+- **The intervals are probably a little narrow.** They treat weeks as independent, but the level moves by month. A t-interval over the eight monthly ratios is about ±0.11 for v1 and ±0.12 for v2 rolling, against about ±0.08 from the bootstrap; neither changes whether the interval contains the target.
+- **Not every synthetic connection is a real itinerary.** 23% have no DB1B route (their miss rates differ by about one point from the rest). Regional airlines fly for several mainline brands and the data used here does not say which brand sold a ticket, so some regional pairings may combine brands that could not be booked together.
+- **An onward flight cancelled by the airline is not covered.** Those pairs are excluded from the label; they are about 18% as many events as missed connections, so a product that paid for them would see that many more claims before any difference in cost.
+- **The loss ratio realizes the miss event, not what a miss cost.** Claim amounts are a schedule-based assumption; nothing here observes the actual cost of a missed connection.
 
 ## How it was validated
 
-Prices are set from information up to the booking, then scored on months the model has never seen. Every test was **pre-registered**: the protocol, the frozen model hashes and the list of what may not change afterwards were committed before the window was read, so the git history shows nothing was tuned on it.
+Prices are set from information up to the booking, then scored on months the model has never seen. Every test was **pre-registered**: the protocol, the frozen model hashes and the list of what may not change afterwards were committed *locally* before the window was read. They reached GitHub together with the results, so the commit times are the author's own and cannot be independently checked; the two model files are in the repository so the frozen hashes can be verified.
 
 | Window | Role | Result |
 | --- | --- | --- |
-| 2024 to mid-2025 | Fit and select v1 | Brier skill over the baseline about 5% (booking-time information is mostly connection time) |
+| 2024 to mid-2025 | Fit and select v1 | Brier about 1 to 2% better than a hub × connection-time baseline (itself about 5% better than a flat rate): booking-time information is mostly connection time |
 | July to December 2025 | v1 backtest, read once | 59.1% loss ratio vs 65% (spent; v1 over-priced because its calibrator carried a high level) |
 | through December 2025 | v2 development (walk-forward) | Not quoted as validation |
 | **January to August 2026** | **Clean holdout of v1 and v2, read once** | **60.5% and 62.3%**, both intervals contain 65% |
@@ -60,7 +68,7 @@ What did not go as hoped is written up in [`VALIDATION.md`](VALIDATION.md): v2 d
 Python 3.12. About 3 GB of downloads and 6 GB of Parquet on disk. On a laptop the compute (DuckDB, scikit-learn) is roughly two hours in total; download time depends on how BTS throttles you. Raw data is not in the repository.
 
 ```bash
-pip install -r requirements.txt
+pip install -r requirements.lock                    # the exact versions the frozen models were built with (requirements.txt gives looser ranges)
 bash scripts/download_data.sh                       # DB1B and weather (BTS On-Time is fetched by ingest)
 cd src
 python -m mcp.ingest --start 2024-01 --end 2025-12  # BTS On-Time to Parquet
@@ -70,8 +78,10 @@ python -m mcp.connections --mct 45 35 60            # synthetic connections and 
 python -m mcp.connections --mct 45 --no-build --weighted   # attach the DB1B route weights
 python -m mcp.model                                 # baseline and metrics
 python -m mcp.features                              # booking-time feature samples
+python ../notebooks/01_eda.py                       # exploratory figures (docs/figures) and results/eda.json; train and validation months only
 python -m mcp.model models && python -m mcp.model final   # v1: logistic, boosting, calibration
 python -m mcp.pricing                               # severity, price table, sensitivity
+python -m mcp.selection                             # exploratory: adverse selection on information the price lacks
 python -m mcp.backtest                              # the July to December 2025 backtest (reads the test window once)
 python -m mcp.v2 select && python -m mcp.v2 fit     # v2: walk-forward selection on 2025 and the final fit
 cd .. && python -m pytest                           # the test suite (no data needed)

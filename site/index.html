@@ -88,7 +88,7 @@ footer { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--line);
 
       <div class="label" id="slack-label">Time between flights</div>
       <div class="range-out"><b id="slack-out"></b><span class="hint">scheduled</span></div>
-      <input id="slack" type="range" min="45" max="225" step="15" aria-labelledby="slack-label">
+      <input id="slack" type="range" min="45" max="210" step="15" value="45" aria-labelledby="slack-label">
 
       <fieldset>
         <legend class="label">If it is missed, the next flight to the destination leaves</legend>
@@ -130,7 +130,8 @@ footer { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--line);
     <li><b>The costs, the 65% target and the 10% cap are assumptions</b> ($<span id="a-r"></span> to rebook, $<span id="a-n"></span> more if the next flight is the next day). The results barely depend on the dollar amounts, but the prices do.</li>
     <li><b>Demand is untested.</b> On one ticket an airline usually rebooks a missed connection for free, so the offer has to cover something extra. How many people would buy, and at what price, needs an experiment (see the product brief).</li>
     <li><b>No seasonal price.</b> One year of history could not separate seasons from one-off events, so the model has no month term and these prices are the same all year.</li>
-    <li><b>Hubs are not equally well priced.</b> Chicago runs about 16% too cheap and Charlotte and Dallas about 12% too dear in the validation; fixing this is the next step.</li>
+    <li id="hub-note"></li>
+    <li id="level-note"></li>
     <li><b>Five airports, same-airline connections, US domestic, data to August 2026.</b></li>
   </ul>
 
@@ -177,6 +178,7 @@ footer { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--line);
     var c = cell(st.hub, st.carrier, st.slack), fallback = false;
     if (!c) { c = cell(st.hub, "ALL", st.slack); fallback = true; }
     $("slack-out").textContent = st.slack + "–" + (st.slack + 14) + " minutes";
+    $("slack").setAttribute("aria-valuetext", st.slack + " to " + (st.slack + 14) + " minutes");
     var price = c["price_" + st.sc], share = c["offer_" + st.sc];
     var cost = price * A.target_loss_ratio;
     $("m-p").textContent = pct(c.p);
@@ -238,11 +240,18 @@ footer { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--line);
       "these prices ran a <strong>" + pct(h.v1.loss_ratio) + " loss ratio</strong> against a <strong>" + pct(t, 0) + " target</strong> (95% interval " + pct(h.v1.lo) + " to " + pct(h.v1.hi) + "). " +
       "Average rates fitted on 2024 alone would have run <strong>" + pct(h.baseline.loss_ratio, 0) + "</strong>. " +
       '<a href="https://github.com/dbechrakis/missed-connection-pricing/blob/main/VALIDATION.md">How this was tested</a>.';
-    $("why").innerHTML = "Tight connections fail far more often than loose ones, so their protection costs about eight times as much to provide. A single average price is too cheap for the people most likely to claim, and those are the ones who buy it. On the same 2026 data:";
+    $("why").innerHTML = "Tight connections fail far more often than loose ones, so their protection costs about eight times as much to provide. If the people most likely to claim are also the most likely to buy (public data cannot say whether they are), a single average price loses money on them. The test below assumes buyers lean toward connections the model already rates as risky; buyers who know something the model does not would hurt every price, including this one. On the same 2026 data:";
     $("why-body").innerHTML =
       "<tr><td>Priced per connection (this demo)</td><td>" + pct(h.v1.loss_ratio) + "</td><td>" + pct(h.tiered_theta1 * t) + "</td></tr>" +
       "<tr><td>One flat price</td><td>" + pct(h.flat_theta0 * t) + "</td><td>" + pct(h.flat_theta1 * t) + "</td></tr>";
     $("a-r").textContent = A.rebooking_cost; $("a-n").textContent = A.overnight_cost;
+    var NAME = { ATL: "Atlanta", CLT: "Charlotte", DEN: "Denver", DFW: "Dallas–Fort Worth", ORD: "Chicago" };
+    var parts = Object.keys(h.by_hub_v1).sort().map(function (k) {
+      var g = h.by_hub_v1[k] - 1, a = Math.abs(g * 100);
+      return NAME[k] + (a < 3 ? " about right" : " about " + a.toFixed(0) + "% too " + (g > 0 ? "cheap" : "dear"));
+    });
+    $("hub-note").innerHTML = "<b>Hubs are not equally well priced.</b> Against the " + pct(t, 0) + " target on the 2026 test, this model priced " + parts.join(", ") + ". Fixing this is the next step.";
+    $("level-note").innerHTML = "<b>The probabilities here are one model's level.</b> This model was calibrated on spring 2025; on the 2026 test it predicted " + pct(h.v1_level.predicted) + " of connections missed and " + pct(h.v1_level.observed) + " were. Recalibrating each month is the plan in the product brief.";
   }
 
   $("hub").addEventListener("change", function (e) { st.hub = e.target.value; fillCarriers(); render(); });

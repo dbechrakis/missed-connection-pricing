@@ -135,7 +135,7 @@ One line per decision: what, why, and what it costs. Raw material for `method.md
 | Rows matched by key, not order, between v1 and v2 feature frames | Row order from separate queries is not guaranteed | A one-to-one check aborts on duplicates |
 | Refactored the backtest accounting; reproduced earlier numbers exactly on Apr-Jun 2025 | Refactors must not change results | Checked, not assumed |
 
-**Result:** frozen v1 ran 60.5% and v2 rolling 62.3% against a 65% target; both intervals contain the target. v2 is a little better calibrated; the gain came from re-fitting the level monthly, not from the seasonal term. ORD is under-priced and CLT/DFW over-priced in every schedule: hub-level calibration is the open defect.
+**Result:** frozen v1 ran 60.5% and v2 rolling 62.3% against a 65% target; both intervals contain the target. v2 is a little better calibrated. v2 static (same model and month term, frozen calibrator) priced 17% high, so re-fitting the calibrator monthly is what separates the two; the month term's own effect cannot be isolated. ORD is under-priced and CLT/DFW over-priced in every schedule: hub-level calibration is the open defect.
 
 ## Product brief, experiment design and a price floor (step 9)
 
@@ -143,7 +143,7 @@ One line per decision: what, why, and what it costs. Raw material for `method.md
 | --- | --- | --- |
 | The brief says up front that demand is untested and that airlines usually rebook for free on a single ticket | Analytics model risk, not demand; a flagship should not imply otherwise | The proposition may be weaker than the numbers suggest |
 | Sample sizes computed in tested code from measured inputs (weekly variability of the ratio, claim-cost skew, spread of log risk) | No size is stated from memory; each checks against a textbook value | Baseline attach rate stays a grid because it is unknown |
-| Weeks to learn the loss ratio do not shrink with volume (about 27 weeks for +-10%) | Weather and operations hit all travellers in a week at once | The launch must bound loss before it can measure it |
+| Weeks to learn the loss ratio barely shrink with volume (at least 27 weeks for +-10%; 89 at 100 policies a week) | Weather and operations hit all travellers in a week at once | The launch must bound loss before it can measure it |
 | Pause rule derived from the measured weekly variability (1 + 2 x 0.26 = 1.5x expected, two weeks running) | A threshold taken from data, not guessed | Needs live monitoring |
 | H2 (selection strength) is sized separately and is cheap | It uses risk variation that already exists in offered connections | Needs enough range of risk across offers |
 | Price floor of 0.9% P(miss) in `config/guards.yaml`, not in `pricing.yaml` | The calibrator gave exactly 0 for 0.0075% of weight; a $0 price is never acceptable | Applies to the product from now on, not to the frozen validation numbers; the frozen config hash stays true |

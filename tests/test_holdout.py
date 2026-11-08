@@ -28,7 +28,6 @@ def test_only_holdout_py_reads_the_holdout_window_and_only_once():
 
 
 def test_v2_development_globs_cannot_match_a_2026_file():
-    assert fnmatch.fnmatch("data/parquet/connections_weighted/mct=45/year=2025/month=12.parquet", DEV_GLOB.split("/connections_weighted/")[0] + "/connections_weighted/mct=45/year=2025/month=12.parquet") or True
     pattern = DEV_GLOB.rsplit("/", 2)[-2]                      # the year folder pattern
     assert fnmatch.fnmatch("year=2024", pattern) and fnmatch.fnmatch("year=2025", pattern)
     assert not fnmatch.fnmatch("year=2026", pattern)
@@ -106,3 +105,32 @@ def test_walk_forward_follows_the_level_when_the_past_month_shows_it():
     res = {(r["policy"], r["k"]): r for r in walk_forward(months, stats, CFG, ["2025-07"])}
     assert res[("level_global", 1)]["realized_over_target"] == pytest.approx(1.0)
     assert res[("none", 0)]["realized_over_target"] == pytest.approx(3.0)
+
+
+# ---- the v1 / v2 frames are matched by key, never by row order --------------------------------------
+
+def _frames(n=50):
+    from mcp.holdout import KEYS
+    base = pd.DataFrame({k: np.arange(n) + (i * 1000) for i, k in enumerate(KEYS)})
+    base["p_v2_raw"] = np.linspace(0.01, 0.5, n)
+    return base
+
+
+def test_attach_v2_aligns_rows_even_when_the_second_frame_is_in_a_different_order():
+    from mcp.holdout import attach_v2
+    d2 = _frames()
+    df = d2.drop(columns="p_v2_raw").assign(tag=np.arange(len(d2)))
+    shuffled = d2.sample(frac=1.0, random_state=3).reset_index(drop=True)
+    out = attach_v2(df, shuffled)
+    assert (out["p_v2_raw"].to_numpy() == d2["p_v2_raw"].to_numpy()).all()       # row i still gets its own probability
+    assert (out["tag"].to_numpy() == np.arange(len(d2))).all()
+
+
+def test_attach_v2_fails_loudly_on_a_repeated_key_or_a_missing_connection():
+    from mcp.holdout import attach_v2
+    d2 = _frames()
+    df = d2.drop(columns="p_v2_raw")
+    with pytest.raises(Exception):
+        attach_v2(df, pd.concat([d2, d2.iloc[[0]]], ignore_index=True))          # duplicate key
+    with pytest.raises(AssertionError):
+        attach_v2(df, d2.iloc[1:])                                                # one connection unmatched

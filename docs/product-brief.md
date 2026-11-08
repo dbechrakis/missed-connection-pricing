@@ -13,7 +13,7 @@ Author: Dimitris Bechrakis · November 2026 · Status: proposal, built on public
 | --- | --- |
 | **Problem** | Travellers on itineraries with a connection worry about missing it; an agency that sells those itineraries cannot today price that risk per connection, so it either offers nothing or a flat price. |
 | **Proposal** | A protection add-on priced per connection from its measured risk, offered only where the price is acceptable, with a warning or an alternative itinerary where it is not. |
-| **Evidence it can be priced** | On Jan to Aug 2026 data that nothing in the project had seen, prices set from information up to 2025 ran a **60.5% to 62.3% loss ratio against a 65% target** (intervals contain the target). A flat price would have been fine only if buyers ignore risk; if they self-select, it ran **1.8x** the target (θ = 1). |
+| **Evidence it can be priced** | On Jan to Aug 2026 data that nothing in the project had seen, prices fixed before the test (v1 from information to mid-2025; v2 recalibrated monthly) ran a **60.5% to 62.3% loss ratio against a 65% target** (intervals contain the target). A flat price was fine only if buyers ignore risk; if they lean toward connections the model already rates as risky it ran **1.8x** the target (θ = 1). Buyers who know more than the model would expose any price (Section 7.3). |
 | **What is not known** | How many travellers buy, what they will pay, how strongly the riskiest connections self-select, and whether the benefit must be filed as insurance. |
 | **Ask** | Approve a staged launch: ship a monitored MVP at a capped scale, run the pricing experiment in Section 7, and decide on scale-up after the first read. |
 
@@ -57,13 +57,22 @@ If a connection is missed, the next flight of the same airline to the same city 
 | --- | --- | --- | --- |
 | **Margin per offer shown** (north star) | attach rate × (premium − expected claim cost) per traveller shown an offer | positive and rising | Combines demand and risk in one number |
 | Attach rate | travellers who buy ÷ travellers shown an offer | **set after the first read** | Unknown today; do not guess a target |
-| Realized loss ratio | claims paid ÷ premium, rolling | 65% ± 10% (assumption) | Needs about 27 weeks to know to ±10% at scale (Section 7.4) |
+| Realized loss ratio | claims paid ÷ premium, rolling | 65% ± 10% (assumption) | Needs at least 27 weeks to know to ±10%, more for a small book (Section 7.4) |
 | Time to payout | claim event to money in hand | to be set with operations | Automatic verification is the lever |
 | **NPS after a claim** | NPS asked of claimants only | to be set after the first claims | The product's real test of trust |
 | Complaint rate, refund rate | per 1,000 policies | guardrail: no increase vs checkout baseline | Stop signal |
 | Share of offers shown at the price cap | offers within 10% of the cap | watch | A sign the cap is binding |
 
 The 65% loss ratio, the ±10% band and the 10% price cap are **assumptions** of this brief (see the register in Section 9).
+
+**Illustrative unit economics.** The average price in the 2026 test was about $20.08 at a 65% target loss ratio, so the gross margin is about $7.03 per policy before distribution, handling and fraud costs (unknown). The attach rate is also unknown, so this is a grid, not a forecast:
+
+| Attach rate | Policies per 1,000 offers shown | Gross margin per 1,000 offers shown |
+| --- | --- | --- |
+| 1% | 10 | $70 |
+| 2% | 20 | $141 |
+| 5% | 50 | $351 |
+| 10% | 100 | $703 |
 
 ---
 
@@ -76,6 +85,12 @@ The 65% loss ratio, the ±10% band and the 10% price cap are **assumptions** of 
 - A monthly recalibration job: re-fit the level of the price table on the last six months of outcomes.
 - Automatic claim verification from public flight status data; a defined, capped benefit (the amount is a product decision; the validation uses assumed costs of $75 for rebooking and $180 more when the next flight is the next day).
 - A pause rule (Section 7.5) and a weekly dashboard of attach, claims and loss ratio by hub.
+
+**The benefit, precisely (to be finalised with operations and legal).**
+- *Triggered* when the traveller misses the onward flight because the arriving flight was late, cancelled or diverted; not when the traveller reaches the gate late through their own fault.
+- *Pays* rebooking help plus a fixed allowance for hotel, meals and transport if the next flight is the next day. The amounts are a product decision; the validation assumes $75 and $180 more.
+- *Not covered in the MVP:* the airline cancelling the **onward** flight. That is the airline's own duty to rebook, and the validation excludes those pairs. They are about 18% as many events as missed connections in the data (928,102 against 5,261,045 in 2024), and a quarter of them also had a disrupted arriving flight, so adding this cover would raise claims by up to that much before any difference in cost. Price it as a sensitivity before adding it.
+- The overlap with the airline's duty to rebook is the main reason a traveller may see the add-on as redundant (H4).
 
 **Out of scope for the MVP.**
 - Connections between different airlines or self-transfers; airports beyond the five hubs; international itineraries.
@@ -127,7 +142,7 @@ The analytics fix the *cost* side. The experiment measures the *demand* side and
 | # | Hypothesis | How it is measured |
 | --- | --- | --- |
 | H1 | Attach rate falls as price rises, and by how much (price elasticity) | Attach rate by price arm |
-| H2 | Riskier connections are bought more often, beyond what price explains (selection strength θ) | Slope of purchase on risk, controlling for price |
+| H2 | (a) Riskier connections are bought more often, beyond what price explains (selection on risk the price already sees, θ); (b) buyers are riskier than the model expects (selection on risk it cannot see) | (a) Slope of purchase on risk, controlling for price. (b) Realized ÷ model-expected misses among buyers, against the same ratio among everyone shown the offer |
 | H3 | The willingness-to-pay cap sits near the assumed 10% of fare | Attach and margin by price-to-fare ratio |
 | H4 | The message matters: "covers hotel and meals" sells better than "covers a missed connection" | Attach by message arm, price held fixed |
 
@@ -163,6 +178,8 @@ All figures are computed in `src/mcp/experiment.py` and tested against textbook 
 
 H2 is much cheaper than H1: it uses variation in risk that already exists in the offered connections, not a price change.
 
+**H2(b) is the one that matters for the loss ratio, and it needs no claims to measure.** Flight outcomes are public, so for every connection shown an offer we can compute afterwards whether it was missed, whether or not the traveller bought. If buyers' connections miss more often than the model expected, and non-buyers' do not, that gap is the exposure to information the price cannot see (the project simulates it: pricing per connection runs at about exp(θκ²) times the target, 1.06 at θ = 1 for a hidden-risk spread κ of 0.25; see the README). It can be read as soon as enough offers have been shown, long before the loss ratio can.
+
 ### 7.4 How long until the loss ratio is known
 
 This is the finding that shapes the whole launch. **Volume does not shorten it much**, because weather and operational events hit every traveller in a week at once. From the holdout, the realized/target ratio has a weekly coefficient of variation of about 0.26. A single policy's claim cost is very skewed (coefficient of variation about 4.0), which adds noise for a small book.
@@ -174,12 +191,12 @@ This is the finding that shapes the whole launch. **Volume does not shorten it m
 | 10,000 | 7 | 28 |
 | 100,000 | 7 | 27 |
 
-At any volume, **about 27 weeks (six months)** are needed for ±10%, and **108 weeks** for ±5%. Attach rate can be read in weeks; the loss ratio cannot. The launch must therefore bound the risk before it can measure it.
+Even at unlimited volume, **at least 27 weeks (six months)** are needed for ±10%, and **108 weeks** for ±5%. Attach rate can be read in weeks; the loss ratio cannot. The launch must therefore bound the risk before it can measure it.
 
 ### 7.5 Bounding the risk in the meantime
 
 - **Capped exposure:** a ceiling on weekly policies sold and on the benefit per policy.
-- **Pause rule:** if weekly claims exceed the expected figure by more than two weekly standard deviations (about 1.5x expected) for two weeks in a row, pause sales in that hub and review. The threshold comes from the measured weekly variability, not from a guess.
+- **Pause rule:** flag a week when claims exceed expected by more than two standard deviations of that week's loss ratio, and review the hub after two flagged weeks in a row. The threshold depends on volume, because a small book is noisier (measured weekly variability 0.26, plus the skew of single claims): about **1.96x expected at 100 policies a week, 1.59x at 1,000, 1.54x at 10,000 and 1.53x at 100,000**. If weeks were independent, a two-week false alarm would have probability about 0.05%; weather clusters weeks together, so treat it as a trigger for review, not an automatic stop.
 - **Recalibration:** monthly. A frozen price went 17% wrong in the test; re-learning the level fixed most of it.
 - **Event handling:** a manual switch to stop selling at an airport during a declared outage or severe weather, since the model cannot see the day.
 
@@ -192,12 +209,13 @@ Impact and confidence are judgement calls, stated with their reasons; effort is 
 | Order | Item | Why now / next | Evidence in this repo | Effort |
 | --- | --- | --- | --- | --- |
 | Now | Pricing experiment (Section 7) | It is the only way to learn demand, willingness to pay and θ; everything after depends on it | θ is not identifiable from public data | M |
-| Now | Monthly recalibration job | A frozen price was 17% wrong; the rolling one was best calibrated | 2026 holdout | S |
+| Now | Monthly recalibration job | A frozen price was 17% wrong; the rolling one was best calibrated. It must work with the booking lead (prices are quoted weeks ahead), which the lagged test in `VALIDATION.md` Part 4 checks | 2026 holdout, Part 4 | S |
+| Now | Benefit definition, including onward cancellations | The loss ratio depends on what is paid; the airline's own duty to rebook may make the offer redundant | Section 4; 18% more events if onward cancellations were covered | S |
 | Now | Claim auto-verification and payout rules | Trust, and cost per claim | Not tested by this repo | M |
 | Now | Pause rule and weekly dashboard | The loss ratio cannot be measured fast (Section 7.4) | Weekly variability ≈ 0.26 | S |
 | Next | Hub-level calibration | ORD is under-priced about 16% and CLT, DFW over-priced about 12% in every schedule | 2025 and 2026 backtests | S to M |
 | Next | Cross-carrier and self-transfer connections | Where the airline gives no protection, the proposition is strongest (Section 2) | Out of scope of the data here | L |
-| Next | Day-of alerts | The model's ceiling is low because most of the risk is day-of; the value of knowing is unmeasured | Brier skill from booking-time features about 5% | M |
+| Next | Day-of alerts | The model's ceiling is low because most of the risk is day-of; the value of knowing is unmeasured | Booking-time features improve Brier by only about 1 to 2% over a connection-time baseline | M |
 | Later | Seat availability, live severity | Makes the benefit estimate exact | Severity is a lower bound today | L |
 | Later | More hubs | Wider coverage | Same method, new data | M |
 
@@ -211,7 +229,7 @@ Impact and confidence are judgement calls, stated with their reasons; effort is 
 3. **Claim definition.** A "missed connection" trigger, the benefit amount and what is excluded (for example, a traveller late to the gate through their own fault) must be fixed before launch.
 4. **Real costs.** The benefit and handling costs here are assumptions; the real ones change the price.
 
-**Known weaknesses of the evidence.** Hub-level miscalibration (above). No seasonal term that clearly helps. Only eight months of clean test data. Connections are synthetic: the data show flights, not which passengers actually connected. The minimum connection time is assumed (45 minutes, with 35 and 60 tested on the label only).
+**Known weaknesses of the evidence.** Hub-level miscalibration (above). No seasonal term that clearly helps. Only eight months of clean test data. Connections are synthetic: the data show flights, not which passengers actually connected. The minimum connection time is assumed (45 minutes; 35 and 60 were tested by rebuilding the population, since MCT also decides which pairings exist).
 
 **Assumptions register.**
 

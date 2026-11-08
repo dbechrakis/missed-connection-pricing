@@ -7,5 +7,7 @@ __pycache__/
 docs/spec.md
 docs/*.docx
 .serena/
-models/
+models/*
+!models/pmiss.joblib
+!models/pmiss_v2.joblib
 .claude/

@@ -57,3 +57,11 @@ def test_volume_noise_by_hand():
     # cv_total^2 = 0.25^2 + 4^2/1000 = 0.0625 + 0.016 = 0.0785 -> cv 0.28018; (1.96 x 0.28018 / 0.10)^2 = 30.2 -> 31
     from mcp.experiment import weeks_for_ratio_at_volume
     assert weeks_for_ratio_at_volume(0.25, 4.0, 1000, 0.10) == 31
+
+
+def test_pause_threshold_by_hand_and_rises_for_small_books():
+    from mcp.experiment import pause_threshold
+    # cv_total^2 = 0.25^2 + 4^2/1000 = 0.0785 -> cv 0.28018 -> 1 + 2 x 0.28018 = 1.5604
+    assert pause_threshold(0.25, 4.0, 1000) == pytest.approx(1.5604, abs=1e-3)
+    assert pause_threshold(0.25, 4.0, 100) > pause_threshold(0.25, 4.0, 1000) > pause_threshold(0.25, 4.0, 10_000_000)
+    assert pause_threshold(0.25, 4.0, 10_000_000) == pytest.approx(1.5, abs=0.01)    # large book: 1 + 2 x weekly cv

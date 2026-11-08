@@ -129,3 +129,17 @@ def test_mct_changes_label():
     rows = pair(in_arr_delay=20)  # arrives 10:20
     assert one(rows, mct=45)["missed"] is True    # 11:05 > 11:00
     assert one(rows, mct=35)["missed"] is False   # 10:55 <= 11:00
+
+
+def test_westbound_flight_negative_timezone_shift_is_recovered():
+    # ATL 10:00 ET -> DEN 11:00 MT with 180 minutes scheduled: the clock gains only 1 hour while 3 hours pass (shift -2h).
+    i = flight(1, "ATL", "DEN", 1000, 1100, 180)
+    o = flight(2, "DEN", "LAX", 1200, 1300, 150)
+    assert one([i, o])["slack_min"] == 60
+
+
+def test_eastbound_overnight_flight_crossing_midnight_and_a_timezone():
+    # DEN 23:00 MT -> ATL 04:00 ET next day, 180 minutes scheduled (+2h shift): lands 04:00 on the 11th, outbound 05:00 -> slack 60
+    i = flight(1, "DEN", "ATL", 2300, 400, 180, date="2025-03-10")
+    o = flight(2, "ATL", "MIA", 500, 700, 110, date="2025-03-11")
+    assert one([i, o])["slack_min"] == 60

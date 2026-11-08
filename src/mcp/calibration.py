@@ -40,6 +40,22 @@ def month_stats(month: str, hubs, y, w, p) -> MonthStats:
     return MonthStats(month, by_hub, hist)
 
 
+def month_index(label: str) -> int:
+    """'2026-03' -> a month counter, so months can be compared and subtracted."""
+    y, m = label.split("-")
+    return int(y) * 12 + int(m)
+
+
+def known_months(stats: list[MonthStats], month: str, lag: int = 0) -> list[MonthStats]:
+    """Months whose outcomes are known when pricing `month`: those at least 1 + lag months earlier.
+
+    lag = 0 means the whole previous month is known (the pre-registered 2026 run). A booking is made weeks
+    before the flight, so a real policy cannot see the last weeks of the previous month: lag = 1 is the
+    cautious reading (only months up to two months back), lag = 2 more so.
+    """
+    return [s for s in stats if month_index(s.month) <= month_index(month) - 1 - lag]
+
+
 def window(stats: list[MonthStats], k: int) -> list[MonthStats]:
     """The last k months by calendar order. If fewer than k exist, all of them."""
     return sorted(stats, key=lambda s: s.month)[-k:] if stats else []

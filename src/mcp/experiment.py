@@ -58,6 +58,13 @@ def weeks_for_ratio_at_volume(cv_week: float, cv_claim: float, policies_per_week
     return weeks_for_ratio(cv_total, half_width, level)
 
 
+def pause_threshold(cv_week: float, cv_claim: float, policies_per_week: float, sigmas: float = 2.0) -> float:
+    """Weekly claims, as a multiple of expected, above which to flag a week: expected x (1 + sigmas x cv_total).
+    The same noise model as weeks_for_ratio_at_volume: a small book is noisier, so its threshold must be higher
+    or it would pause on ordinary weeks."""
+    return float(1 + sigmas * np.sqrt(cv_week**2 + cv_claim**2 / policies_per_week))
+
+
 def derived_inputs() -> dict:
     """Quantities taken from our own results, not assumed."""
     import joblib
@@ -96,6 +103,9 @@ def design(inputs: dict) -> dict:
     out["weeks_for_ratio_by_volume"] = {
         f"{n:,} policies/week": {f"+-{h:.0%}": weeks_for_ratio_at_volume(inputs["cv_week_ratio"], inputs["cv_claim_per_policy"], n, h)
                                  for h in (0.10, 0.20)} for n in (100, 1_000, 10_000, 100_000)}
+    out["pause_threshold_multiple"] = {
+        f"{n:,} policies/week": round(pause_threshold(inputs["cv_week_ratio"], inputs["cv_claim_per_policy"], n), 2)
+        for n in (100, 1_000, 10_000, 100_000)}
     return out
 
 

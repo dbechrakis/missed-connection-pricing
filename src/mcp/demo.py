@@ -79,6 +79,8 @@ def validation_block() -> dict:
                     "observed_miss": h["scores"]["v1_iso"]["observed"],
                     "baseline": ratio(h["overall"]["baseline"]["0"]), "v1": ratio(h["overall"]["v1_iso"]["0"]),
                     "v2_rolling": ratio(h["overall"]["v2_rolling"]["0"]),
+                    "by_hub_v1": {hub: v["v1_iso"]["ratio"] for hub, v in h["by_hub"].items()},
+                    "v1_level": {"predicted": h["scores"]["v1_iso"]["mean_pred"], "observed": h["scores"]["v1_iso"]["observed"]},
                     "flat_theta0": h["flat_pricing"]["flat_train"]["0"]["ratio"],
                     "flat_theta1": h["flat_pricing"]["flat_train"]["1"]["ratio"],
                     "tiered_theta1": h["overall"]["v1_iso"]["1"]["ratio"]},
