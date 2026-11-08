@@ -123,3 +123,16 @@ One line per decision: what, why, and what it costs. Raw material for `method.md
 - Month-by-month the observed rate swung 5.8%-10.4% while the model predicted a flat 9%: no seasonality.
 - Flat pricing is fine if buyers ignore risk and ruinous if they do not (1.4x target at theta 0.5, 1.9x at 1). Tiered stays near 0.9 throughout.
 - **Open question for improvement, not for this window:** a calibration window of a full year, or a seasonal term when more years exist.
+
+## v2 and the 2026 holdout (step 8)
+
+| Decision | Why | Cost / caveat |
+| --- | --- | --- |
+| Treat H2 2025 as spent for v1 and as development data for v2, with a new walk-forward scheme | Fixes tried on the spent window would prove nothing; the clean test is new data | H2 2025 numbers for v2 must never be quoted as validation |
+| Download Jan-Aug 2026 and keep it sealed (quiet connection builds, counts only) | A genuine out-of-time test of v1 and v2 | Eight months, 35 weeks: wide intervals |
+| Selection rule declared before the run: pooled log loss, ties to the simpler policy | A rule fixed in advance cannot be bent toward a favourite | It picked a near-tie and the most complex policy |
+| Two v2 pricing policies, static and rolling, both reported | The better one is not chosen after the fact | Static was the worst of the five |
+| Rows matched by key, not order, between v1 and v2 feature frames | Row order from separate queries is not guaranteed | A one-to-one check aborts on duplicates |
+| Refactored the backtest accounting; reproduced earlier numbers exactly on Apr-Jun 2025 | Refactors must not change results | Checked, not assumed |
+
+**Result:** frozen v1 ran 60.5% and v2 rolling 62.3% against a 65% target; both intervals contain the target. v2 is a little better calibrated; the gain came from re-fitting the level monthly, not from the seasonal term. ORD is under-priced and CLT/DFW over-priced in every schedule: hub-level calibration is the open defect.

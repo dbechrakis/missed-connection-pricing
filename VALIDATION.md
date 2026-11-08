@@ -161,3 +161,73 @@ python -m mcp.backtest        # from src/; reads the test window once, writes re
 2. v2 rolling should have the smallest level error, because it re-learns the level each month; v2 static is the open question.
 3. Tiered pricing should again be insensitive to θ and flat pricing should degrade with θ. This is mostly arithmetic given calibrated probabilities, so it is a check of the machinery, not a finding.
 4. Month-by-month, v2 should follow the seasonal shape better than v1 (v2 has a `month` feature, v1 does not).
+
+### 3C. Results: the 2026 holdout (one run, 37,079,333 connections, Jan 1 to Aug 29 2026, 35 weeks)
+
+Run once with the frozen artefacts of 3B. Nothing was changed after seeing the numbers. Observed miss rate over the window: **8.14%**. Target loss ratio 65%.
+
+#### Headline: realized ÷ target at θ = 0 (95% interval from a weekly block bootstrap)
+
+| Schedule | Realized ÷ target | Realized loss ratio |
+| --- | --- | --- |
+| Baseline (2024 hub × slack) | 1.173 [1.075, 1.282] | 76.3% |
+| v1 uncalibrated | 1.104 [1.011, 1.206] | 71.7% |
+| **v1 as shipped** (frozen since Part 1) | **0.931 [0.853, 1.017]** | **60.5%** [55.4, 66.1] |
+| v2 static (nothing from 2026) | 0.826 [0.759, 0.896] | 53.7% [49.4, 58.3] |
+| **v2 rolling** (pre-registered product) | **0.958 [0.875, 1.043]** | **62.3%** [56.9, 67.8] |
+| Flat price, training average | 1.050 [0.963, 1.143] | 68.3% |
+| Flat price, hindsight oracle | 1.000 by construction | 65.0% |
+
+> On data never seen during development, the frozen v1 ran a **60.5% loss ratio** and v2 with monthly recalibration a **62.3%**, against a **65% target**. Both intervals contain 65%. The 2024 baseline ran 76%.
+
+#### Adverse selection (realized ÷ target as buyers self-select by risk, θ)
+
+| θ | v1 as shipped | v2 rolling | Flat (training avg) | Flat (hindsight oracle) |
+| --- | --- | --- | --- | --- |
+| 0 | 0.931 | 0.958 | 1.050 | 1.000 |
+| 0.5 | 0.929 | 0.967 | 1.390 | 1.324 |
+| 1 | 0.928 | 0.974 | 1.799 | 1.714 |
+| 2 | 0.929 | 0.978 | 2.658 | 2.532 |
+
+The same pattern as H2 2025: tiered pricing barely moves with θ; flat pricing degrades steeply. At θ = 0 flat is not worse than tiered on average (1.050 vs 0.958, intervals overlap), so the argument for tiering is robustness to who buys, as in Part 2.
+
+#### Calibration on the holdout (weighted)
+
+| Schedule | Brier | Log loss | ECE | Mean predicted | Observed |
+| --- | --- | --- | --- | --- | --- |
+| Baseline | 0.07199 | 0.26582 | 0.0073 | 7.56% | 8.14% |
+| v1 uncalibrated | 0.07106 | 0.26148 | 0.0082 | 7.52% | 8.14% |
+| v1 as shipped | 0.07125 | 0.26168 | 0.0108 | 8.95% | 8.14% |
+| v2 static | 0.07118 | 0.26214 | 0.0192 | 10.06% | 8.14% |
+| **v2 rolling** | **0.07079** | **0.26000** | **0.0051** | 8.65% | 8.14% |
+
+v2 rolling is best on all three scores, by modest margins (Brier 0.6% lower than v1 as shipped).
+
+#### Pre-registered expectations, checked
+
+| # | Expectation (Part 3B) | Verdict |
+| --- | --- | --- |
+| 1 | v1 as shipped is off by about the level difference, since its calibrator is frozen | **Held.** It predicted 8.95% against 8.14% observed and priced about 7% high (0.931) |
+| 2 | v2 rolling has the smallest level error; v2 static is open | **Held for rolling** (ECE 0.0051, 8.65% vs 8.14%). **v2 static was the worst on level** (10.06% predicted, priced 17% high): a frozen calibrator on top of a `month` feature overshot |
+| 3 | Tiered insensitive to θ, flat degrades | **Held** (this is mostly arithmetic given calibrated probabilities; a check of the machinery) |
+| 4 | v2 follows the seasonal shape better than v1 | **Not clearly supported.** Over eight months, v2 rolling and static correlate positively with the observed monthly pattern (+0.46, +0.59) and v1 does not (−0.42), but mean absolute monthly error is no better (v2 rolling 1.04 pp, v1 1.01 pp), and v2 missed January badly (11.2% predicted vs 9.0%) and April to May (8.3% and 9.2% vs 6.6% and 7.3%). Eight points cannot settle it |
+
+#### What did not go as hoped
+
+1. **v2 did not clearly beat v1 on the headline.** v1 as shipped (60.5%) and v2 rolling (62.3%) are statistically indistinguishable, and both sit a little under the target (priced a little high). v2 is better calibrated on Brier, log loss and ECE, but by small margins.
+2. **The `month` feature and a frozen calibrator hurt.** v2 static priced 17% too high, and its month-by-month prediction peaked at 12.0% in July against 9.6% observed. That is consistent with the worry from step 5: with two years of data, a month feature still partly memorises one-off events (July 2024 was 11.8%). What helped v2 was **re-fitting the level monthly**, not the seasonal term. This run cannot separate the two, because no "v2 rolling without month" variant was pre-registered.
+3. **Hub structure persists, and it is the clearest remaining defect.** v2 rolling by hub: ORD **1.156 [1.018, 1.309]** (priced too low, interval excludes 1), ATL 1.031, DEN 0.933, DFW **0.876 [0.774, 0.981]** and CLT **0.880 [0.781, 0.996]** (priced too high). The same ordering appeared in H2 2025 for v1 (ORD 1.040, DFW 0.896, CLT 0.768) and holds for every schedule here. A hub-level correction was a candidate in v2 selection and was not chosen by the pre-declared rule.
+4. **The shape across slack differs by model.** v1 over-predicts tight connections (24.1% vs 20.6% observed at 45 to 59 minutes, +17%) and is accurate at long slack. v2 rolling is accurate at tight slack (20.3%) and too high at long slack (4.0% vs 3.3% at 210+ minutes, +21%). Tight connections carry most of the claim cost, so this matters for pricing.
+5. **Only 35 weeks and eight months.** The intervals are wide (about ±0.08 around the ratio), and some of the seasonal questions need a full second cycle.
+
+#### What this shows
+
+- **Shows:** on genuinely new data, a model fit on information up to September 2025 and priced without any 2026 knowledge priced 2026 within about ±7% of the target loss ratio, under two different design choices (frozen v1 and monthly-recalibrated v2). Recalibrating the level monthly fixes the biggest weakness of a frozen price. Tiering protects the loss ratio at every buyer-selection strength. The 2024 baseline would have lost 11 points of margin.
+- **Does not show:** that the seasonal term, or v2's feature set, is better than v1's; that real buyers behave like any θ; that hub differences are solved; that the result transfers beyond these five hubs and same-carrier connections.
+
+#### Reproducing
+
+```bash
+python -m mcp.v2 select && python -m mcp.v2 fit     # v2 selection on 2025 and the final fit (no 2026)
+python -m mcp.holdout                                # reads the 2026 months once; results/holdout.json and docs/figures/holdout_*.png
+```
