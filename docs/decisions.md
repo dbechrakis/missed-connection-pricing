@@ -191,3 +191,14 @@ One line per decision: what, why, and what it costs. Raw material for `method.md
 | No price loading for the winner's curse inside the cap, though it was measured (+9%) | Fitting a loading on the orientation months would let the pre-registered test grade its own homework | First change for a v4 |
 | Every look at the data before the v3 pre-registration is listed in it | The document is not blind; saying so is what makes it credible | — |
 | A weekly workflow opens an issue when BTS publishes a pre-registered month | The test cannot be quietly skipped or delayed if a month looks bad | It watches; it does not run the test (that needs about 1 GB of data) |
+
+## Senior audit, round 2: costs, demand evidence, model uncertainty, minimum connection time
+
+| Decision | Why | Cost / caveat |
+| --- | --- | --- |
+| Report the cover **as it would be sold** (only connections priced within the cap), not just the all-connections average | The cap selects connections the model under-prices; the sold view ran 78% against 65%, 111% in July, 8 of 28 weeks above 100% | My earlier "thin margin" wording was for the wrong population. Corrected in the memo, brief, README and VALIDATION 5D/5G |
+| The pre-registration is **not** edited; the sold view is a dated prediction in VALIDATION 5G | The tag fixes the test code and V2's definition; changing either after seeing development numbers would be the post-hoc tuning the project avoids | V2 can pass as written while the sold view fails; both will be reported |
+| Quote only market figures that could be opened at their source | A Hopper price range from a search snippet pointed at a dead page; an EIOPA chart could not be read | The market note is thinner, and says plainly what was not found |
+| Keep the 65% target and the 5% cap, and show the grid (cap 3 to 10% x loss ratio 55 to 75%) | No US travel loss ratio is published; comparable cover costs 4 to 10% of trip cost, so 5% is at the low end | A price list is not evidence of demand |
+| Refit bootstrap on the model's own training sample | Separates model noise from weather: refits move the pooled ratio by about 0.01 against a weekly interval of about 0.2 wide | Understates variation from the choice of the training sample itself |
+| Minimum connection time sensitivity by hub, not a new model | Prices for 45 pay out 1.57x the expected amount at 60 and 0.90x at 35: the largest sensitivity found | The fix (a model with the minimum as an input, priced per airline) needs the agency's own minimums and is left as the next version |

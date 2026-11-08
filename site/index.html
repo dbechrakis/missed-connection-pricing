@@ -150,6 +150,7 @@ footer { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--line);
       </div>
       <div class="decision" id="g-decision"><div class="t" id="g-d-title"></div><div id="g-d-body"></div></div>
       <p class="note" id="g-risk"></p>
+      <p class="note" id="g-sold"></p>
     </section>
   </div>
 
@@ -159,6 +160,7 @@ footer { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--line);
     <li><b>In the v1 calculator, the costs, the 65% target and the 10% cap are assumptions</b> ($<span id="a-r"></span> to rebook, $<span id="a-n"></span> more if the next flight is the next day). The results barely depend on the dollar amounts, but the prices do.</li>
     <li><b>Demand is untested.</b> On one ticket an airline usually rebooks a missed connection for free, so the offer has to cover something extra. How many people would buy, and at what price, needs an experiment (see the product brief).</li>
     <li><b>No seasonal price.</b> One year of history could not separate seasons from one-off events, so the model has no month term and these prices are the same all year.</li>
+    <li id="mct-note"></li>
     <li id="hub-note"></li>
     <li id="level-note"></li>
     <li><b>Five airports, same-airline connections, US domestic, data to August 2026.</b></li>
@@ -339,6 +341,19 @@ footer { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--line);
       r.ratio.toFixed(2) + "× the expected amount, and single months from " + Math.min.apply(null, ms).toFixed(2) + "× to " +
       Math.max.apply(null, ms).toFixed(2) + "×: weather moves whole months at once, so the margin, not the model, carries that risk.";
   }
+
+  (function () {
+    var A = G.audit; if (!A) return;
+    var months = Object.keys(A.sold_monthly_loss_ratio), worst = months[0];
+    months.forEach(function (k) { if (A.sold_monthly_loss_ratio[k] > A.sold_monthly_loss_ratio[worst]) worst = k; });
+    $("g-sold").textContent = "Sold only where the price fits the cap, as it would be, the same months ran a " + pct(A.sold_mean_weekly_loss_ratio, 0) +
+      " average loss ratio against the " + pct(G.assumptions.target_loss_ratio, 0) + " target, " + pct(A.sold_monthly_loss_ratio[worst], 0) + " in " + label(worst) +
+      ", and " + A.sold_weeks_above_100 + " of " + A.sold_weeks + " weeks above 100%: choosing cheap-looking connections picks the ones the model under-prices.";
+    var m = A.mct_realized_over_target;
+    $("mct-note").innerHTML = "<b>The minimum connection time is assumed to be 45 minutes at every airport, and it matters more than anything else tested.</b> " +
+      "Prices set for 45 would have paid out " + m["35"].toFixed(2) + "× the expected amount if the real minimum were 35 minutes and " + m["60"].toFixed(2) +
+      "× if it were 60, against " + m["45"].toFixed(2) + "× at 45. A real product would use each airline's own minimum for each connection.";
+  })();
 
   $("g-hub").innerHTML = G.hubs.map(function (h) { return '<option value="' + h + '">' + (HUB[h] || h) + "</option>"; }).join("");
   $("g-month").innerHTML = G.months.map(function (m) { return '<option value="' + m + '"' + (m === st.month ? " selected" : "") + ">" + label(m) + "</option>"; }).join("");

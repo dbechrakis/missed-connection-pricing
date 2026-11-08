@@ -1,0 +1,354 @@
+{
+ "window": "2026-03 to 2026-08",
+ "status": "development orientation on spent months, not validation",
+ "rows_45": 1617871,
+ "cap_grid": {
+  "lr0.55_cap0.03": {
+   "loss_ratio_target": 0.55,
+   "cap": 0.03,
+   "share_offered": 0.14899306666842413,
+   "offered_ratio": 1.1742794773242857,
+   "offered_realized_loss_ratio": 0.6458537125283572,
+   "mean_price": 8.347889729076684
+  },
+  "lr0.55_cap0.05": {
+   "loss_ratio_target": 0.55,
+   "cap": 0.05,
+   "share_offered": 0.32328030247650863,
+   "offered_ratio": 1.2005641764100632,
+   "offered_realized_loss_ratio": 0.6603102970255348,
+   "mean_price": 11.346405677119128
+  },
+  "lr0.55_cap0.07": {
+   "loss_ratio_target": 0.55,
+   "cap": 0.07,
+   "share_offered": 0.4547433733687079,
+   "offered_ratio": 1.2117276100876724,
+   "offered_realized_loss_ratio": 0.6664501855482199,
+   "mean_price": 13.670671680707002
+  },
+  "lr0.55_cap0.10": {
+   "loss_ratio_target": 0.55,
+   "cap": 0.1,
+   "share_offered": 0.5748110032527328,
+   "offered_ratio": 1.2224433798976142,
+   "offered_realized_loss_ratio": 0.6723438589436879,
+   "mean_price": 16.40912841660735
+  },
+  "lr0.65_cap0.03": {
+   "loss_ratio_target": 0.65,
+   "cap": 0.03,
+   "share_offered": 0.19690956175370494,
+   "offered_ratio": 1.176245115261159,
+   "offered_realized_loss_ratio": 0.7645593249197534,
+   "mean_price": 7.818791263844344
+  },
+  "lr0.65_cap0.05": {
+   "loss_ratio_target": 0.65,
+   "cap": 0.05,
+   "share_offered": 0.39023877676602114,
+   "offered_ratio": 1.203053775001892,
+   "offered_realized_loss_ratio": 0.7819849537512298,
+   "mean_price": 10.559340557258102
+  },
+  "lr0.65_cap0.07": {
+   "loss_ratio_target": 0.65,
+   "cap": 0.07,
+   "share_offered": 0.5138239788531205,
+   "offered_ratio": 1.2261847664330086,
+   "offered_realized_loss_ratio": 0.7970200981814556,
+   "mean_price": 12.609637655724375
+  },
+  "lr0.65_cap0.10": {
+   "loss_ratio_target": 0.65,
+   "cap": 0.1,
+   "share_offered": 0.6255586638536192,
+   "offered_ratio": 1.2310187590998383,
+   "offered_realized_loss_ratio": 0.8001621934148949,
+   "mean_price": 15.124005058155277
+  },
+  "lr0.75_cap0.03": {
+   "loss_ratio_target": 0.75,
+   "cap": 0.03,
+   "share_offered": 0.24570313246890818,
+   "offered_ratio": 1.1859905401371795,
+   "offered_realized_loss_ratio": 0.8894929051028846,
+   "mean_price": 7.38948042293763
+  },
+  "lr0.75_cap0.05": {
+   "loss_ratio_target": 0.75,
+   "cap": 0.05,
+   "share_offered": 0.4448607492421708,
+   "offered_ratio": 1.212749601603267,
+   "offered_realized_loss_ratio": 0.9095622012024502,
+   "mean_price": 9.885189169318926
+  },
+  "lr0.75_cap0.07": {
+   "loss_ratio_target": 0.75,
+   "cap": 0.07,
+   "share_offered": 0.5598743274533625,
+   "offered_ratio": 1.2256615561666953,
+   "offered_realized_loss_ratio": 0.9192461671250214,
+   "mean_price": 11.749203698752499
+  },
+  "lr0.75_cap0.10": {
+   "loss_ratio_target": 0.75,
+   "cap": 0.1,
+   "share_offered": 0.6652888548059487,
+   "offered_ratio": 1.220447378763139,
+   "offered_realized_loss_ratio": 0.9153355340723541,
+   "mean_price": 14.099848907365203
+  }
+ },
+ "exposure": {
+  "all_overnight_risk": {
+   "weeks": 28,
+   "mean": 0.7284641098244725,
+   "sd": 0.19345377404939942,
+   "p95": 0.962496717261789,
+   "max": 1.1360849981062922,
+   "weeks_above_100pct": 1,
+   "weeks_above_target_plus_20pts": 9,
+   "worst_month": 0.885285185609994,
+   "monthly": {
+    "2026-03": 0.6663688666578885,
+    "2026-04": 0.5630302939614817,
+    "2026-05": 0.6265818536053783,
+    "2026-06": 0.7832768472344567,
+    "2026-07": 0.8549419664451565,
+    "2026-08": 0.885285185609994
+   },
+   "stop_loss_cost_per_premium": {
+    "attach_90%": 0.014913217895809603,
+    "attach_100%": 0.004860178503796149
+   },
+   "worst_hub_week": {
+    "ATL": 1.537561861599261,
+    "CLT": 1.0590241837348187,
+    "DEN": 1.5988331783566612,
+    "DFW": 1.4590848509636196,
+    "ORD": 3.5643081380985606
+   }
+  },
+  "offered_within_5%_cap": {
+   "weeks": 28,
+   "mean": 0.7765263994357323,
+   "sd": 0.3283581773962401,
+   "p95": 1.191448056075861,
+   "max": 1.2798023206974392,
+   "weeks_above_100pct": 8,
+   "weeks_above_target_plus_20pts": 13,
+   "worst_month": 1.1114130237721938,
+   "monthly": {
+    "2026-03": 0.8213190202136583,
+    "2026-04": 0.45060954020422145,
+    "2026-05": 0.5851217673134448,
+    "2026-06": 0.778073113434433,
+    "2026-07": 1.1114130237721938,
+    "2026-08": 0.9357618080334822
+   },
+   "stop_loss_cost_per_premium": {
+    "attach_90%": 0.07769801537284819,
+    "attach_100%": 0.03930690151586054
+   },
+   "worst_hub_week": {
+    "ATL": 2.3233850113969496,
+    "CLT": 1.6157844599296463,
+    "DEN": 2.0866944570965784,
+    "DFW": 2.1341992250714013,
+    "ORD": 9.317889745652273
+   }
+  }
+ },
+ "mct": {
+  "35": {
+   "all": {
+    "connections": 1617650,
+    "realized_over_target": 0.8982679852659261,
+    "mean_p": 0.09668272471664748,
+    "gap_miss_rate": 0.08621885451020558,
+    "share_offered_5pct": 0.35485166294261455,
+    "share_below_45min": 0.04142676104225265
+   },
+   "by_hub": {
+    "ATL": {
+     "connections": 337295,
+     "realized_over_target": 0.886896774337929,
+     "mean_p": 0.06445568300561173,
+     "gap_miss_rate": 0.05719089377351946,
+     "share_offered_5pct": 0.5683509939297265,
+     "share_below_45min": 0.03802902503743014
+    },
+    "CLT": {
+     "connections": 234571,
+     "realized_over_target": 0.8053781408069611,
+     "mean_p": 0.1170334614819479,
+     "gap_miss_rate": 0.0942561916205343,
+     "share_offered_5pct": 0.3324974218920662,
+     "share_below_45min": 0.05736855792062957
+    },
+    "DEN": {
+     "connections": 312211,
+     "realized_over_target": 0.8788423979427343,
+     "mean_p": 0.08679098342285504,
+     "gap_miss_rate": 0.07590323071681654,
+     "share_offered_5pct": 0.353043223155595,
+     "share_below_45min": 0.031103964946782785
+    },
+    "DFW": {
+     "connections": 365446,
+     "realized_over_target": 0.8632950482800464,
+     "mean_p": 0.11120008223734833,
+     "gap_miss_rate": 0.09619036031987545,
+     "share_offered_5pct": 0.2565246256604969,
+     "share_below_45min": 0.03919594139763467
+    },
+    "ORD": {
+     "connections": 368127,
+     "realized_over_target": 1.059871790904824,
+     "mean_p": 0.11322118651177024,
+     "gap_miss_rate": 0.12098660618411104,
+     "share_offered_5pct": 0.2386239846966173,
+     "share_below_45min": 0.04535119673373591
+    }
+   }
+  },
+  "45": {
+   "all": {
+    "connections": 1617871,
+    "realized_over_target": 1.1174018137791766,
+    "mean_p": 0.08476654502746962,
+    "gap_miss_rate": 0.09382368459931187,
+    "share_offered_5pct": 0.39023877676602114,
+    "share_below_45min": 0.0
+   },
+   "by_hub": {
+    "ATL": {
+     "connections": 340667,
+     "realized_over_target": 1.1294643879062383,
+     "mean_p": 0.05480316181543905,
+     "gap_miss_rate": 0.06192751682258678,
+     "share_offered_5pct": 0.6089050343820765,
+     "share_below_45min": 0.0
+    },
+    "CLT": {
+     "connections": 229765,
+     "realized_over_target": 0.9803401099157908,
+     "mean_p": 0.09996607740552212,
+     "gap_miss_rate": 0.09800075531158003,
+     "share_offered_5pct": 0.37903008006892214,
+     "share_below_45min": 0.0
+    },
+    "DEN": {
+     "connections": 312500,
+     "realized_over_target": 1.1352017403275392,
+     "mean_p": 0.07845328149296704,
+     "gap_miss_rate": 0.08861547436261001,
+     "share_offered_5pct": 0.379109701083567,
+     "share_below_45min": 0.0
+    },
+    "DFW": {
+     "connections": 372197,
+     "realized_over_target": 1.0278776573079231,
+     "mean_p": 0.09765572056135048,
+     "gap_miss_rate": 0.10059360255761475,
+     "share_offered_5pct": 0.29547275538168866,
+     "share_below_45min": 0.0
+    },
+    "ORD": {
+     "connections": 362742,
+     "realized_over_target": 1.3067047298525538,
+     "mean_p": 0.10041264934961504,
+     "gap_miss_rate": 0.13230758885219168,
+     "share_offered_5pct": 0.26314321678509633,
+     "share_below_45min": 0.0
+    }
+   }
+  },
+  "60": {
+   "all": {
+    "connections": 1529701,
+    "realized_over_target": 1.5704163272552734,
+    "mean_p": 0.06233624994268163,
+    "gap_miss_rate": 0.09659908621626105,
+    "share_offered_5pct": 0.46399807003778765,
+    "share_below_45min": 0.0
+   },
+   "by_hub": {
+    "ATL": {
+     "connections": 334700,
+     "realized_over_target": 1.635164651223814,
+     "mean_p": 0.04041605133016359,
+     "gap_miss_rate": 0.0661311164703869,
+     "share_offered_5pct": 0.6844931398385792,
+     "share_below_45min": 0.0
+    },
+    "CLT": {
+     "connections": 212534,
+     "realized_over_target": 1.337362008310226,
+     "mean_p": 0.07387563906137587,
+     "gap_miss_rate": 0.098798473020323,
+     "share_offered_5pct": 0.46593086390241706,
+     "share_below_45min": 0.0
+    },
+    "DEN": {
+     "connections": 292766,
+     "realized_over_target": 1.6804129798687506,
+     "mean_p": 0.055378942757144896,
+     "gap_miss_rate": 0.09262705075230428,
+     "share_offered_5pct": 0.45423591482658804,
+     "share_below_45min": 0.0
+    },
+    "DFW": {
+     "connections": 359330,
+     "realized_over_target": 1.3419866728768965,
+     "mean_p": 0.07571366564424921,
+     "gap_miss_rate": 0.10177237283043745,
+     "share_offered_5pct": 0.35955658302053295,
+     "share_below_45min": 0.0
+    },
+    "ORD": {
+     "connections": 330371,
+     "realized_over_target": 1.8625622280417293,
+     "mean_p": 0.07267956674993956,
+     "gap_miss_rate": 0.13655317059670063,
+     "share_offered_5pct": 0.32396508902502213,
+     "share_below_45min": 0.0
+    }
+   }
+  }
+ },
+ "bootstrap": {
+  "frozen": {
+   "pooled": 1.1174018137791766,
+   "monthly": {
+    "2026-03": 1.025182871781367,
+    "2026-04": 0.8662004522484335,
+    "2026-05": 0.9639720824698126,
+    "2026-06": 1.205041303437626,
+    "2026-07": 1.315295332992548,
+    "2026-08": 1.36197720863076
+   },
+   "share_offered": 0.39023877676602114,
+   "offered_ratio": 1.203053775001892,
+   "mean_p": 0.08476654502746962
+  },
+  "frozen_weekly_bootstrap_ci": {
+   "ratio": 1.1174018137791768,
+   "lo": 1.015904646289866,
+   "hi": 1.2256850740135055
+  },
+  "refits": 8,
+  "pooled_mean": 1.1227745479935372,
+  "pooled_sd": 0.007463363339668589,
+  "pooled_min": 1.1153604903062782,
+  "pooled_max": 1.135977868880634,
+  "share_offered_sd": 0.004457377334147472,
+  "share_offered_min": 0.3868885012554303,
+  "share_offered_max": 0.4001374725554636,
+  "offered_ratio_mean": 1.2419182194841163,
+  "offered_ratio_sd": 0.017912207827279907,
+  "refit_rows": 2500000,
+  "fit_rows": 4999330
+ }
+}

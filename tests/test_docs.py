@@ -196,3 +196,42 @@ def test_decision_memo_numbers_match_the_results():
     cap = dev["offered_within_cap"]["0.05"]["realized_over_target"]["ratio"]
     assert f"**{cap / dev['overall']['ratio'] - 1:.0%} worse**" in memo
     assert "**60.5%**" in memo and "117%" in memo and "68.2%" in memo
+
+
+def test_audit_numbers_in_validation_memo_brief_readme_and_demo_match_the_results():
+    import re
+    a = json.loads((ROOT / "results" / "v3_audit.json").read_text())
+    sold = a["exposure"]["offered_within_5%_cap"]
+    every = a["exposure"]["all_overnight_risk"]
+    m = {k: v["all"]["realized_over_target"] for k, v in a["mct"].items()}
+    val = (ROOT / "VALIDATION.md").read_text(encoding="utf-8")
+    memo = (ROOT / "docs" / "decision-memo.md").read_text(encoding="utf-8")
+    brief = (ROOT / "docs" / "product-brief.md").read_text(encoding="utf-8")
+    sec = val[val.index("### 5G."):]
+    # the sold view
+    assert f"**{sold['mean']:.0%}**" in sec and f"**{sold['worst_month']:.0%}** (July)" in sec
+    assert f"**{sold['weeks_above_100pct']} of {sold['weeks']}**" in sec and f"{every['worst_month']:.0%}" in sec
+    for text in (memo, brief, (ROOT / "README.md").read_text(encoding="utf-8")):
+        assert f"{sold['mean']:.0%}" in text and f"{sold['worst_month']:.0%} in July" in text
+        assert f"{sold['weeks_above_100pct']} of {sold['weeks']} weeks above 100%" in text
+    assert f"{sold['stop_loss_cost_per_premium']['attach_100%']:.1%}" in memo and f"{sold['stop_loss_cost_per_premium']['attach_90%']:.1%}" in memo
+    # minimum connection time
+    for text in (memo, brief, (ROOT / "README.md").read_text(encoding="utf-8")):
+        assert f"{m['60']:.2f}" in text and f"{m['35']:.2f}" in text
+    assert f"**{m['60']:.2f}**" in sec
+    # the refit bootstrap
+    b = a["bootstrap"]
+    assert b["refits"] == 8 and f"{b['pooled_sd']:.4f}" in sec and f"{b['pooled_min']:.3f} to {b['pooled_max']:.3f}" in sec
+    assert b["pooled_max"] - b["pooled_min"] < 0.03                  # "about 0.01" in the memo and README: refits barely move it
+    # the demo file carries the same summary
+    demo = json.loads(re.sub(r"^window\.PRICES_V3 = |;\s*$", "", (ROOT / "site" / "prices_v3.js").read_text(encoding="utf-8")))["audit"]
+    assert demo["sold_mean_weekly_loss_ratio"] == sold["mean"] and demo["sold_monthly_loss_ratio"] == sold["monthly"]
+    assert demo["mct_realized_over_target"] == {k: v["all"]["realized_over_target"] for k, v in a["mct"].items()}
+    assert "1.54" in (ROOT / "PREREGISTRATION_2026H2_V3.md").read_text(encoding="utf-8")        # V2 as frozen is about all connections
+
+
+def test_market_evidence_note_says_what_was_not_found():
+    text = (ROOT / "docs" / "market-evidence.md").read_text(encoding="utf-8")
+    for needle in ("4% to 10% of trip cost", "about 25% of the ticket", "Not found.", "remains an assumption", "no number is quoted", "not a measurement"):
+        assert needle in text, needle
+    assert "Hopper" not in text                        # a figure from a page that could not be opened is not used

@@ -424,7 +424,7 @@ The robustness check (`scripts/v3_robustness.py`, development data only) asked w
 
 **Nothing does.** The month term only moves which months are wrong: it under-prices fall 2025 instead of summer 2026, because fall 2024 was calmer. Judged by the correct cost-weighted log loss, the chosen model still ranks first (0.26303, a statistical tie with its overnight-trained twin at 0.26266). **So the model was not changed. The conclusion changed.**
 
-The gap cover insures a **correlated weather and air-traffic risk**: whole months come in 20 to 40% above or below the price, and no information available at booking predicts which. That risk is carried by the margin, not by the model. At a 0.65 target loss ratio, break-even is a realized/target of 1.54. The worst development month (1.38) is a loss ratio of 90%.
+The gap cover insures a **correlated weather and air-traffic risk**: whole months come in 20 to 40% above or below the price, and no information available at booking predicts which. That risk is carried by the margin, not by the model. At a 0.65 target loss ratio, break-even is a realized/target of 1.54. The worst development month (1.38) is a loss ratio of 90%. **Correction: that sentence was about all overnight-risk connections. The cover as it would be sold is worse; see 5G.**
 
 ### 5E. Development orientation, March to August 2026 (not validation)
 
@@ -455,3 +455,49 @@ The pre-registration `PREREGISTRATION_2026H2_V3.md` (tag `prereg-2026h2-v3`) fix
 - 25 to 55% of overnight-risk connections priced within the cap.
 
 It also lists everything the author saw before writing it. A weekly workflow (`.github/workflows/watch-bts.yml`) opens an issue as each month is published, so the test cannot be quietly skipped.
+
+
+### 5G. Audit, round 2: what the first round left open (development data, March to August 2026; the pre-registered window is untouched)
+
+Written on 8 November 2026, before the September to December data exists. Code: `src/mcp/v3_audit.py`, results: `results/v3_audit.json`, tests: `tests/test_v3_audit.py`. None of it changes the frozen v3 model or its pre-registration.
+
+**A correction in the open.** In 5D, the memo, the brief and the README I wrote that the worst development month "still leaves a thin margin" (an 89% loss ratio). That was true for **all** overnight-risk connections. It is not how the cover would be sold. Sold only where the price is within the 5% cap, the same months look like this:
+
+| | All overnight-risk connections | Sold within the 5% cap |
+| --- | --- | --- |
+| Average weekly loss ratio (target 65%) | 73% | **78%** |
+| Worst week | 114% | 128% |
+| Weeks above 100% | 1 of 28 | **8 of 28** |
+| Worst month | 89% | **111%** (July) |
+| Cost of a weekly stop-loss at 100% / 90% attachment, per unit of premium (no loading) | 0.5% / 1.5% | 3.9% / 7.8% |
+
+Monthly loss ratio as sold: 03: 82% | 04: 45% | 05: 59% | 06: 78% | 07: 111% | 08: 94%. All before commission, payment fees and handling. The worst hub-week as sold was Chicago, at 932% of that week's premium. With 28 weeks the numbers are indicative, not an estimate of a tail.
+
+**Why the sold view is worse.** The cap lets through connections whose predicted risk is low, and those are partly the ones the model under-estimates (the winner's curse). Realized/target on the connections within the cap is **1.20**, against 1.12 for all of them, and it hardly moves with the cap or the target loss ratio:
+
+| Share of overnight-risk connections offered | cap 3% | cap 5% | cap 7% | cap 10% |
+| --- | --- | --- | --- | --- |
+| target loss ratio 55% | 15% | 32% | 45% | 57% |
+| target loss ratio 65% | 20% | 39% | 51% | 63% |
+| target loss ratio 75% | 25% | 44% | 56% | 67% |
+
+Realized/target on what is offered is 1.17 to 1.23 in every cell. At the 65% target and the 5% cap the realized loss ratio is 78%; at a 75% target it is 91%. The 65% target is itself an assumption: no US regulator publishes a travel-insurance loss ratio (`docs/market-evidence.md`).
+
+**Is it the model, or the weather? (refit bootstrap).** The gap model was refitted 8 times on resamples of 2,500,000 rows of its training sample (4,999,330 rows), and the same March to August connections were scored each time. Pooled realized/target: mean 1.123, standard deviation 0.0075, range 1.115 to 1.136, against 1.117 for the frozen model. Share offered within the cap: 38.7% to 40.0%. For comparison, resampling whole weeks gives an interval of 1.02 to 1.23. **Refitting moves the result by roughly a tenth of what the weather does.** The frozen model is not an unlucky draw; the uncertainty is in the risk, not the model. (The resamples come from the model's own 5-million-row training sample, so this understates variation from the choice of that sample.)
+
+**The minimum connection time.** The model assumes 45 minutes at every airport; real minimums differ by airport and airline. Hubs are independent, so one table covers every combination. It scores the frozen model's prices on connections built and labelled with a different minimum:
+
+| True minimum | 35 min | 45 min (assumed) | 60 min |
+| --- | --- | --- | --- |
+| Realized/target, all hubs | 0.90 | 1.12 | **1.57** |
+| ATL | 0.89 | 1.13 | 1.64 |
+| CLT | 0.81 | 0.98 | 1.34 |
+| DEN | 0.88 | 1.14 | 1.68 |
+| DFW | 0.86 | 1.03 | 1.34 |
+| ORD | 1.06 | 1.31 | 1.86 |
+
+If a hub's real minimum is 15 minutes longer than assumed, prices set for 45 pay out about 41% more than the model expected; 10 minutes shorter, about 20% less. This is the largest sensitivity found in the whole project. The model learned what a given scheduled gap means when 45 minutes are needed, and the label itself depends on the minimum. Caveat: the frozen model never saw the 4.1% of connections in the 35-minute population with under 45 minutes scheduled, so those rows are extrapolated. **What it means for a product:** price on the gap above each airline's own minimum for each connection, from the agency's booking system. Public data cannot do that; the agency can. A model trained across several minimums, with the minimum as an input, is the obvious next version.
+
+**A prediction written before the data exists (not part of the frozen set).** Expectation V2 in `PREREGISTRATION_2026H2_V3.md` ("no month above 1.54") is judged on all overnight-risk connections, as the test code computes it, and development passed it. On the sold view development did not (July, 111%). If September to December behave like this, V2 will pass as written and the sold loss ratio will still exceed 100% in at least one month. The test code is frozen by tag, so the sold view will be computed afterwards with `mcp.v3_audit` and reported as exploratory.
+
+**Not done.** A price loading for the selection effect (it would be fitted on these months and then graded on them); a model that takes the minimum connection time as an input; a real reinsurance quote.

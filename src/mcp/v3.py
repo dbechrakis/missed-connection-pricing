@@ -209,6 +209,28 @@ def fit_final(chosen: dict) -> None:
 
 
 DEMO_MONTHS = [(2026, m) for m in (10, 11, 12)] + [(2027, m) for m in range(1, 10)]   # GSA fiscal year 2027
+AUDIT = ROOT / "results" / "v3_audit.json"
+
+
+def audit_summary() -> dict | None:
+    """What the audit (mcp.v3_audit) found, in the few numbers the demo shows: the loss ratio of the cover as it would be
+    sold (only connections priced within the cap), by month, and what a different minimum connection time does."""
+    if not AUDIT.exists():
+        return None
+    a = json.loads(AUDIT.read_text())
+    sold = a["exposure"][f"offered_within_{WTP_CAP:.0%}_cap"]
+    return {"window": a["window"], "sold_monthly_loss_ratio": sold["monthly"], "sold_mean_weekly_loss_ratio": sold["mean"],
+            "sold_weeks": sold["weeks"], "sold_weeks_above_100": sold["weeks_above_100pct"],
+            "mct_realized_over_target": {m: v["all"]["realized_over_target"] for m, v in a["mct"].items()}}
+
+
+def refresh_demo_audit() -> None:
+    """Put the audit summary into the published demo file without re-scoring anything."""
+    path = ROOT / "site" / "prices_v3.js"
+    payload = json.loads(path.read_text(encoding="utf-8").removeprefix("window.PRICES_V3 = ").rstrip().rstrip(";"))
+    payload["audit"] = audit_summary()
+    path.write_text("window.PRICES_V3 = " + json.dumps(payload, separators=(",", ":")) + ";" + chr(10), encoding="utf-8", newline=chr(10))
+    print(f"updated prices_v3.js with the audit summary: {payload['audit']}")
 
 
 def demo_cells(df: pd.DataFrame, table: dict) -> list[dict]:
@@ -251,7 +273,8 @@ def build_demo() -> None:
                "cells": demo_cells(df, table),
                "assumptions": {"target_loss_ratio": TARGET_LR, "wtp_cap": WTP_CAP},
                "gap": {h: {"strict": v["gap_strict"], "broad": v["gap_broad"]} for h, v in causes["by_hub"].items()},
-               "dev": {"ratio": dev["results"]["primary"]["overall"], "monthly": dev["results"]["primary"]["monthly"]}}
+               "dev": {"ratio": dev["results"]["primary"]["overall"], "monthly": dev["results"]["primary"]["monthly"]},
+               "audit": audit_summary()}
     out = ROOT / "site" / "prices_v3.js"
     out.write_text("window.PRICES_V3 = " + json.dumps(payload, separators=(",", ":")) + ";\n", encoding="utf-8", newline=chr(10))
     print(f"wrote {out.name}: {len(payload['cells'])} cells, {out.stat().st_size / 1024:.0f} KB")
@@ -265,3 +288,5 @@ if __name__ == "__main__":
         fit_final(json.loads(SELECTION.read_text())["chosen"])
     elif mode == "demo":
         build_demo()
+    elif mode == "demo-audit":
+        refresh_demo_audit()

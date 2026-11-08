@@ -239,7 +239,7 @@ Impact and confidence are judgement calls, stated with their reasons; effort is 
 | --- | --- | --- | --- |
 | Miss rate by connection time | table in Section 2 | Public flight data, same-carrier synthetic connections | Measured, with the caveats above |
 | Weights by route | by passengers | Public 10% ticket sample, train period only | Measured |
-| Minimum connection time | 45 min | Assumption | Sensitivity run |
+| Minimum connection time | 45 min | Assumption | **Largest single sensitivity found.** Prices set for 45 pay out 0.90× the expected amount if the real minimum is 35 and 1.57× if it is 60. Replace with each airline's own minimum per connection |
 | Rebooking cost / overnight cost | $75 / $180 | Assumption | Sensitivity run (v1). The gap cover uses GSA hotel + meals by hub and month, $198 to $295 a night |
 | Target loss ratio | 65% | Assumption | A business decision |
 | Willingness-to-pay cap | 10% of fare (v1); 5% (gap cover) | v1: assumption. Gap cover: below comprehensive travel insurance, which costs about 4 to 10% of trip cost | **To be learned (H3)** |
@@ -274,9 +274,9 @@ Impact and confidence are judgement calls, stated with their reasons; effort is 
 **The risk this product carries.**
 - Whole months came in 20 to 40% above or below the price. No model choice removed that: the swings come from weather and air traffic.
 - On March to August 2026, outside the model's training data, payouts ran **1.12×** the expected amount.
-- At a 65% target, break-even is 1.54×, so the worst month seen still left a thin margin.
+- At a 65% target, break-even is 1.54× the expected amount. Across all overnight-risk connections the worst month (89% loss ratio) stayed under it. **Sold only where the price fits the cap, as it would be, it did not:** a 78% average loss ratio, 111% in July 2026, and 8 of 28 weeks above 100%, before commission, payment and handling costs.
 - The connections the cap lets through ran **9% worse** than average: a low price partly reflects under-estimated risk. A price loading on offered cover is the first change before launch.
-- **Needed at launch:** an exposure cap per hub-week, or reinsurance.
+- **Needed at launch:** an exposure cap per hub-week, or reinsurance. One Chicago week paid out about nine times its premium; a weekly stop-loss would have cost at least 3.9% of premium at a 100% attachment (7.8% at 90%) on these 28 weeks, before any loading.
 
 **What is being tested.** The [pre-registration](../PREREGISTRATION_2026H2_V3.md) fixes six expectations for September to December 2026, before that data existed: calibration, no month above break-even, the selection effect inside the cap, the per-hub calibration option, the gap share, and reach. The [decision memo](decision-memo.md) gives the recommendation in one page.
 
