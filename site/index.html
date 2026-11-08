@@ -124,16 +124,45 @@ footer { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--line);
   </table>
   <p class="hint" style="margin-top:8px">*A loss ratio of 65% is the target; above it the product loses money. Who really buys protection cannot be known from public data, so the project shows a range of buyer behaviour. "Favour risky" is one point on it (selection strength 1 on the scale used in the validation). The flat price is the average claim cost in the training period divided by the target.</p>
 
+  <h2 id="gap-cover">The gap cover: the hotel night the airline won't pay for</h2>
+  <p>US airlines already rebook a missed connection for free, and pay the hotel when an overnight disruption is their fault. The night after a weather or air-traffic disruption is the gap nobody covers. This cover pays the official government hotel-and-meals rate for the hub and month, only when the connection is missed, the next flight is the next day, and the delay is not coded to the airline. <span class="hint">(Model v3, connections paired the way tickets are sold. <a href="https://github.com/dbechrakis/missed-connection-pricing/blob/main/PREREGISTRATION_2026H2_V3.md">Pre-registered</a> for September to December 2026, results not in yet.)</span></p>
+
+  <div class="grid">
+    <section class="card" aria-label="Choose a connection for the gap cover">
+      <label for="g-hub">Connecting airport</label>
+      <select id="g-hub"></select>
+
+      <label for="g-month">Month of travel</label>
+      <select id="g-month"></select>
+
+      <div class="label" id="g-slack-label">Time between flights</div>
+      <div class="range-out"><b id="g-slack-out"></b><span class="hint">scheduled</span></div>
+      <input id="g-slack" type="range" min="45" max="210" step="15" value="90" aria-labelledby="g-slack-label">
+      <p class="hint" style="margin-top:12px">Only connections where a miss means a night away: the last flights of the day. All airlines at the hub.</p>
+      <p class="hint" id="g-gap"></p>
+    </section>
+
+    <section class="card" aria-live="polite" aria-label="Gap cover result">
+      <div class="metrics">
+        <div class="metric"><div class="k">Chance of a gap night</div><div class="v" id="g-p"></div><div class="s">missed, not the airline's fault</div></div>
+        <div class="metric"><div class="k">Payout if it happens</div><div class="v" id="g-cost"></div><div class="s" id="g-cost-s"></div></div>
+        <div class="metric"><div class="k">Price</div><div class="v" id="g-price"></div><div class="s" id="g-price-s"></div></div>
+      </div>
+      <div class="decision" id="g-decision"><div class="t" id="g-d-title"></div><div id="g-d-body"></div></div>
+      <p class="note" id="g-risk"></p>
+    </section>
+  </div>
+
   <h2>What this does not tell you</h2>
   <ul>
     <li><b>Connections are synthetic.</b> They are every same-airline pairing of an arriving and a departing flight at five US hubs; the data does not say which passengers actually connected.</li>
-    <li><b>The costs, the 65% target and the 10% cap are assumptions</b> ($<span id="a-r"></span> to rebook, $<span id="a-n"></span> more if the next flight is the next day). The results barely depend on the dollar amounts, but the prices do.</li>
+    <li><b>In the v1 calculator, the costs, the 65% target and the 10% cap are assumptions</b> ($<span id="a-r"></span> to rebook, $<span id="a-n"></span> more if the next flight is the next day). The results barely depend on the dollar amounts, but the prices do.</li>
     <li><b>Demand is untested.</b> On one ticket an airline usually rebooks a missed connection for free, so the offer has to cover something extra. How many people would buy, and at what price, needs an experiment (see the product brief).</li>
     <li><b>No seasonal price.</b> One year of history could not separate seasons from one-off events, so the model has no month term and these prices are the same all year.</li>
     <li id="hub-note"></li>
     <li id="level-note"></li>
     <li><b>Five airports, same-airline connections, US domestic, data to August 2026.</b></li>
-    <li><b>These are v1 prices.</b> A later audit found airlines already pay for most of what v1 covers, and built a cover for the hotel nights they don't, with official hotel rates and a sourced price cap. It is <a href="https://github.com/dbechrakis/missed-connection-pricing/blob/main/PREREGISTRATION_2026H2_V3.md">pre-registered</a> for September to December 2026 and not yet in this demo.</li>
+    <li><b>The calculator at the top shows v1 prices.</b> A later audit found airlines already pay for much of what v1 covers, which led to <a href="#gap-cover">the gap cover</a> with official hotel rates and a sourced 5% cap. Its probabilities have no month term, so only the payout moves with the month; whole months have run 20 to 40% above or below the price.</li>
   </ul>
 
   <footer>
@@ -205,7 +234,7 @@ footer { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--line);
         " of the fare. Better to warn the traveller about the tight connection, or show an itinerary with more time, than to sell protection at a price they would refuse.";
     }
     $("formula").innerHTML = "Price = chance of missing × claim cost ÷ " + pct(A.target_loss_ratio, 0) + " target loss ratio. The claim cost is $" + A.rebooking_cost +
-      " to rebook, plus $" + A.overnight_cost + " if the next flight is the next day. Averages over " + c.n.toLocaleString() + " sampled connections" +
+      " to rebook, plus $" + A.overnight_cost + " if the next flight is the next day. Averages over " + c.n.toLocaleString("en-US") + " sampled connections" +
       (fallback ? ". <b>Few connections were seen for this airline at this time, so the figures are for all airlines at the hub.</b>" : ".");
     drawChart(c);
   }
@@ -261,6 +290,62 @@ footer { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--line);
   Array.prototype.forEach.call(document.getElementsByName("sc"), function (r) { r.addEventListener("change", function (e) { st.sc = e.target.value; render(); }); });
 
   fillSelects(); fillStatic(); render();
+})();
+</script>
+<script src="prices_v3.js"></script>
+<script>
+(function () {
+  var G = window.PRICES_V3; if (!G) return;
+  var $ = function (id) { return document.getElementById(id); };
+  var money = function (x) { return "$" + (x >= 100 ? x.toFixed(0) : x.toFixed(2)).replace(/\.00$/, ""); };
+  var pct = function (x, d) { return (x * 100).toFixed(d === undefined ? 1 : d) + "%"; };
+  var HUB = { ATL: "Atlanta (ATL)", CLT: "Charlotte (CLT)", DEN: "Denver (DEN)", DFW: "Dallas–Fort Worth (DFW)", ORD: "Chicago O'Hare (ORD)" };
+  var MON = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  var label = function (ym) { return MON[+ym.slice(5) - 1] + " " + ym.slice(0, 4); };
+  var OFFER_AT = 0.9, REFUSE_AT = 0.1;     // same thresholds as the v1 calculator
+  var st = { hub: G.hubs[0], month: G.months[3], slack: 90 };
+
+  function cell(hub, slack) {
+    for (var i = 0; i < G.cells.length; i++) if (G.cells[i].hub === hub && G.cells[i].slack === slack) return G.cells[i];
+    return null;
+  }
+
+  function render() {
+    $("g-slack-out").textContent = st.slack === 210 ? "210–225 minutes" : st.slack + "–" + (st.slack + 14) + " minutes";
+    var c = cell(st.hub, st.slack), gap = G.gap[st.hub];
+    $("g-gap").textContent = "At " + HUB[st.hub].replace(/ \(.*/, "") + ", " + pct(gap.broad, 0) + " to " + pct(gap.strict, 0) +
+      " of missed connections are not the airline's fault (BTS delay causes; the range is whether a late-arriving aircraft counts as the airline's).";
+    if (!c) { $("g-d-title").textContent = "No data for this connection"; return; }
+    var m = c.months[st.month], price = c.p * m.cost / G.assumptions.target_loss_ratio, share = m.within_cap;
+    $("g-p").textContent = pct(c.p);
+    $("g-cost").textContent = money(m.cost);
+    $("g-cost-s").textContent = "hotel + meals, " + label(st.month) + " (GSA)";
+    $("g-price").textContent = money(price);
+    $("g-price-s").textContent = pct(price / c.fare) + " of a " + money(c.fare) + " average fare";
+    var d = $("g-decision"), cap = pct(G.assumptions.wtp_cap, 0);
+    if (share >= OFFER_AT) {
+      d.className = "decision offer"; $("g-d-title").textContent = "Offer";
+      $("g-d-body").textContent = pct(share, 0) + " of connections like this can be priced within " + cap + " of the fare.";
+    } else if (share <= REFUSE_AT) {
+      d.className = "decision nooffer"; $("g-d-title").textContent = "Do not offer";
+      $("g-d-body").textContent = "Only " + pct(share, 0) + " of connections like this can be priced within " + cap + " of the fare. Show a longer connection instead.";
+    } else {
+      d.className = "decision mixed"; $("g-d-title").textContent = "Offer on some connections only";
+      $("g-d-body").textContent = pct(share, 0) + " of connections like this can be priced within " + cap + " of the fare: offer where it fits.";
+    }
+    var r = G.dev.ratio, ms = Object.keys(G.dev.monthly).map(function (k) { return G.dev.monthly[k]; });
+    $("g-risk").textContent = "Price = chance × payout ÷ " + pct(G.assumptions.target_loss_ratio, 0) + " target loss ratio, averaged over " +
+      c.n.toLocaleString("en-US") + " sampled connections. On March to August 2026, outside the model's training data, payouts ran " +
+      r.ratio.toFixed(2) + "× the expected amount, and single months from " + Math.min.apply(null, ms).toFixed(2) + "× to " +
+      Math.max.apply(null, ms).toFixed(2) + "×: weather moves whole months at once, so the margin, not the model, carries that risk.";
+  }
+
+  $("g-hub").innerHTML = G.hubs.map(function (h) { return '<option value="' + h + '">' + (HUB[h] || h) + "</option>"; }).join("");
+  $("g-month").innerHTML = G.months.map(function (m) { return '<option value="' + m + '"' + (m === st.month ? " selected" : "") + ">" + label(m) + "</option>"; }).join("");
+  $("g-hub").addEventListener("change", function (e) { st.hub = e.target.value; render(); });
+  $("g-month").addEventListener("change", function (e) { st.month = e.target.value; render(); });
+  $("g-slack").addEventListener("input", function (e) { st.slack = +e.target.value; render(); });
+  render();
 })();
 </script>
 </body>

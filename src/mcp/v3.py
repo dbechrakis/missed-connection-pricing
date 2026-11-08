@@ -208,9 +208,60 @@ def fit_final(chosen: dict) -> None:
     print(f"saved {BUNDLE.name} and {STATE.name}; probability floor {floor:.4f}")
 
 
+DEMO_MONTHS = [(2026, m) for m in (10, 11, 12)] + [(2027, m) for m in range(1, 10)]   # GSA fiscal year 2027
+
+
+def demo_cells(df: pd.DataFrame, table: dict) -> list[dict]:
+    """Gap-cover price by hub and connection-time bucket, for overnight-risk connections only (the cover pays nothing
+    otherwise). The probability is month-free (the model has no month term); the payout, and so the price and the
+    share within the cap, move with the GSA rate of the month."""
+    from mcp.model import bucket_of
+    df = df[df["overnight"] == 1]
+    df = df.assign(bucket=bucket_of(df["slack_min"]))
+    out = []
+    for (hub, b), g in df.groupby(["hub", "bucket"]):
+        w, p, fare = g["weight"].to_numpy(), g["p"].to_numpy(), g["fare"].to_numpy()
+        months = {}
+        for y, m in DEMO_MONTHS:
+            cost = overnight_cost(table, hub, y, m)
+            months[f"{y}-{m:02d}"] = {"cost": cost, "within_cap": float(w[price(p, cost) <= WTP_CAP * fare].sum() / w.sum())}
+        out.append({"hub": hub, "slack": int(45 + 15 * b), "p": float(np.average(p, weights=w)),
+                    "fare": float(np.average(fare, weights=w)), "n": int(len(g)), "months": months})
+    return out
+
+
+def build_demo() -> None:
+    """site/prices_v3.js: the frozen v3 model on a 10% sample of March to August 2026 (development data, out of sample
+    for the model), priced with GSA rates for October 2026 to September 2027."""
+    assert MARKETING, "run with MCP_VARIANT=v3"
+    bundle, table = joblib.load(BUNDLE), gsa_table()
+    con = duckdb.connect()
+    F.create_stats(con, fit_flights=where("V3_FIT", "flight_date"), fit_asos=where("V3_FIT", "obs_utc"))
+    from mcp.model import _codes
+    parts = []
+    for y, m, _ in labels("2026-03", "2026-08"):
+        df = con.execute(frame_sql(f"read_parquet('{month_file(y, m)}')", month_predicate(y, m), EVAL_FRAC)).fetchdf()
+        df = df[df["overnight"].notna() & df["fare"].notna()]
+        df = df.assign(p=bundle["gbm_gap"].predict_proba(_codes(df[bundle["features"]], bundle["cats"]))[:, 1])
+        parts.append(df[["hub", "slack_min", "overnight", "fare", "weight", "p"]])
+    df = pd.concat(parts, ignore_index=True)
+    causes = json.loads((ROOT / "results" / "causes_v3.json").read_text())
+    dev = json.loads(DEV_RESULTS.read_text())
+    payload = {"hubs": sorted(df["hub"].unique()), "months": [f"{y}-{m:02d}" for y, m in DEMO_MONTHS],
+               "cells": demo_cells(df, table),
+               "assumptions": {"target_loss_ratio": TARGET_LR, "wtp_cap": WTP_CAP},
+               "gap": {h: {"strict": v["gap_strict"], "broad": v["gap_broad"]} for h, v in causes["by_hub"].items()},
+               "dev": {"ratio": dev["results"]["primary"]["overall"], "monthly": dev["results"]["primary"]["monthly"]}}
+    out = ROOT / "site" / "prices_v3.js"
+    out.write_text("window.PRICES_V3 = " + json.dumps(payload, separators=(",", ":")) + ";\n", encoding="utf-8", newline=chr(10))
+    print(f"wrote {out.name}: {len(payload['cells'])} cells, {out.stat().st_size / 1024:.0f} KB")
+
+
 if __name__ == "__main__":
     mode = sys.argv[1] if len(sys.argv) > 1 else "select"
     if mode == "select":
         run_selection()
     elif mode == "fit":
         fit_final(json.loads(SELECTION.read_text())["chosen"])
+    elif mode == "demo":
+        build_demo()

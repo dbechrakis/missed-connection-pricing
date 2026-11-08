@@ -15,6 +15,7 @@ Author: Dimitris Bechrakis · November 2026 · Status: proposal, built on public
 | **Proposal** | A protection add-on priced per connection from its measured risk, offered only where the price is acceptable, with a warning or an alternative itinerary where it is not. |
 | **Evidence it can be priced** | On Jan to Aug 2026 data that nothing in the project had seen, prices fixed before the test (v1 from information to mid-2025; v2 recalibrated monthly) ran a **60.5% to 62.3% loss ratio against a 65% target** (intervals contain the target). A flat price was fine only if buyers ignore risk; if they lean toward connections the model already rates as risky it ran **1.8x** the target (θ = 1). Buyers who know more than the model would expose any price (Section 7.3). |
 | **What is not known** | How many travellers buy, what they will pay, how strongly the riskiest connections self-select, and whether the benefit must be filed as insurance. |
+| **Update: the gap cover (Section 11)** | An audit found airlines already rebook for free and pay the hotel when a disruption is their fault, so a blanket cover partly duplicates what travellers have. The re-scoped product pays the official hotel-and-meals rate only for the overnight gap the airline leaves (weather, air traffic): **40.6% to 72.5%** of missed connections. Its pricing is pre-registered on September to December 2026. |
 | **Ask** | Approve a staged launch: ship a monitored MVP at a capped scale, run the pricing experiment in Section 7, and decide on scale-up after the first read. |
 
 ---
@@ -225,10 +226,10 @@ Impact and confidence are judgement calls, stated with their reasons; effort is 
 ## 9. Risks, open questions and the assumptions register
 
 **Open questions that could stop the project.**
-1. **Is the proposition redundant** next to the airline's own duty to rebook? (H4; ask operations and legal first.)
+1. **Is the proposition redundant** next to the airline's own duty to rebook? (H4; ask operations and legal first.) *Partly answered from public data:* the airline causes 27.5% of missed connections directly and late-arriving aircraft another 31.9%, and airlines commit to a hotel only for disruptions they control. The gap cover (Section 11) is the answer that is not redundant.
 2. **Is it insurance** in the markets where it would be sold, and who may underwrite it? A legal question this brief does not answer.
 3. **Claim definition.** A "missed connection" trigger, the benefit amount and what is excluded (for example, a traveller late to the gate through their own fault) must be fixed before launch.
-4. **Real costs.** The benefit and handling costs here are assumptions; the real ones change the price.
+4. **Real costs.** The benefit and handling costs here are assumptions; the real ones change the price. The gap cover replaces the assumed $180 night with GSA per-diem rates ($198 to $295 a night by hub and year); handling costs are still not included.
 
 **Known weaknesses of the evidence.** Hub-level miscalibration (above). No seasonal term that clearly helps. Only eight months of clean test data. Connections are synthetic: the data show flights, not which passengers actually connected. The minimum connection time is assumed (45 minutes; 35 and 60 were tested by rebuilding the population, since MCT also decides which pairings exist).
 
@@ -239,9 +240,10 @@ Impact and confidence are judgement calls, stated with their reasons; effort is 
 | Miss rate by connection time | table in Section 2 | Public flight data, same-carrier synthetic connections | Measured, with the caveats above |
 | Weights by route | by passengers | Public 10% ticket sample, train period only | Measured |
 | Minimum connection time | 45 min | Assumption | Sensitivity run |
-| Rebooking cost / overnight cost | $75 / $180 | Assumption | Sensitivity run; to replace with real costs |
+| Rebooking cost / overnight cost | $75 / $180 | Assumption | Sensitivity run (v1). The gap cover uses GSA hotel + meals by hub and month, $198 to $295 a night |
 | Target loss ratio | 65% | Assumption | A business decision |
-| Willingness-to-pay cap | 10% of fare | Assumption | **To be learned (H3)** |
+| Willingness-to-pay cap | 10% of fare (v1); 5% (gap cover) | v1: assumption. Gap cover: below comprehensive travel insurance, which costs about 4 to 10% of trip cost | **To be learned (H3)** |
+| Share of misses the airline does not pay for | 40.6% to 72.5% | BTS delay causes; the range is whether late-arriving aircraft count as the airline's | Measured |
 | Attach rate | not set | Unknown | **To be learned (H1)** |
 | Selection strength θ | not set | Unknown | **To be learned (H2)** |
 | Message effect | not set | Unknown | **To be learned (H4)** |
@@ -254,3 +256,30 @@ Impact and confidence are judgement calls, stated with their reasons; effort is 
 1. **Go / no-go on a capped MVP** and on the experiment in Section 7.
 2. **Before that:** operations and legal answer questions 1 to 3 in Section 9. Those answers can end the project, so they come first.
 3. If go: build the monthly recalibration, claim verification and pause rule; launch at capped volume in one or two hubs; read attach and θ at four to six weeks; read the loss ratio only once the book is large enough (Section 7.4).
+
+---
+
+## 11. The gap cover (v3): what the audit changed
+
+**Why.** On one ticket, the airline already rebooks a missed connection. For overnight disruptions it causes itself, it also owes the hotel; this is a commitment on the US DOT dashboard. A cover that pays regardless sells the traveller something they partly have. The gap is the night after a weather or air-traffic disruption, which nobody pays for.
+
+**What it pays.** The GSA hotel-and-meals rate for the hub and month. It pays when the connection is missed, the next flight to the destination is the next day, and BTS does not code the inbound problem to the airline. Every condition can be checked from public data, so claims need no receipts. That keeps the cover parametric and cheap to administer.
+
+**What it costs.**
+- On connections where a miss means a night, the price runs from about $5 to $14 for long connections to $81 to $134 for the tightest, depending on hub and month.
+- At a 5% cap, the tightest connections cannot be sold anywhere. Long ones fit 68% to 98% of the time.
+- **39%** of connections at overnight risk fit within the cap.
+- See the [demo](https://dbechrakis.github.io/missed-connection-pricing/#gap-cover).
+
+**The risk this product carries.**
+- Whole months came in 20 to 40% above or below the price. No model choice removed that: the swings come from weather and air traffic.
+- On March to August 2026, outside the model's training data, payouts ran **1.12×** the expected amount.
+- At a 65% target, break-even is 1.54×, so the worst month seen still left a thin margin.
+- The connections the cap lets through ran **9% worse** than average: a low price partly reflects under-estimated risk. A price loading on offered cover is the first change before launch.
+- **Needed at launch:** an exposure cap per hub-week, or reinsurance.
+
+**What is being tested.** The [pre-registration](../PREREGISTRATION_2026H2_V3.md) fixes six expectations for September to December 2026, before that data existed: calibration, no month above break-even, the selection effect inside the cap, the per-hub calibration option, the gap share, and reach. The [decision memo](decision-memo.md) gives the recommendation in one page.
+
+**What changes in this brief.**
+- The experiment in Section 7 should run on the gap cover, not the blanket one.
+- H4's message test becomes "covers your hotel when the airline won't" against "covers a missed connection".
