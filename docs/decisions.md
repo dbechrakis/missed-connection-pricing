@@ -176,3 +176,18 @@ One line per decision: what, why, and what it costs. Raw material for `method.md
 | Cancelled inbound flights excluded from the day-of analysis | Trivially predictable; would swamp the signal | Understates what a real alert could catch |
 | Pre-registration of the next window written and tagged before the data exists | Independent timestamp; the earlier protocols reached GitHub with their results | The window is four months at most; E1 to E5 can fail |
 | Static v2 in the next test is built from the original Oct to Dec 2025 months, whatever state rolling starts from | "Static" must mean nothing later than the calibration window | — |
+
+## Senior audit, round 1: v3, the overnight gap cover
+
+| Decision | Why | Cost / caveat |
+| --- | --- | --- |
+| Product re-scoped to pay only in the **gap**: overnight, inbound problem not coded to the airline | US airlines already owe a hotel for controllable overnight disruptions (DOT dashboard); BTS delay causes say 40.6 to 72.5% of misses are not the airline's | BTS does not say why an aircraft was late, so "controllable" is a range; the strict reading is the one checkable from public data |
+| Costs from GSA per diem (hub ZIP, month), not an assumed $180 | An official, dated, public source; seasonal | GSA is what the US government reimburses, not what a stranded traveller pays at midnight near an airport |
+| Price cap 5% of fare, tested at 3% and 7% | Comprehensive travel insurance costs about 4 to 10% of trip cost; a single-risk add-on should cost less | Still not demand: what people would pay needs an experiment |
+| Connections paired within the **marketing** network | Regional flights are sold under mainline brands; v1 missed those connections | Population doubles; v1 and v2 numbers are not comparable to v3's |
+| v3 in its own files behind one switch (`MCP_VARIANT`) | v1 and v2 are frozen and pre-registered; nothing in v3 may move them | Two sets of data on disk |
+| Kept the selection rule's pick (no recalibration), though per-hub levels fixed Chicago on development data | Switching after seeing the hub table is choosing the answer; per-hub is pre-registered as a declared second arm instead | If per-hub is right, the headline arm is worse for four months |
+| Model **not** changed after the July/August smoke test showed 1.36 | A robustness check found nothing (overnight-only training, a month term, any recalibration) that removes 20 to 40% monthly swings; the correct cost-weighted measure still ranks the chosen model first | The finding moves from the model to the business: the margin must carry a correlated weather risk |
+| No price loading for the winner's curse inside the cap, though it was measured (+9%) | Fitting a loading on the orientation months would let the pre-registered test grade its own homework | First change for a v4 |
+| Every look at the data before the v3 pre-registration is listed in it | The document is not blind; saying so is what makes it credible | — |
+| A weekly workflow opens an issue when BTS publishes a pre-registered month | The test cannot be quietly skipped or delayed if a month looks bad | It watches; it does not run the test (that needs about 1 GB of data) |

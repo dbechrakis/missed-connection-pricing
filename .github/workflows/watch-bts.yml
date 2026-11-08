@@ -1,0 +1,35 @@
+name: Watch BTS for the pre-registered months
+
+# The pre-registered test (PREREGISTRATION_2026H2.md and its addenda) runs on September to December 2026,
+# months that did not exist when the expectations were frozen. This job checks every Monday whether BTS has
+# published them, and opens one issue per month when it has, so the test is run as soon as it can be and
+# nobody can quietly skip a month that came out badly. It only reads public URLs; it never runs the test itself
+# (that needs the full 2024-2026 build, about 1 GB of downloads).
+on:
+  schedule:
+    - cron: "0 7 * * 1"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Open an issue for each newly published month
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          for m in 9 10 11 12; do
+            url="https://transtats.bts.gov/PREZIP/On_Time_Reporting_Carrier_On_Time_Performance_1987_present_2026_${m}.zip"
+            code=$(curl -sI -o /dev/null -w '%{http_code}' --max-time 60 "$url" || echo 000)
+            title="BTS published 2026-$(printf %02d $m): run the pre-registered test"
+            echo "2026-$m: HTTP $code"
+            if [ "$code" = "200" ] && [ -z "$(gh issue list -R "$REPO" --state all --search "\"$title\" in:title" --json number -q '.[].number')" ]; then
+              gh issue create -R "$REPO" --title "$title" --body "BTS on-time data for 2026-$(printf %02d $m) is available at $url.
+
+          Follow section 4 of PREREGISTRATION_2026H2.md (and the procedure of each addendum) exactly, with no retuning. The new months are read once, by the pre-registered command; nothing else may score them first, the monthly job included. Report every pre-registered number in VALIDATION.md, pass or fail."
+            fi
+          done

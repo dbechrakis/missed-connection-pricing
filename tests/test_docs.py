@@ -130,3 +130,51 @@ def test_addendum_commands_exist():
     src = (ROOT / "src" / "mcp" / "monitor.py").read_text(encoding="utf-8")
     for flag in ("--accept-preregistration", "--dry", "--legacy-bands", "--replay"):
         assert flag in text and flag in src
+
+
+# ---- the v3 pre-registration ----------------------------------------------------------------------------------
+
+def test_v3_preregistration_freezes_the_artefacts_the_test_will_use():
+    import hashlib
+    text = (ROOT / "PREREGISTRATION_2026H2_V3.md").read_text(encoding="utf-8")
+    for rel in ("models/pmiss_v3.joblib", "models/v3_state.json", "results/gsa_costs.json"):
+        raw = (ROOT / rel).read_bytes()
+        raw = raw if rel.endswith(".joblib") else raw.replace(b"\r\n", b"\n")
+        assert hashlib.sha256(raw).hexdigest() in text, rel
+
+
+def test_v3_preregistration_numbers_match_the_development_results():
+    import numpy as np
+    from mcp.v3 import TARGET_LR, WTP_CAP
+    text = (ROOT / "PREREGISTRATION_2026H2_V3.md").read_text(encoding="utf-8")
+    r = np.array(list(json.loads((ROOT / "results" / "v3_robustness.json").read_text())[
+        "all       v1 set          none         k=0"]["months"].values()))
+    sigma = r.std(ddof=1)
+    assert f"σ = {sigma:.3f}" in text
+    assert f"n = 3: {1 - 2 * sigma / 3 ** 0.5:.2f} to {1 + 2 * sigma / 3 ** 0.5:.2f}" in text
+    assert f"n = 4: {1 - sigma:.2f} to {1 + sigma:.2f}" in text
+    assert f"{1 / TARGET_LR:.2f}" in text and WTP_CAP == 0.05 and "5% of the average fare" in text
+    dev = json.loads((ROOT / "results" / "v3_dev.json").read_text())["results"]["primary"]
+    assert f"**{dev['overall']['ratio']:.2f}**" in text
+    assert f"**{dev['offered_within_cap']['0.05']['realized_over_target']['ratio']:.2f}**" in text
+    sel = json.loads((ROOT / "results" / "v3_selection.json").read_text())["chosen"]
+    assert sel["policy"] == "none" and sel["features"] == "v1 set"
+
+
+def test_readme_and_validation_v3_numbers_match_the_results():
+    val = (ROOT / "VALIDATION.md").read_text(encoding="utf-8")
+    c = json.loads((ROOT / "results" / "causes_v3.json").read_text())
+    a, o = c["all_misses"], c["overnight_misses"]
+    for needle in (f"{a['carrier']:.1%}", f"{a['late_aircraft']:.1%}", f"**{a['gap_broad']:.1%} to {a['gap_strict']:.1%}**"):
+        assert needle in README, needle
+    for needle in (f"**{a['gap_strict']:.1%}**", f"**{a['gap_broad']:.1%}**", f"{o['gap_strict']:.1%} and {o['gap_broad']:.1%}",
+                   f"{a['weather']:.1%} | {o['weather']:.1%}"):
+        assert needle in val, needle
+    dev = json.loads((ROOT / "results" / "v3_dev.json").read_text())["results"]["primary"]
+    assert f"**{dev['overall']['ratio']:.2f}** × target" in README
+    assert f"{dev['offered_within_cap']['0.05']['share_of_overnight_offered']:.0%} of overnight-risk" in README
+    assert f"${dev['mean_price_overnight']:.2f}" in val
+    rates = json.loads((ROOT / "results" / "gsa_costs.json").read_text())["rates"]
+    nights = [sum(v[fy]["lodging"].values()) / 12 + v[fy]["mie"] for v in rates.values() for fy in v]
+    assert f"${min(nights):.0f} to ${max(nights):.0f}" in README
+    assert f"{100 * (1 - 180 / min(nights)):.0f} to {100 * (1 - 180 / max(nights)):.0f}% too low" in README

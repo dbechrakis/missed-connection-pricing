@@ -50,6 +50,14 @@ LAG = 1                          # booking lead: month m is priced from months u
 SEL_ROWS, EVAL_FRAC = 5_000_000, 0.10
 FIRST_OOS = "2025-07"            # first month after V3_SFIT: calibrators may use months from here on
 TARGET_LR = 0.65
+# Price cap as a share of the fare. Comprehensive travel insurance costs about 4 to 10% of trip cost (Squaremouth,
+# about 6% on recent sales); a single-risk add-on should sit below that, so 5%, tested at 3% and 7% (VALIDATION.md 5).
+WTP_CAP, WTP_CAPS = 0.05, (0.03, 0.05, 0.07)
+
+
+def price(p, cost) -> np.ndarray:
+    """Premium = expected payout / target loss ratio."""
+    return np.asarray(p, float) * np.asarray(cost, float) / TARGET_LR
 
 
 def gsa_table() -> dict:

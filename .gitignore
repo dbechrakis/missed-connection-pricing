@@ -12,3 +12,5 @@ models/*
 !models/pmiss_v2.joblib
 .claude/
 !models/v2_state.json
+!models/pmiss_v3.joblib
+!models/v3_state.json

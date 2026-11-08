@@ -2,3 +2,4 @@
 config/*.yaml text eol=lf
 models/*.json text eol=lf
 *.joblib binary
+results/gsa_costs.json text eol=lf

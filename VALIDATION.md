@@ -370,3 +370,88 @@ The 4G finding led to a replacement rule: alert on the claim-weighted realized �
 | Hub alerts | 15 of 40 hub-months | 1 of 30 hub checks (Chicago, April: rolling ratio 1.36) |
 
 **What the quiet costs.** The rule is slow and its hub band is wide, so it cannot see steady small gaps. Chicago ran about 16% under-priced and Charlotte and Dallas about 12% over-priced across the 2026 test, and none of that alerts: it sits inside ±0.31. Alerting less is only a gain if the alerts that remain are the ones that matter; here a persistent hub error is exactly what goes unflagged. Detecting it needs a cumulative rule or a hub-level calibration, which this project has not built.
+
+
+## Part 5: v3, the overnight gap cover (senior audit, round 1)
+
+An audit of the project's own assumptions, done after Part 4. Each item says what was assumed, what the data says, and what changed. v1 and v2, and their pre-registered test, are untouched: v3 has its own files (`MCP_VARIANT=v3`), its own model and its own pre-registration, `PREREGISTRATION_2026H2_V3.md`.
+
+### 5A. Who pays for a missed connection already (BTS delay causes)
+
+BTS codes every delay of 15 minutes or more to a cause. The new `mcp.causes` gives each missed connection the cause of its inbound flight's problem: the dominant cause by minutes, or the cancellation code. On v3 connections, January 2024 to August 2026 (27.0 million weighted misses):
+
+| Cause of the inbound problem | All misses | Overnight misses |
+| --- | --- | --- |
+| Airline (carrier) | 27.5% | 19.5% |
+| Late-arriving aircraft | 31.9% | 41.8% |
+| Weather | 14.6% | 12.5% |
+| Air traffic control and airport (NAS) | 13.8% | 15.7% |
+| Security, diverted, not coded | 12.3% | 10.6% |
+
+US airlines commit to a hotel for overnight disruptions **they control** (DOT Airline Customer Service Dashboard). The rest is a gap the passenger pays for. That gap is **72.5%** of all misses if only "carrier" counts as controllable, and **40.6%** if late-arriving aircraft count too. For overnight misses it is 80.5% and 38.8%. BTS does not say why the aircraft was late, so the truth lies between the two.
+
+Chicago and Denver lose about 20% of misses to air traffic control. Dallas loses 21% to weather.
+
+**What changed.** The product question became sharper. A cover that pays for every missed connection mostly duplicates what the airline already owes. A cover that pays only in the gap does not. That is v3.
+
+### 5B. Costs from an official source, not assumed
+
+The $180 overnight assumption was replaced by the GSA per-diem rate for the hub's ZIP code and month: lodging plus meals and incidentals (`mcp.costs`, cached pages under `data/external/gsa/`). A night costs $198 to $295 on annual average, by hub and fiscal year. The $180 was 9 to 39% too low, with seasonal swings on top (Chicago lodging runs from $142 to $234 a month in FY2026).
+
+### 5C. How tickets are sold, not who flies the plane
+
+v1 paired flights by the airline that **operated** them. A passenger booked on American through Charlotte may fly a PSA or Piedmont regional flight, which v1 treated as a different airline, so that connection was missing. v3 uses BTS's marketing-carrier file and pairs flights within the **marketing** network, with DB1B route weights by ticketing carrier.
+
+In 2025 that gives **115.8 million** connections against 55.5 million in v1, and American's weighted passengers rise from 19.1 to 35.7 million. The weighted miss rate is 8.7% against 8.2%.
+
+### 5D. The v3 model, its selection, and a mistake in what the selection measured
+
+The v2 rule (pooled log loss, ties to the simpler policy) chose **no recalibration** on the October 2025 to August 2026 walk-forward with a one-month booking lag. Pooled realized/target was 1.03, with hubs ranging from 0.89 to 1.32 (`results/v3_selection.json`).
+
+A smoke test of the test code on July and August 2026 then showed **1.36**. The cause was two flaws in how v3 was selected:
+
+- it ranked candidates by error over all connections, although the cover pays only on overnight ones;
+- it weighted by passengers, although the cover's result is in dollars.
+
+The robustness check (`scripts/v3_robustness.py`, development data only) asked whether anything fixes it:
+
+| Specification | Spread of monthly ratios | Worst month |
+| --- | --- | --- |
+| Chosen (all connections, no month term, no recalibration) | 0.188 | 1.38 |
+| Trained on overnight connections only | 0.187 | 1.38 |
+| With a month term | 0.168 to 0.190 | 1.33 to 1.41 |
+| Any recalibration (global or per hub, 1 to 6 months) | 0.18 to 0.25 | 1.31 to 1.46 |
+
+**Nothing does.** The month term only moves which months are wrong: it under-prices fall 2025 instead of summer 2026, because fall 2024 was calmer. Judged by the correct cost-weighted log loss, the chosen model still ranks first (0.26303, a statistical tie with its overnight-trained twin at 0.26266). **So the model was not changed. The conclusion changed.**
+
+The gap cover insures a **correlated weather and air-traffic risk**: whole months come in 20 to 40% above or below the price, and no information available at booking predicts which. That risk is carried by the margin, not by the model. At a 0.65 target loss ratio, break-even is a realized/target of 1.54. The worst development month (1.38) is a loss ratio of 90%.
+
+### 5E. Development orientation, March to August 2026 (not validation)
+
+The final model, trained through February 2026, is out of sample here (`results/v3_dev.json`).
+
+| | Primary (no recalibration) |
+| --- | --- |
+| Realized/target, pooled | **1.12** [1.01, 1.23] |
+| By month, March to August | 1.03, 0.84, 0.98, 1.20, 1.35, 1.37 |
+| By hub | Atlanta 1.14, Charlotte 0.98, Denver 1.14, Dallas 1.02, Chicago 1.31 |
+| Mean price per overnight-risk connection | $34.65 |
+| Share offered within a 3% / 5% / 7% fare cap | 20% / 39% / 51% |
+| Realized/target on the offered subset at 5% | **1.22** |
+
+**The winner's curse, measured.** Offering cover only where the price is low selects connections whose risk the model under-estimates, so the offered subset runs about 9% worse than all connections. A price loading on offered cover would correct it. It is not added here, because fitting it on these months would make the pre-registered test grade its own homework. It is the first change for a v4.
+
+**The price cap is now sourced.** Comprehensive travel insurance costs about 4 to 10% of trip cost; Squaremouth's recent sales average about 6%. Policies cap missed-connection benefits at about $500 to $2,500. A single-risk add-on should cost less than full insurance, so the cap is 5% of fare, with 3% and 7% reported.
+
+### 5F. What is frozen for September to December 2026
+
+The pre-registration `PREREGISTRATION_2026H2_V3.md` (tag `prereg-2026h2-v3`) fixes the model, state and GSA table hashes, two arms (primary, and per-hub level as a declared second arm), and six falsifiable expectations:
+
+- calibration within 1 ± 2σ/√n;
+- no month above break-even;
+- the winner's curse inside the cap;
+- the per-hub arm narrows the hub spread;
+- the gap is 70 to 90% of overnight misses;
+- 25 to 55% of overnight-risk connections priced within the cap.
+
+It also lists everything the author saw before writing it. A weekly workflow (`.github/workflows/watch-bts.yml`) opens an issue as each month is published, so the test cannot be quietly skipped.

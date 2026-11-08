@@ -122,7 +122,8 @@ def main() -> None:
         print("rate-limited or unavailable, run again later:", ", ".join(missing))
     out = {h: {str(fy): p for fy, p in v.items()} for h, v in table.items()}
     RESULTS.write_text(json.dumps({"source": "GSA per diem rates (gsa.gov rate pages; API as fallback), cached under data/external/gsa/",
-                                   "zip_by_hub": HUB_ZIP, "rates": out, "missing": missing}, indent=1), encoding="utf-8")
+                                   "zip_by_hub": HUB_ZIP, "rates": out, "missing": missing}, indent=1), encoding="utf-8",
+                       newline=chr(10))   # LF on every OS: the file's SHA-256 is frozen in the v3 pre-registration
     for h, v in table.items():
         fys = sorted(v)
         last = v[fys[-1]]
