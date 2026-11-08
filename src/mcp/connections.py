@@ -105,8 +105,9 @@ def connections_sql(flights: str, mct: int, extra: int, hubs=HUBS) -> str:
     """
 
 
-def build(mct: int, extra: int, start: str = "2024-01", end: str = "2025-12"):
-    """Write connections for one MCT, one file per month of the connection date."""
+def build(mct: int, extra: int, start: str = "2024-01", end: str = "2025-12", quiet: bool = False):
+    """Write connections for one MCT, one file per month of the connection date.
+    `quiet` prints row counts only, never an outcome rate (used for the sealed 2026 holdout)."""
     con = duckdb.connect()
     con.execute(f"CREATE VIEW flights AS SELECT * FROM read_parquet('{(SRC / '*' / '*.parquet').as_posix()}')")
     base = OUT / f"mct={mct}"
@@ -131,7 +132,7 @@ def build(mct: int, extra: int, start: str = "2024-01", end: str = "2025-12"):
         n, miss = con.execute(
             f"SELECT count(*), sum(missed::INT) FROM '{out.as_posix()}' WHERE status='{OK}'"
         ).fetchone()
-        print(f"mct={mct} {y}-{m:02d}: {n:,} ok connections, miss rate {miss / n:.2%}")
+        print(f"mct={mct} {y}-{m:02d}: {n:,} ok connections" + ("" if quiet else f", miss rate {miss / n:.2%}"))
 
 
 def _months(start, end):
@@ -145,9 +146,10 @@ if __name__ == "__main__":
     p.add_argument("--mct", type=int, nargs="*", default=[cfg["mct_min"]])
     p.add_argument("--start", default="2024-01")
     p.add_argument("--end", default="2025-12")
+    p.add_argument("--quiet", action="store_true", help="print counts only, no outcome rates")
     a = p.parse_args()
     for mct in a.mct:
-        build(mct, cfg["max_extra_slack_min"], a.start, a.end)
+        build(mct, cfg["max_extra_slack_min"], a.start, a.end, a.quiet)
 
 
 WEIGHTS = ROOT / "data" / "parquet" / "db1b" / "route_weights.parquet"

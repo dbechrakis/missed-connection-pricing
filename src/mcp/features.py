@@ -76,15 +76,20 @@ def create_stats(con, flights: str = FLIGHTS, asos: str = ASOS, fit_flights: str
       FROM read_parquet('{asos}') WHERE {fit_asos} GROUP BY station, month""")
 
 
-def feature_sql(source: str, window_pred: str, frac: float = 1.0, severity: str | None = None) -> str:
+def feature_sql(source: str, window_pred: str, frac: float = 1.0, severity: str | None = None,
+                with_keys: bool = False) -> str:
     """Features for the connections in `source` (a table/view/subquery) inside `window_pred`.
 
     Returns FEATURES + y + weight. `y` and `weight` are the label and DB1B weight, not features.
     With `severity` (path to the severity Parquet) it also returns wait_min, overnight and fare:
     schedule-derived consequences of a miss used for pricing, never as model inputs.
+    `with_keys` adds columns that identify the connection, so frames built with different route
+    statistics can be matched by key and never by row order.
     `frac` keeps a deterministic hash-based fraction of rows (stable across threads and reruns).
     """
     keep = f"AND (hash(r.carrier, r.in_flight_date, r.in_flight_number, r.in_crs_dep_hhmm, r.out_flight_date, r.out_flight_number, r.out_crs_dep_hhmm) % 1000000) < {int(frac * 1_000_000)}" if frac < 1 else ""
+    key_cols = (", r.in_flight_date, r.in_flight_number, r.in_crs_dep_hhmm, r.out_flight_date, r.out_flight_number,"
+                " r.out_crs_dep_hhmm, r.origin, r.destination") if with_keys else ""
     sev_cols = ", s.wait_min, s.overnight::INT AS overnight, r.fare_mean AS fare" if severity else ""
     sev_join = (" LEFT JOIN read_parquet('" + severity + "') s ON s.carrier = r.carrier"
                 " AND s.flight_date = r.out_flight_date AND s.flight_number = r.out_flight_number"
@@ -98,7 +103,7 @@ def feature_sql(source: str, window_pred: str, frac: float = 1.0, severity: str 
            ({sub("s_late")} + {K} * p.late) / ({sub("n_comp")} + {K}) AS in_late15,
            ({sub("n_bad")} + {K} * p.bad) / ({sub("n_all")} + {K}) AS in_cancel,
            c.thunder, c.snow, c.low_vis, c.high_wind,
-           r.missed::INT AS y, r.weight, r.out_sched_dep{sev_cols}
+           r.missed::INT AS y, r.weight, r.out_sched_dep{sev_cols}{key_cols}
     FROM {source} r
     LEFT JOIN leg_tot t ON t.carrier = r.carrier AND t.origin = r.origin AND t.dest = r.hub
     LEFT JOIN leg_month m ON m.carrier = r.carrier AND m.origin = r.origin AND m.dest = r.hub

@@ -44,17 +44,19 @@ def _tag(theta: float) -> str:
     return f"{theta:g}"
 
 
-def aggregate(df: pd.DataFrame, cfg: dict) -> dict:
+def aggregate(df: pd.DataFrame, cfg: dict, models=MODELS, product: str = "gbm_iso", buy: str = "gbm_iso") -> dict:
     """One month of scored connections -> additive sums (so months can simply be added).
 
-    Required columns: y, weight, overnight, fare, hub, bucket, week, month, p_baseline, p_gbm_raw, p_gbm_iso.
+    Required columns: y, weight, overnight, fare, hub, bucket, week, month, and p_<model> for each model.
+    `product` is the model whose price decides who is offered; `buy` is the model whose probability
+    drives the purchase weight (both default to the calibrated GBM).
     """
     c = cfg["rebooking_cost"] + cfg["overnight_cost"] * df["overnight"].to_numpy()
     w, y = df["weight"].to_numpy(), df["y"].to_numpy()
     lr = cfg["target_loss_ratio"]
-    prices = {m: df[f"p_{m}"].to_numpy() * c / lr for m in MODELS}
-    offered = prices["gbm_iso"] <= cfg["wtp_cap_pct"] * df["fare"].to_numpy()
-    p_buy = df["p_gbm_iso"].to_numpy()
+    prices = {m: df[f"p_{m}"].to_numpy() * c / lr for m in models}
+    offered = prices[product] <= cfg["wtp_cap_pct"] * df["fare"].to_numpy()
+    p_buy = df[f"p_{buy}"].to_numpy()
 
     base = pd.DataFrame({"week": df["week"].to_numpy(), "hub": df["hub"].to_numpy(), "bucket": df["bucket"].to_numpy(),
                          "month": df["month"].to_numpy(), "offered": offered})
@@ -63,16 +65,16 @@ def aggregate(df: pd.DataFrame, cfg: dict) -> dict:
         t = _tag(th)
         base[f"W{t}"] = wb
         base[f"claim{t}"] = wb * y * c
-        for m in MODELS:
+        for m in models:
             base[f"prem_{m}{t}"] = wb * prices[m]
     # calibration material (weighted by passengers only: the purchase weight is a pricing-comparison device)
     base["w"], base["wy"] = w, w * y
-    for m in MODELS:
+    for m in models:
         base[f"wp_{m}"] = w * df[f"p_{m}"].to_numpy()
     sums = base.groupby(["week", "hub", "bucket", "month", "offered"], as_index=False).sum()
 
     hist = {}
-    for m in MODELS:
+    for m in models:
         p = np.clip(df[f"p_{m}"].to_numpy(), 0, 1)
         idx = np.minimum((p * HIST_BINS).astype(int), HIST_BINS - 1)
         pc = np.clip(p, EPS, 1 - EPS)
@@ -83,10 +85,10 @@ def aggregate(df: pd.DataFrame, cfg: dict) -> dict:
     return {"sums": sums, "hist": hist}
 
 
-def merge(parts: list[dict]) -> dict:
+def merge(parts: list[dict], models=MODELS) -> dict:
     sums = pd.concat([p["sums"] for p in parts]).groupby(["week", "hub", "bucket", "month", "offered"], as_index=False).sum()
     hist = {}
-    for m in MODELS:
+    for m in models:
         hist[m] = {k: sum(p["hist"][m][k] for p in parts) for k in ("W", "Wy", "Wp", "brier", "logloss")}
     return {"sums": sums, "hist": hist}
 
@@ -107,7 +109,7 @@ def ratio_with_ci(sums: pd.DataFrame, num: str, den, n_boot: int = 2000, seed: i
     return {"ratio": float(point), "lo": float(np.nanpercentile(boot, 2.5)), "hi": float(np.nanpercentile(boot, 97.5))}
 
 
-def analyse(parts_sum: dict, cfg: dict, flat_train: float) -> dict:
+def analyse(parts_sum: dict, cfg: dict, flat_train: float, models=MODELS, product: str = "gbm_iso") -> dict:
     s, h = parts_sum["sums"], parts_sum["hist"]
     lr = cfg["target_loss_ratio"]
     weeks = sorted(s["week"].unique())
@@ -119,11 +121,11 @@ def analyse(parts_sum: dict, cfg: dict, flat_train: float) -> dict:
         sub = sub.assign(**{f"_p": sub[f"prem_{model}{t}"] * lr})
         return ratio_with_ci(sub, f"claim{t}", "_p", weeks=weeks)
 
-    out["overall"] = {m: {_tag(th): rt(s, th, m) for th in THETAS} for m in MODELS}
+    out["overall"] = {m: {_tag(th): rt(s, th, m) for th in THETAS} for m in models}
     # flat prices: one price for everybody
     W0, C0 = s["W0"].sum(), s["claim0"].sum()
     oracle = C0 / (lr * W0)
-    out["flat"] = {"train_price": flat_train, "oracle_price": float(oracle), "tiered_mean_price_theta0": float(s["prem_gbm_iso0"].sum() / W0)}
+    out["flat"] = {"train_price": flat_train, "oracle_price": float(oracle), "tiered_mean_price_theta0": float(s[f"prem_{product}0"].sum() / W0)}
     flat = {}
     for name, price_ in (("flat_train", flat_train), ("flat_oracle", oracle)):
         flat[name] = {}
@@ -133,19 +135,19 @@ def analyse(parts_sum: dict, cfg: dict, flat_train: float) -> dict:
             flat[name][t] = ratio_with_ci(sub, f"claim{t}", "_p", weeks=weeks)
     out["flat_pricing"] = flat
 
-    out["by_hub"] = {hub: {m: rt(g, 0.0, m) for m in MODELS} for hub, g in s.groupby("hub")}
+    out["by_hub"] = {hub: {m: rt(g, 0.0, m) for m in models} for hub, g in s.groupby("hub")}
     out["offered_only"] = {"share_of_weight": float(s.loc[s["offered"], "W0"].sum() / W0),
-                           "gbm_iso_theta0": rt(s[s["offered"]], 0.0, "gbm_iso"),
-                           "not_offered_gbm_iso_theta0": rt(s[~s["offered"]], 0.0, "gbm_iso")}
-    mo = s.groupby("month")[["w", "wy", "wp_gbm_iso", "wp_gbm_raw", "wp_baseline"]].sum()
-    out["by_month"] = {int(m): {"observed": r.wy / r.w, "pred_iso": r.wp_gbm_iso / r.w, "pred_raw": r.wp_gbm_raw / r.w,
-                                "pred_baseline": r.wp_baseline / r.w} for m, r in mo.iterrows()}
-    bk = s.groupby("bucket")[["w", "wy", "wp_gbm_iso", "wp_baseline"]].sum()
-    out["by_slack_bucket"] = {int(45 + 15 * b): {"observed": r.wy / r.w, "pred_iso": r.wp_gbm_iso / r.w,
-                                                  "pred_baseline": r.wp_baseline / r.w} for b, r in bk.iterrows()}
+                           "gbm_iso_theta0": rt(s[s["offered"]], 0.0, product),
+                           "not_offered_gbm_iso_theta0": rt(s[~s["offered"]], 0.0, product)}
+    cols = ["w", "wy"] + [f"wp_{m}" for m in models]
+    mo = s.groupby("month")[cols].sum()
+    out["by_month"] = {int(m): {"observed": r.wy / r.w, **{f"pred_{k}": r[f"wp_{k}"] / r.w for k in models}} for m, r in mo.iterrows()}
+    bk = s.groupby("bucket")[cols].sum()
+    out["by_slack_bucket"] = {int(45 + 15 * b): {"observed": r.wy / r.w, **{f"pred_{k}": r[f"wp_{k}"] / r.w for k in models}}
+                              for b, r in bk.iterrows()}
 
     out["scores"], out["reliability"] = {}, {}
-    for m in MODELS:
+    for m in models:
         W, Wy, Wp = h[m]["W"], h[m]["Wy"], h[m]["Wp"]
         keep = W > 0
         pbin = Wp[keep] / W[keep]
@@ -257,7 +259,7 @@ def figures(res: dict) -> None:
     mo = sorted(res["by_month"], key=int)
     xs = [int(m) for m in mo]
     ax.plot(xs, [res["by_month"][m]["observed"] * 100 for m in mo], marker="o", color="k", lw=2, label="observed")
-    ax.plot(xs, [res["by_month"][m]["pred_iso"] * 100 for m in mo], marker="o", color=col["gbm_iso"], lw=2, label="predicted (calibrated)")
+    ax.plot(xs, [res["by_month"][m]["pred_gbm_iso"] * 100 for m in mo], marker="o", color=col["gbm_iso"], lw=2, label="predicted (calibrated)")
     ax.set(xlabel="Month of 2025", ylabel="Missed connections (%)", title="Level check: observed vs predicted by month")
     ax.legend(frameon=False)
     fig.tight_layout(); fig.savefig(FIG / "backtest_level.png"); plt.close(fig)
