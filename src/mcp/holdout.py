@@ -49,15 +49,16 @@ COL = {"baseline": "#888888", "v1_raw": "#E69F00", "v1_iso": "#D55E00", "v2_stat
        "v2_rolling": "#0072B2", "flat_train": "#009E73", "flat_oracle": "#CC79A7"}
 
 
-def month_path(month: int) -> str:
-    return (WEIGHTED / "mct=45" / "year=2026" / f"month={month:02d}.parquet").as_posix()
+def month_path(month: int, year: int = 2026) -> str:
+    return (WEIGHTED / "mct=45" / f"year={year}" / f"month={month:02d}.parquet").as_posix()
 
 
 def predict(bundle: dict, df: pd.DataFrame) -> np.ndarray:
     return bundle["gbm"].predict_proba(_codes(df[bundle["features"]], bundle["cats"]))[:, 1]
 
 
-def run() -> dict:
+def run(months=range(1, 9), predicate: str | None = None, year: int = 2026) -> dict:
+    """Defaults are the real holdout. A caller may pass other months/year/predicate to smoke-test the path."""
     cfg = load_config()
     v1, v2 = joblib.load(V1_BUNDLE), joblib.load(V2_BUNDLE)
     base_rates = pd.DataFrame([(h, int(b), r) for (h, b), r in fit_rates(cells("FIT"), ("hub", "bucket")).items()],
@@ -70,13 +71,13 @@ def run() -> dict:
     F.create_stats(con1)                                                           # v1: route history from 2024
     F.create_stats(con2, fit_flights=where("V2_FIT", "flight_date"), fit_asos=where("V2_FIT", "obs_utc"))
     # The single place the holdout window is read:
-    predicate = where("HOLDOUT", "r.out_sched_dep")
+    predicate = predicate or where("HOLDOUT", "r.out_sched_dep")
 
     known = list(v2["cal_stats"])                  # Oct-Dec 2025 months, out-of-sample for the v2 GBM
     static_cal = make_calibrator(v2["policy"], v2["k"], known)
     parts, kept, dropped, month_rows = [], 0, 0, {}
-    for month in range(1, 9):
-        src = f"read_parquet('{month_path(month)}')"
+    for month in months:
+        src = f"read_parquet('{month_path(month, year)}')"
         df = con1.execute(F.feature_sql(src, predicate, 1.0, SEVERITY_FULL.as_posix(), with_keys=True)).fetchdf()
         d2 = con2.execute(F.feature_sql(src, predicate, 1.0, None, with_keys=True)).fetchdf()
         bad = df["overnight"].isna() | df["fare"].isna()
@@ -92,7 +93,7 @@ def run() -> dict:
         df["p_v1_raw"], df["p_v1_iso"] = raw1, v1["isotonic"].predict(raw1)
         hubs = df["hub"].to_numpy()
         df["p_v2_static"] = static_cal(df["p_v2_raw"].to_numpy(), hubs)
-        label = f"2026-{month:02d}"
+        label = f"{year}-{month:02d}"
         df["p_v2_rolling"] = make_calibrator(v2["policy"], v2["k"], known)(df["p_v2_raw"].to_numpy(), hubs)
         day = df["out_sched_dep"].dt.normalize()
         df["week"] = (day - pd.to_timedelta(df["out_sched_dep"].dt.day_of_week, unit="D")).astype(str)
