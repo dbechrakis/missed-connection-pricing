@@ -60,3 +60,49 @@ def test_the_quoted_validation_windows_match_the_code():
     from mcp.split import WINDOWS
     assert WINDOWS["HOLDOUT"][0] == "2026-01-01" and WINDOWS["TEST"] == ("2025-07-01", "2026-01-01")
     assert "January to August 2026" in README and "July to December 2025" in README
+
+
+# ---- the pre-registration for the next test window --------------------------------------------------------
+
+def test_preregistration_hashes_match_the_frozen_files():
+    import hashlib
+    text = (ROOT / "PREREGISTRATION_2026H2.md").read_text(encoding="utf-8")
+    for rel in ("models/pmiss.joblib", "models/pmiss_v2.joblib", "models/v2_state.json", "config/pricing.yaml", "config/guards.yaml"):
+        h = hashlib.sha256((ROOT / rel).read_bytes()).hexdigest()
+        assert h in text, f"{rel} no longer matches the hash in PREREGISTRATION_2026H2.md"
+
+
+def test_preregistration_commands_and_flags_exist():
+    text = (ROOT / "PREREGISTRATION_2026H2.md").read_text(encoding="utf-8")
+    holdout = (ROOT / "src" / "mcp" / "holdout.py").read_text(encoding="utf-8")
+    for flag in ("--next",):
+        assert flag in text and flag in holdout
+    for cmd in re.findall(r"python -m (mcp\.\w+)", text):
+        importlib.import_module(cmd)
+
+
+def test_preregistration_window_is_the_one_in_the_code_and_starts_after_everything_used():
+    from mcp.split import WINDOWS
+    text = (ROOT / "PREREGISTRATION_2026H2.md").read_text(encoding="utf-8")
+    assert WINDOWS["NEXT"] == ("2026-09-01", "2027-01-01") and "1 September to 31 December 2026" in text
+
+
+def test_readme_points_to_the_preregistration():
+    assert "PREREGISTRATION_2026H2.md" in README
+
+
+def test_day_of_numbers_in_the_readme_match_the_value_of_information_results():
+    v = json.loads((ROOT / "results" / "voi.json").read_text())["sets"]
+    d, b = v["+ inbound departure delay"], v["booking time only"]
+    for needle in (f"**{d['brier_improvement']:.0%}**", f"**{d['top5']['misses_caught']:.0%}**", f"**{d['top5']['precision']:.0%}**",
+                   f"{b['top5']['misses_caught']:.0%} at {b['top5']['precision']:.0%}"):
+        assert needle in README, needle
+    assert v["+ hub weather"]["brier_improvement"] < 0.01          # "hub weather adds under 1%"
+
+
+def test_pricing_config_hash_is_reproducible_on_any_operating_system():
+    import hashlib
+    h = hashlib.sha256((ROOT / "config" / "pricing.yaml").read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+    assert h == "75e1db9fda3e188955a0201ea9a29ae317c88deec5619395cfe2bfd89a9e8979"
+    assert h in (ROOT / "VALIDATION.md").read_text(encoding="utf-8")
+    assert h in (ROOT / "PREREGISTRATION_2026H2.md").read_text(encoding="utf-8")

@@ -160,3 +160,19 @@ One line per decision: what, why, and what it costs. Raw material for `method.md
 | "If missed, the next flight leaves..." selector | The price depends on it (hotel or not), and it is the traveller-relevant unknown | Typical case uses the observed mix |
 | Static page, no libraries, data in a script file | Opens instantly, works offline, no cold start; zero spend | Chart is hand-drawn SVG |
 | Deploy by GitHub Actions from `site/` | The spec wants a `site/` folder; Actions allows that without moving it | Pages on a private repository needs a paid plan; the repo becomes public at launch |
+
+## Serving, operations, day-of value and the next pre-registration (step 11)
+
+| Decision | Why | Cost / caveat |
+| --- | --- | --- |
+| One serving core (`mcp.service`) behind the demo, a command-line tool and a FastAPI endpoint | Three front ends over one table cannot disagree; a test pins the thresholds the page uses | It serves v1's frozen table; it does not re-score a connection live |
+| `/model` reports the SHA-256 of the frozen artefacts | A reviewer can verify what is being served against `VALIDATION.md` | The files are pickles; load only from this repository |
+| Monthly job as a pure function (`mcp.monitor.step`) | "A month never sees itself or the future" is unit-tested, not asserted | Wiring to the files is exercised by the replay, not by tests |
+| Month enters the state only after its report | Otherwise a month calibrates its own price | — |
+| The dry run's thresholds were **not** retuned after they proved too jumpy | Changing them to flatter the job would be exactly the post-hoc tuning the project avoids; recorded as a finding (4G) | The job as written would fire most months |
+| Notebooks 02 and 03 read only published results | They cannot disagree with the validation; they run in tests | They add no new analysis |
+| A truncated bar chart was replaced with a dot plot | Bars on a truncated axis exaggerate differences of 0.0004 | — |
+| Day-of value of information defined at one hour before scheduled arrival, with only what is observable then | A first version used each flight's final departure delay and overstated the value (52% against 44%); corrected and both reported | An alert's usefulness depends on whether a traveller can act, untested |
+| Cancelled inbound flights excluded from the day-of analysis | Trivially predictable; would swamp the signal | Understates what a real alert could catch |
+| Pre-registration of the next window written and tagged before the data exists | Independent timestamp; the earlier protocols reached GitHub with their results | The window is four months at most; E1 to E5 can fail |
+| Static v2 in the next test is built from the original Oct to Dec 2025 months, whatever state rolling starts from | "Static" must mean nothing later than the calibration window | — |

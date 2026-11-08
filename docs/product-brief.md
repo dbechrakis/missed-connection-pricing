@@ -197,7 +197,8 @@ Even at unlimited volume, **at least 27 weeks (six months)** are needed for ±10
 
 - **Capped exposure:** a ceiling on weekly policies sold and on the benefit per policy.
 - **Pause rule:** flag a week when claims exceed expected by more than two standard deviations of that week's loss ratio, and review the hub after two flagged weeks in a row. The threshold depends on volume, because a small book is noisier (measured weekly variability 0.26, plus the skew of single claims): about **1.96x expected at 100 policies a week, 1.59x at 1,000, 1.54x at 10,000 and 1.53x at 100,000**. If weeks were independent, a two-week false alarm would have probability about 0.05%; weather clusters weeks together, so treat it as a trigger for review, not an automatic stop.
-- **Recalibration:** monthly. A frozen price went 17% wrong in the test; re-learning the level fixed most of it.
+- **Recalibration:** monthly, as runnable code (`python -m mcp.monitor`): each month is priced only from earlier months, drift is reported by hub and week, and the month enters the state only afterwards. A frozen price went 17% wrong in the test; re-learning the level fixed most of it, and a one-month lag for the booking lead costs little (loss ratio 60.7% against 62.3%; `VALIDATION.md` Part 4).
+- **Do not act on a single month's drift.** A dry run over 2026 (`VALIDATION.md` 4G) shows the realized level moves with a standard deviation of about 0.15 from month to month, so a ±10% monthly band would have said "recalibrate" in 5 of 8 months and a ±20% hub band flagged 15 of 40 hub-months. Treat the report as input to a review over several months; size the bands from the measured spread.
 - **Event handling:** a manual switch to stop selling at an airport during a declared outage or severe weather, since the model cannot see the day.
 
 ---
@@ -215,7 +216,7 @@ Impact and confidence are judgement calls, stated with their reasons; effort is 
 | Now | Pause rule and weekly dashboard | The loss ratio cannot be measured fast (Section 7.4) | Weekly variability ≈ 0.26 | S |
 | Next | Hub-level calibration | ORD is under-priced about 16% and CLT, DFW over-priced about 12% in every schedule | 2025 and 2026 backtests | S to M |
 | Next | Cross-carrier and self-transfer connections | Where the airline gives no protection, the proposition is strongest (Section 2) | Out of scope of the data here | L |
-| Next | Day-of alerts | The model's ceiling is low because most of the risk is day-of; the value of knowing is unmeasured | Booking-time features improve Brier by only about 1 to 2% over a connection-time baseline | M |
+| Next | Day-of alerts (a second product) | Most of the risk is only knowable on the day. One hour before arrival, the inbound flight's departure delay cuts Brier error by 44% and an alert on the riskiest 5% of connections catches 52% of misses at 75% precision, against 19% at 28% from booking-time information; hub weather adds under 1%. Whether a traveller can act in that hour, and what a real-time feed costs, are untested | `VALIDATION.md` 4H; booking-time features improve Brier by only about 1 to 2% | M |
 | Later | Seat availability, live severity | Makes the benefit estimate exact | Severity is a lower bound today | L |
 | Later | More hubs | Wider coverage | Same method, new data | M |
 

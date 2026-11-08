@@ -65,7 +65,8 @@ def attach_v2(df: pd.DataFrame, d2: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def run(months=range(1, 9), predicate: str | None = None, year: int = 2026, lags=(0,)) -> dict:
+def run(months=range(1, 9), predicate: str | None = None, year: int = 2026, lags=(0,),
+        initial_known=None, product: str = PRODUCT) -> dict:
     """Defaults are the real holdout. A caller may pass other months/year/predicate to smoke-test the path,
     or extra booking-lead `lags` (post-hoc and exploratory: the pre-registered result is lag 0 only)."""
     models = MODELS + tuple(f"v2_rolling_lag{l}" for l in lags if l)
@@ -83,8 +84,9 @@ def run(months=range(1, 9), predicate: str | None = None, year: int = 2026, lags
     # The single place the holdout window is read:
     predicate = predicate or where("HOLDOUT", "r.out_sched_dep")
 
-    known = list(v2["cal_stats"])                  # Oct-Dec 2025 months, out-of-sample for the v2 GBM
-    static_cal = make_calibrator(v2["policy"], v2["k"], known)
+    # static v2 never sees anything after December 2025, whatever state the rolling policy starts from
+    static_cal = make_calibrator(v2["policy"], v2["k"], list(v2["cal_stats"]))
+    known = list(initial_known) if initial_known is not None else list(v2["cal_stats"])   # Oct-Dec 2025, out-of-sample for the v2 GBM
     parts, kept, dropped, month_rows = [], 0, 0, {}
     for month in months:
         src = f"read_parquet('{month_path(month, year)}')"
@@ -111,12 +113,12 @@ def run(months=range(1, 9), predicate: str | None = None, year: int = 2026, lags
         day = df["out_sched_dep"].dt.normalize()
         df["week"] = (day - pd.to_timedelta(df["out_sched_dep"].dt.day_of_week, unit="D")).astype(str)
         df["month"] = df["out_sched_dep"].dt.month
-        parts.append(aggregate(df, cfg, models, product=PRODUCT, buy=PRODUCT))
+        parts.append(aggregate(df, cfg, models, product=product, buy=product))
         # only now does this month's outcome become 'known' to the rolling policy, for the NEXT month
         known.append(month_stats(label, df["hub"], df["y"], df["weight"], df["p_v2_raw"]))
         kept += len(df)
         print(f"{label}: {len(df):,} connections scored (dropped {int(bad.sum())})", flush=True)
-    res = analyse(merge(parts, models), cfg, flat_train, models, PRODUCT)
+    res = analyse(merge(parts, models), cfg, flat_train, models, product)
     res["rows"] = {"scored": kept, "dropped_missing_severity_or_fare": dropped}
     res["v2"] = {"feature_set": v2["feature_set"], "policy": v2["policy"], "k": v2["k"]}
     return res
@@ -189,10 +191,31 @@ def exploratory_lags(lags=(1, 2)) -> None:
         print(f"  {m:16s} {r['ratio']:.3f} [{r['lo']:.3f}, {r['hi']:.3f}]   ECE {out['scores'][m]['ece']:.4f}  mean pred {out['scores'][m]['mean_pred']:.4f}")
 
 
+def next_window(months=(9, 10, 11, 12)) -> None:
+    """The pre-registered test of PREREGISTRATION_2026H2.md on the months published at the time of the first read.
+    Prices: baseline, v1, v2 static, v2 rolling with no lag and with a one-month lag (the headline, since it is feasible
+    with a booking lead). Starts from the saved state through August 2026 (models/v2_state.json)."""
+    from mcp.monitor import load_state
+    months = tuple(months)
+    # The single place the NEXT window is read:
+    res = run(months=months, predicate=where("NEXT", "r.out_sched_dep"), year=2026, lags=(1,),
+              initial_known=load_state(), product="v2_rolling_lag1")
+    res["months_evaluated"] = list(months)
+    out = ROOT / "results" / "holdout_next.json"
+    out.write_text(json.dumps(res, indent=2, default=float))
+    print("\nrealized / target at theta=0 (1.0 = on target), months", list(months))
+    for m in res["overall"]:
+        r = res["overall"][m]["0"]
+        print(f"  {m:16s} {r['ratio']:.3f} [{r['lo']:.3f}, {r['hi']:.3f}]   ECE {res['scores'][m]['ece']:.4f}")
+
+
 if __name__ == "__main__":
     import sys
 
     if "--exploratory-lags" in sys.argv:
         exploratory_lags()
+    elif "--next" in sys.argv:
+        i = sys.argv.index("--next")
+        next_window(tuple(int(x) for x in sys.argv[i + 1:]) or (9, 10, 11, 12))
     else:
         main()

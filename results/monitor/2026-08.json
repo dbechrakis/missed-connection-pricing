@@ -1,0 +1,38 @@
+{
+  "month": "2026-08",
+  "observed_rate": 0.08454954358727132,
+  "predicted_rate": 0.08018249522745582,
+  "realized_over_expected": 1.117330839049279,
+  "by_hub": {
+    "ATL": 1.113690142656038,
+    "CLT": 0.9771534175240192,
+    "DEN": 1.4415277998782967,
+    "DFW": 0.7362821352937406,
+    "ORD": 1.351936609812756
+  },
+  "weekly": {
+    "2026-07-27": 1.095598901103765,
+    "2026-08-03": 1.2069063880517108,
+    "2026-08-10": 1.3427745632122536,
+    "2026-08-17": 0.963185944868007,
+    "2026-08-24": 0.9722745698069839,
+    "2026-08-31": 1.0150965419627744
+  },
+  "flag_threshold": 1.5292890201664702,
+  "flagged_weeks": [],
+  "actions": [
+    "recalibrate: overall realized/expected 1.12 is outside 1 +- 10%",
+    "review hub DEN: realized/expected 1.44 is outside 1 +- 20%",
+    "review hub DFW: realized/expected 0.74 is outside 1 +- 20%",
+    "review hub ORD: realized/expected 1.35 is outside 1 +- 20%"
+  ],
+  "known_months_used": [
+    "2026-02",
+    "2026-03",
+    "2026-04",
+    "2026-05",
+    "2026-06",
+    "2026-07"
+  ],
+  "lag": 0
+}

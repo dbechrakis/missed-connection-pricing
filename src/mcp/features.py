@@ -89,7 +89,7 @@ def feature_sql(source: str, window_pred: str, frac: float = 1.0, severity: str 
     """
     keep = f"AND (hash(r.carrier, r.in_flight_date, r.in_flight_number, r.in_crs_dep_hhmm, r.out_flight_date, r.out_flight_number, r.out_crs_dep_hhmm) % 1000000) < {int(frac * 1_000_000)}" if frac < 1 else ""
     key_cols = (", r.in_flight_date, r.in_flight_number, r.in_crs_dep_hhmm, r.out_flight_date, r.out_flight_number,"
-                " r.out_crs_dep_hhmm, r.origin, r.destination") if with_keys else ""
+                " r.out_crs_dep_hhmm, r.origin, r.destination, r.in_sched_arr") if with_keys else ""
     sev_cols = ", s.wait_min, s.overnight::INT AS overnight, r.fare_mean AS fare" if severity else ""
     sev_join = (" LEFT JOIN read_parquet('" + severity + "') s ON s.carrier = r.carrier"
                 " AND s.flight_date = r.out_flight_date AND s.flight_number = r.out_flight_number"

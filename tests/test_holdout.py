@@ -134,3 +134,19 @@ def test_attach_v2_fails_loudly_on_a_repeated_key_or_a_missing_connection():
         attach_v2(df, pd.concat([d2, d2.iloc[[0]]], ignore_index=True))          # duplicate key
     with pytest.raises(AssertionError):
         attach_v2(df, d2.iloc[1:])                                                # one connection unmatched
+
+
+def test_the_next_window_is_read_in_exactly_one_place_and_no_dev_code_names_it():
+    reads = {}
+    for path in [*(ROOT / "src" / "mcp").glob("*.py"), *(ROOT / "notebooks").glob("*.py")]:
+        if path.name == "split.py":
+            continue
+        n = len(re.findall(r"""where\(\s*["']NEXT["']""", path.read_text(encoding="utf-8")))
+        if n:
+            reads[path.name] = n
+    assert reads == {"holdout.py": 1}, reads
+
+
+def test_the_next_window_starts_after_the_holdout_ends_and_does_not_overlap_anything_used():
+    from mcp.split import WINDOWS
+    assert WINDOWS["NEXT"][0] >= WINDOWS["HOLDOUT"][1] and WINDOWS["NEXT"] == ("2026-09-01", "2027-01-01")

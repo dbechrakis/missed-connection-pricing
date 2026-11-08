@@ -16,6 +16,10 @@ How much should an online travel agency charge to protect a connection, and on w
 
 ![2026 holdout by hub](docs/figures/holdout_by_hub.png)
 
+By connection time, v1 as shipped follows what happened most closely (its predictions are on average 6% from the observed rate), while v2 with monthly recalibration gets the overall level right but is about 12% off by connection time, too high for long connections ([`notebooks/02_model.py`](notebooks/02_model.py)):
+
+![2026 holdout, predicted against observed by connection time](docs/figures/holdout_by_slack.png)
+
 **3. Why not one price?** If buyers lean toward the connections the model already rates as risky (θ rises), a flat price drifts to 2.7× the target while the per-connection price barely moves. At θ = 0 (buyers ignore risk) a flat price is about as good. This test is deliberately generous to tiering: a calibrated model cannot lose to selection on its own probability. The harder case, buyers who know something the model does not, is simulated in the fourth picture.
 
 ![Loss ratio against buyer self-selection](docs/figures/holdout_vs_selection.png)
@@ -43,6 +47,7 @@ These are limits, not footnotes.
 - **Severity is a lower bound.** Seat availability on the next flight is not observable.
 - **No seasonal price in the demo.** v1 has no month term. v2 has one, and with a frozen calibrator it priced 2026 17% too high; because v2's good result also re-fits its calibrator every month, the 2026 test cannot say how much the month term itself helped.
 - **Hubs are not equally well priced.** The ordering persists in every version but one: Chicago (ORD) too cheap, Charlotte (CLT) and Dallas (DFW) too dear. On the 2026 test v1 (the demo's model) priced ORD about 7% too cheap and CLT and DFW about 18% and 16% too dear; v2 rolling about 16% too cheap and 12% and 12% too dear.
+- **Monthly recalibration assumes the whole previous month is known**, but a booking is made weeks before the flight. Re-pricing 2026 with the calibrator one month staler gives a 60.7% loss ratio (two months: 59.7%) against 62.3% with none; calibration error rises, and in a period when the level rises a stale calibrator would under-price instead. Exploratory ([`VALIDATION.md`](VALIDATION.md) Part 4), since 2026 had already been read.
 - **Eight months, 35 weeks of clean test data.** The intervals are wide (about ±0.08 around the ratio).
 - **Learning the loss ratio takes at least 27 weeks to ±10%**, however many policies are sold, because weather and operations hit all travellers in a week at once (89 weeks at 100 policies a week, 34 at 1,000).
 - **The intervals are probably a little narrow.** They treat weeks as independent, but the level moves by month. A t-interval over the eight monthly ratios is about ±0.11 for v1 and ±0.12 for v2 rolling, against about ±0.08 from the bootstrap; neither changes whether the interval contains the target.
@@ -52,7 +57,7 @@ These are limits, not footnotes.
 
 ## How it was validated
 
-Prices are set from information up to the booking, then scored on months the model has never seen. Every test was **pre-registered**: the protocol, the frozen model hashes and the list of what may not change afterwards were committed *locally* before the window was read. They reached GitHub together with the results, so the commit times are the author's own and cannot be independently checked; the two model files are in the repository so the frozen hashes can be verified.
+Prices are set from information up to the booking, then scored on months the model has never seen. Every test was **pre-registered**: the protocol, the frozen model hashes and the list of what may not change afterwards were committed *locally* before the window was read. They reached GitHub together with the results, so the commit times are the author's own and cannot be independently checked; the two model files are in the repository so the frozen hashes can be verified. The next test (BTS data for September to December 2026, not yet published) has its protocol, frozen hashes and falsifiable expectations in [`PREREGISTRATION_2026H2.md`](PREREGISTRATION_2026H2.md), written and tagged before the data exists.
 
 | Window | Role | Result |
 | --- | --- | --- |
@@ -82,6 +87,7 @@ python ../notebooks/01_eda.py                       # exploratory figures (docs/
 python -m mcp.model models && python -m mcp.model final   # v1: logistic, boosting, calibration
 python -m mcp.pricing                               # severity, price table, sensitivity
 python -m mcp.selection                             # exploratory: adverse selection on information the price lacks
+python -m mcp.voi                                   # exploratory: what day-of information would add (development data)
 python -m mcp.backtest                              # the July to December 2025 backtest (reads the test window once)
 python -m mcp.v2 select && python -m mcp.v2 fit     # v2: walk-forward selection on 2025 and the final fit
 cd .. && python -m pytest                           # the test suite (no data needed)
@@ -99,14 +105,34 @@ python -m mcp.experiment                            # experiment sizes for the p
 python -m mcp.demo                                  # rebuilds site/prices.js for the demo
 ```
 
+## What the day itself would add
+
+The price is quoted at booking, so it can only use what is known then. The spec's open question: how much would day-of information improve things, and does it justify a second product, an alert to the traveller? With the alert placed one hour before the inbound flight's scheduled arrival, knowing how late that flight left cuts the booking-time model's Brier error by **44%** and lets an alert on the riskiest 5% of connections catch **52%** of misses at **75%** precision (booking-time information: 19% at 28%). Hub weather adds under 1%, most likely because a delayed flight already carries it. A first version of this analysis leaked each flight's final delay and overstated the value (52% instead of 44%); it is corrected and both are reported in [`VALIDATION.md`](VALIDATION.md) 4H. It does **not** show that an alert would help anyone: that depends on whether a traveller can act in that hour and on what a real-time feed costs.
+
+![What day-of information adds](docs/figures/voi.png)
+
+## Use it
+
+The same price table serves the demo page, a command-line tool and a small API, so they cannot disagree.
+
+```bash
+cd src
+python -m mcp.score --hub ORD --airline UA --minutes 60 --next-flight next      # one quote, printed
+uvicorn mcp.api:app                                                              # API; interactive docs at http://127.0.0.1:8000/docs
+python -m mcp.monitor --month 2026-08                                            # monthly recalibration and drift report
+```
+
+`/quote` returns the chance of a miss, expected claim cost, price, the share of such connections that fit the price cap, a three-state decision (offer, offer selectively, do not offer), the model's validated loss ratio, the assumptions and the caveats. `/model` reports the SHA-256 of the frozen model files, which match the hashes in [`VALIDATION.md`](VALIDATION.md). The monthly job prices the month with a calibrator built only from earlier months, reports drift by hub and week against the pause rule in the product brief, and only then adds the month to its state.
+
 ## Repository
 
 ```
-src/mcp/        ingest, connections, split, features, model, calibration, v2, pricing, experiment, backtest, holdout, demo
+src/mcp/        ingest, connections, split, features, model, calibration, v2, pricing, experiment, backtest, holdout, selection, voi,
+                monitor, service, score, api, demo
 config/         pricing.yaml (assumptions, frozen), guards.yaml (price floor), connections settings
 site/           the static demo (index.html + prices.js), published to GitHub Pages
 tests/          label logic, leakage, pricing maths, validation accounting, guards on the test windows
-notebooks/      01_eda.py (cells run as a script or as a notebook)
+notebooks/      01_eda.py, 02_model.py, 03_pricing.py (cells run as scripts or as notebooks; 02 and 03 read only the published results)
 docs/           method.md, product-brief.md, decisions.md, figures/
 results/        every number quoted above, as JSON/CSV produced by the code
 VALIDATION.md   the pre-registered protocols and results, including what went wrong

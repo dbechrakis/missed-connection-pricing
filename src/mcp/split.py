@@ -23,6 +23,9 @@ development data, so v2 may train and select on it with a *new* chronological sc
                                   (ends 2026-08-30 exclusive: the data stops on the 31st, so the last
                                   days cannot see their next flight)
 
+    NEXT    2026-09 .. 2026-12   the next pre-registered test (PREREGISTRATION_2026H2.md): BTS data not yet
+                                  published when the protocol was written; nothing may read it before that run
+
 Anything that computes a statistic (climatology, historical delay, weights, cell rates)
 must filter with `where(...)` on FIT/VALID/TRAIN. Using TEST for exploration counts as leakage.
 """
@@ -40,6 +43,7 @@ WINDOWS = {
     "V2_FIT": ("2024-01-01", "2025-10-01"),
     "V2_CAL": ("2025-10-01", "2026-01-01"),
     "HOLDOUT": ("2026-01-01", "2026-08-30"),
+    "NEXT": ("2026-09-01", "2027-01-01"),
 }
 
 

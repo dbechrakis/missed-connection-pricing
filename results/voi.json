@@ -1,0 +1,94 @@
+{
+  "alert_time": "one hour before the inbound flight's scheduled arrival",
+  "rows": {
+    "fit": 2967593,
+    "eval": 1974671
+  },
+  "causes_of_misses": {
+    "inbound_cancelled": 0.14708182635574102,
+    "inbound_diverted": 0.028245836756941384,
+    "inbound_arrived_late": 0.8246723368873176
+  },
+  "sets": {
+    "booking time only": {
+      "brier": 0.062514715080786,
+      "log_loss": 0.23070059901976325,
+      "auc": 0.7570644499747633,
+      "top5": {
+        "top_share": 0.05,
+        "misses_caught": 0.19021661478480975,
+        "precision": 0.275810650611446,
+        "lift": 3.8043322956961947
+      },
+      "top10": {
+        "top_share": 0.1,
+        "misses_caught": 0.32456087240486425,
+        "precision": 0.2353030959235259,
+        "lift": 3.245608724048642
+      },
+      "observed_miss_rate": 0.07249889926992989,
+      "brier_improvement": 0.0,
+      "log_loss_improvement": 0.0
+    },
+    "+ inbound departure delay": {
+      "brier": 0.03524096888710919,
+      "log_loss": 0.12327180212893604,
+      "auc": 0.9526709200622503,
+      "top5": {
+        "top_share": 0.05,
+        "misses_caught": 0.518432695774124,
+        "precision": 0.751717553360427,
+        "lift": 10.36865391548248
+      },
+      "top10": {
+        "top_share": 0.1,
+        "misses_caught": 0.7647783336141003,
+        "precision": 0.5544604838146805,
+        "lift": 7.647783336141003
+      },
+      "observed_miss_rate": 0.07249889926992989,
+      "brier_improvement": 0.436277221425895,
+      "log_loss_improvement": 0.4656632767634218
+    },
+    "+ hub weather": {
+      "brier": 0.06201067883756973,
+      "log_loss": 0.22772191872374498,
+      "auc": 0.7680818852267264,
+      "top5": {
+        "top_share": 0.05,
+        "misses_caught": 0.1980510103071729,
+        "precision": 0.28716979973547274,
+        "lift": 3.961020206143458
+      },
+      "top10": {
+        "top_share": 0.1,
+        "misses_caught": 0.33978534151988704,
+        "precision": 0.24634137482793395,
+        "lift": 3.3978534151988704
+      },
+      "observed_miss_rate": 0.07249889926992989,
+      "brier_improvement": 0.008062681603282051,
+      "log_loss_improvement": 0.012911454537502531
+    },
+    "+ both": {
+      "brier": 0.03502639711918542,
+      "log_loss": 0.12107831548189467,
+      "auc": 0.956229780774837,
+      "top5": {
+        "top_share": 0.05,
+        "misses_caught": 0.5185919189000071,
+        "precision": 0.7520697381367301,
+        "lift": 10.371838378000142
+      },
+      "top10": {
+        "top_share": 0.1,
+        "misses_caught": 0.7650481155271078,
+        "precision": 0.554658417029964,
+        "lift": 7.650481155271078
+      },
+      "observed_miss_rate": 0.07249889926992989,
+      "brier_improvement": 0.4397095615980686,
+      "log_loss_improvement": 0.47517121326797096
+    }
+  }
+}

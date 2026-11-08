@@ -1,0 +1,33 @@
+{
+  "month": "2026-01",
+  "observed_rate": 0.09026467180670693,
+  "predicted_rate": 0.11150449543134408,
+  "realized_over_expected": 0.805321330554123,
+  "by_hub": {
+    "ATL": 0.9163429820586876,
+    "CLT": 0.8633292608647716,
+    "DEN": 0.6835698266579331,
+    "DFW": 0.7619729004855388,
+    "ORD": 0.899278976569581
+  },
+  "weekly": {
+    "2025-12-29": 0.6939819847797666,
+    "2026-01-05": 0.5512575668170094,
+    "2026-01-12": 0.5474903668746715,
+    "2026-01-19": 0.9871454393018708,
+    "2026-01-26": 1.432482964493033
+  },
+  "flag_threshold": 1.5292890201664702,
+  "flagged_weeks": [],
+  "actions": [
+    "recalibrate: overall realized/expected 0.81 is outside 1 +- 10%",
+    "review hub DEN: realized/expected 0.68 is outside 1 +- 20%",
+    "review hub DFW: realized/expected 0.76 is outside 1 +- 20%"
+  ],
+  "known_months_used": [
+    "2025-10",
+    "2025-11",
+    "2025-12"
+  ],
+  "lag": 0
+}

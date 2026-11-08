@@ -1,1 +1,4 @@
 *.sh text eol=lf
+config/*.yaml text eol=lf
+models/*.json text eol=lf
+*.joblib binary

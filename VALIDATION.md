@@ -11,6 +11,8 @@ This file is written in two parts. **Part 1 (below) was committed before the tes
 | `models/pmiss.joblib` (GBM + isotonic calibrator) | `e5094792b7f758dd2226d67a7afbc77a247807d097ebcdb1a860846f666f5870` |
 | `config/pricing.yaml` (costs, loss ratio, WTP cap) | `77f42b8f26d31f058fc2fce77a0cf981bb2dcdf9a7dd3be8e1fcce2549b3e497` |
 
+> *Added later, see Part 4I:* the `config/pricing.yaml` hash above is of the file as it sat on the author's machine, which had mixed line endings. The repository stores the same settings with Unix line endings, whose hash is `75e1db9fda3e188955a0201ea9a29ae317c88deec5619395cfe2bfd89a9e8979`.
+
 **Data.** Test = connections whose outbound is scheduled Jul 1 – Dec 31 2025 (`split.WINDOWS["TEST"]`), every row, no sampling. Nothing in training, selection or calibration used these months, including DB1B weights (train quarters only) and route statistics (2024 only).
 
 **Question.** Prices set from information up to June 2025: how close does the realized loss ratio come to the target in H2 2025?
@@ -231,3 +233,128 @@ v2 rolling is best on all three scores, by modest margins (Brier 0.6% lower than
 python -m mcp.v2 select && python -m mcp.v2 fit     # v2 selection on 2025 and the final fit (no 2026)
 python -m mcp.holdout                                # reads the 2026 months once; results/holdout.json and docs/figures/holdout_*.png
 ```
+
+
+---
+
+## Part 4: Independent review, and what changed (post-hoc)
+
+After the 2026 holdout an independent reviewer (a separate model instance, read-only, instructed to be sceptical) audited the whole repository. Each finding was checked against the code and data before anything was changed. **The results and hashes of Parts 1 to 3 are untouched.** Wording that overstated them was corrected in place (the git history shows each change); new analyses are labelled exploratory because both test windows had by then been read.
+
+### 4A. Findings and what was done
+
+| # | Finding | Checked? | Action |
+| --- | --- | --- | --- |
+| 1 | The adverse-selection test lets buyers select on the model's own probability, so a calibrated model passes almost by construction | Yes (`backtest.py`, `holdout.py`: purchase weight uses the pricing model's P(miss)); the baseline degrades with θ and the calibrated model does not, as predicted | Added selection on hidden information (4C); reworded the README, brief, demo and method |
+| 2 | v2 "rolling" calibrates on all of the previous month, but a booking is made weeks before the flight | Yes | Added a lag option and an exploratory run (4B) |
+| 3 | Pre-registration cannot be verified from the public record | Yes: protocol commits reached GitHub together with the results; commit times are the author's; an early force-push rewrote history | Reworded; the two model files are now in the repository so the hashes can be checked; the next test's protocol is written before its data exists (`PREREGISTRATION_2026H2.md`) |
+| 4 | Demo slider ran past the data and crashed; the thumb started at the wrong position | Yes (slider max 225, buckets end at 210) | Fixed; a Node test drives all 901 control combinations and a second test confirms it catches the old bug |
+| 5 | README said Brier skill "about 5%" over the baseline | Yes (5% is the baseline over a flat rate; the model over the baseline is 0.5 to 2.6%) | Corrected to 1 to 2% |
+| 6 | "In every version" the hub gaps are 16% and 12% | Yes: ORD is 1.072 for v1, 0.998 for v2 static, 1.156 for v2 rolling | Quoted per model; the demo generates its hub note from the results |
+| 7 | Cut-off line: "45 at ATL" means no cut-off; the 50% rule was not stated | Yes: share of connections within the cap at 45 to 59 minutes is ATL 59%, DEN 45%, ORD 37%, DFW 34%, CLT 28% | Reworded; the calculation is unchanged |
+| 8 | Seasonality and "no 2026 knowledge" statements contradicted each other | Yes | Corrected in four places |
+| 9 | Outbound cancellations excluded from the label, not defined in the product | Yes: 928,102 against 5,261,045 missed in 2024, 17.6% as many | Benefit definition in the brief; sensitivity stated |
+| 10 | MCT 35/60 change the population, not just the label | Yes (code) | Reworded; a clean label-only sensitivity is meaningless because the pairings themselves change |
+| 11 | "27 weeks at any volume" is wrong; the pause rule ignores volume | Yes (89 weeks at 100 policies a week) | "At least 27 weeks"; volume-aware pause thresholds in `mcp.experiment` and the brief |
+| 12 | Intervals probably a little narrow | Yes (4D) | Caveat documented |
+| 13 | DB1B weights depend slightly on cancellations | Yes, the effect is at most 0.014 percentage points on a 7 to 10% rate | Documented; frozen weights not changed |
+| 14 | Weak tests (an assertion that could not fail; name-based window guards; no ordering, key-matching or negative-timezone tests) | Yes | Fixed or added, apart from the guards: they stay name-based by design, and `v2.py` is allowed to read H2 2025 because that is development data for v2 |
+| 15 | Unpinned requirements; EDA step missing from the README; "last 6 months" is 3 to 5 early in 2026 | Yes | `requirements.lock`; README step added; documented below |
+| 16 | The loss ratio realizes the miss event only; the demo shows v1's level, which ran 10% high | Yes | Stated in the README; the demo has a level note generated from the results |
+
+Suspicions raised and checked: DB1B has no quarter after 2025 Q2 (still true on 8 November 2026; 2025 Q3, Q4 and 2026 Q1 return not found); regional carriers may be paired across brands (a real limitation, documented); the sales mix is held fixed regardless of price (stated in Part 1); model and calibrator estimation uncertainty is not in the intervals (documented).
+
+### 4B. Does the monthly recalibration depend on seeing the whole previous month? (exploratory, second read of the 2026 months)
+
+v2 rolling prices month *m* with a calibrator fitted on every month up to *m*-1. A real booking is made weeks before the flight, so this re-prices 2026 with the calibrator lagged by one and two further months. The zero-lag row reproduces the pre-registered run exactly (the script aborts otherwise). This is **not validation**: the window had already been read.
+
+| Price | Realized ÷ target [95% interval] | Loss ratio | Brier | Log loss | ECE | Mean predicted (observed 8.14%) |
+| --- | --- | --- | --- | --- | --- | --- |
+| v1 as shipped (frozen calibrator) | 0.931 [0.853, 1.017] | 60.5% | 0.07125 | 0.26168 | 0.0108 | 8.95% |
+| v2 rolling, no lag (pre-registered) | 0.958 [0.875, 1.043] | 62.3% | 0.07079 | 0.26000 | 0.0051 | 8.65% |
+| v2 rolling, 1-month lag | 0.934 [0.851, 1.017] | 60.7% | 0.07086 | 0.26042 | 0.0075 | 8.88% |
+| v2 rolling, 2-month lag | 0.918 [0.843, 0.995] | 59.7% | 0.07081 | 0.25995 | 0.0088 | 9.02% |
+
+Staleness costs little: the loss ratio moves by about three points and the proper scores barely change (log loss is even marginally lowest at a two-month lag), but calibration error rises (ECE 0.0051 to 0.0088) because the level was **falling** through 2026 and an older calibrator over-prices. In a period of rising level the same lag would under-price, so the sign is specific to this window. The pre-registered headline stands; the fair reading is that the policy is feasible with a booking lead, at a small cost in calibration.
+
+### 4C. Selection on information the price does not have (exploratory, development data)
+
+The θ curve in Parts 2 and 3 lets buyers select on the model's own probability. Here each connection also has a hidden risk factor that buyers see and the price does not (log-spread κ), and buyers favour risky connections with strength θ. Then, whatever the data, per-connection pricing runs at **exp(θκ²) × target**, and a flat price suffers that plus the selection on visible risk. Simulated on the development connections (`mcp.selection`):
+
+| κ | θ | Per connection (simulated) | exp(θκ²) | Flat price (simulated) |
+| --- | --- | --- | --- | --- |
+| 0.1 | 0.5 | 1.01 | 1.01 | 1.41 |
+| 0.1 | 1.0 | 1.01 | 1.01 | 1.87 |
+| 0.25 | 0.5 | 1.03 | 1.03 | 1.44 |
+| 0.25 | 1.0 | 1.07 | 1.06 | 1.98 |
+| 0.5 | 0.5 | 1.13 | 1.13 | 1.58 |
+| 0.5 | 1.0 | 1.27 | 1.28 | 2.36 |
+| 1.0 | 0.5 | 1.44 | 1.65 | 1.99 |
+| 1.0 | 1.0 | 1.96 | 2.72 | 3.53 |
+
+Three things to read from it. Per-connection pricing is never worse than a flat price. It is not immune: at κ = 0.5 and θ = 1 it runs 27% over target. And κ cannot be measured from public data. The model's own errors by month and by hub are a floor (their log-spread is 0.14 and 0.12, about 2% exposure at θ = 1), and how much more buyers know is exactly what the brief's H2(b) measures, without paying a claim. As a check on the simulation, a flat price with κ near zero simulates to 1.87 at θ = 1; the real 2026 holdout measured 1.80. For κ ≥ 1 the closed form overstates exposure (probabilities cannot exceed 1), and the θ = 2 rows with κ ≥ 0.5 depend on a handful of extreme draws (`tests/test_selection.py`).
+
+### 4D. Intervals
+
+The bootstrap treats weeks as independent. The level also moves by month, so a t-interval over the eight monthly observed ÷ predicted ratios is wider:
+
+| Price | Monthly ratios, mean ± t-interval | Bootstrap half-width |
+| --- | --- | --- |
+| v1 as shipped | 0.911 ± 0.107 | 0.082 |
+| v2 rolling | 0.956 ± 0.125 | 0.084 |
+
+Neither changes whether the interval contains the target (v1's monthly interval is 0.80 to 1.02; v2 rolling's 0.83 to 1.08), but the stated intervals are best read as lower bounds on the uncertainty. They also exclude uncertainty in the fitted model and calibrator.
+
+### 4E. Small facts recorded
+
+- **Weight dependence on cancellations:** weighting each pairing by route passengers ÷ the number of pairings with a valid status, rather than ÷ all pairings, changes the weighted miss rate by 0.008, 0.012 and 0.014 percentage points (March 2024, March 2025, July 2025). Not changed, so the frozen results stay reproducible.
+- **"Last six known months"** is fewer in early 2026: the calibrator sees 3, 4 and 5 months in January, February and March, and January's rolling prediction equals the static one.
+- **Outbound cancellations** are 17.6% as many events as missed connections; a quarter also had a disrupted arriving flight.
+
+### 4F. Not done in this round
+
+Seat availability, live severity, cross-carrier connections and a seasonal term that helps remain open; they are in the brief's roadmap.
+
+
+### 4G. A dry run of the monthly job, and what it says about its own thresholds
+
+`python -m mcp.monitor --replay 2026-01 2026-08` runs the monthly policy over the 2026 months, one at a time, each priced only from earlier months (no lag). It is an operational rehearsal on months already spent as a test, not a validation. It also builds `models/v2_state.json`, the state the next pre-registered test starts from.
+
+| | Result |
+| --- | --- |
+| Months the job would have said "recalibrate" (overall realized ÷ expected outside 1 ± 10%) | 5 of 8 (2026-01, 2026-03, 2026-04, 2026-05, 2026-08) |
+| Hub-months flagged "review" (outside 1 ± 20%) | 15 of 40 |
+| Weeks above the pause threshold (1.53× expected) | 1 of 42; months with two in a row: none |
+| Monthly realized ÷ expected, range and spread | 0.81 to 1.20, standard deviation 0.15 |
+| Weekly realized ÷ expected, spread | standard deviation 0.29 |
+
+**The finding is about the thresholds, not the model.** A month's realized level moves with a standard deviation of about 0.15 around what was expected, so a ±10% band is inside ordinary month-to-month noise and would fire most months; the hub band of ±20% fires on about 38% of hub-months. The bands in the brief (±10% overall, ±20% per hub) are assumptions I chose before this run and **have not been retuned to make it look calmer**. Used as written, the job would be too jumpy to act on monthly. A sensible next version triggers on a rolling window of several months, or on a band sized from the measured spread, and that choice belongs in the next pre-registration, not here.
+
+
+### 4H. What the day itself would add: value of information (development data)
+
+The spec asks how much a day-of product could improve on a booking-time price. `mcp.voi` answers it. The **alert time is one hour before the inbound flight's scheduled arrival**; then known are how late the inbound flight left (if it had left) and the hub's weather in the previous hour. Fitted on 2024, evaluated on January to June 2025, with the same gradient-boosting model and route history as v1; **cancelled inbound flights are excluded** because an alert for them is trivial.
+
+| Information at the alert time | Brier | Brier vs booking only | AUC | Misses caught in the riskiest 5% | Precision | Caught in the riskiest 10% | Precision |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| booking time only | 0.06251 | 0.0% | 0.757 | 19% | 28% | 32% | 24% |
+| + inbound departure delay | 0.03524 | 43.6% | 0.953 | 52% | 75% | 76% | 55% |
+| + hub weather | 0.06201 | 0.8% | 0.768 | 20% | 29% | 34% | 25% |
+| + both | 0.03503 | 44.0% | 0.956 | 52% | 75% | 77% | 55% |
+
+- **Departure delay is worth a lot.** An alert on the riskiest 5% of connections catches about half of all misses at about three in four precision, against 19% at 28% from booking-time information. **Hub weather adds almost nothing** (under 1%), most likely because a delayed inbound flight already carries the weather's effect.
+- **A miss is mostly a late arrival, not a cancellation:** 82% of missed connections follow a late arrival, 15% an inbound cancellation and 3% a diversion. The cancelled ones (excluded above) are knowable even earlier, so the figures here understate what a real alert could catch.
+- **This is the project's main finding seen from the other side.** The booking-time model's ceiling is low (1 to 2% over a connection-time baseline) because what separates a missed connection from a made one is mostly not known when the price is quoted. A day-of product is a different product: alerts and rebooking help, not a price.
+- **What it does not show:** that an alert would help anyone. That depends on whether the traveller can act an hour before landing (rebook, tell the airline, find the next gate), on a real-time data feed with its own cost and delays, and on the alert's false-alarm cost (one in four alerts is a false alarm even at the top 5%).
+
+**A correction recorded in the open.** The first version of this analysis told the model each inbound flight's **final** departure delay. For a flight that left after the alert time, that delay was not knowable then. The corrected version gives the model only what is observable at the alert time (the real delay if the flight had left, otherwise that it had not and how long it had been waiting). The first version overstated the value: departure delay alone gave a 52.1% Brier improvement, AUC 0.961 and 57% of misses caught in the top 5%; corrected, 43.6%, 0.953 and 52%. Tests (`tests/test_voi.py`) pin the corrected timing, including that two flights that had not left yet look identical whatever their final delay turned out to be.
+
+
+### 4I. A hash that nobody else could reproduce, found and corrected
+
+While preparing the pre-registration for the next window, the hash of `config/pricing.yaml` as committed was compared with the hash frozen in Part 1 and **did not match**. The cause is line endings, not content: the file on the author's machine had mixed endings (five Windows-style lines from when it was first written, sixteen Unix-style lines appended later), and git stores text with Unix endings. So the hash in Part 1 (`77f42b8f26d31f05…`) is a hash of bytes that exist only on that machine, and anyone cloning would have got a file hashing to `75e1db9fda3e1889…`.
+
+- **The settings did not change.** Parsed, the two files are identical, and their bytes are equal once Windows endings are converted to Unix endings (checked).
+- **Fix:** the file is now stored and checked out with Unix endings on every system (`.gitattributes` pins the hashed text files), its true hash is `75e1db9fda3e188955a0201ea9a29ae317c88deec5619395cfe2bfd89a9e8979`, the pre-registration uses that hash, and a test fails if it drifts. Part 1 keeps its original text with a footnote.
+- **Anyone can reproduce it on any system:** `python -c "import hashlib;print(hashlib.sha256(open('config/pricing.yaml','rb').read().replace(b'\r\n',b'\n')).hexdigest())"` prints `75e1db9fda3e188955a0201ea9a29ae317c88deec5619395cfe2bfd89a9e8979`.
+- The other frozen files were checked the same way and match their committed versions byte for byte: the two model files, `config/guards.yaml` and `models/v2_state.json`.
