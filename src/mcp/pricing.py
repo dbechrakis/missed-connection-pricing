@@ -188,4 +188,11 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+
+    if "--full-severity" in sys.argv:
+        # the severity table over every flight ingested (used by the 2026 holdout and the demo)
+        full = SEVERITY.with_name("severity_full.parquet")
+        print(f"severity_full rows: {build_severity(out=full):,}")
+    else:
+        main()

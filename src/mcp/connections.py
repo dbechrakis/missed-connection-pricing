@@ -140,18 +140,6 @@ def _months(start, end):
     return months(start, end)
 
 
-if __name__ == "__main__":
-    cfg = yaml.safe_load(CONFIG.read_text())["connections"]
-    p = argparse.ArgumentParser()
-    p.add_argument("--mct", type=int, nargs="*", default=[cfg["mct_min"]])
-    p.add_argument("--start", default="2024-01")
-    p.add_argument("--end", default="2025-12")
-    p.add_argument("--quiet", action="store_true", help="print counts only, no outcome rates")
-    a = p.parse_args()
-    for mct in a.mct:
-        build(mct, cfg["max_extra_slack_min"], a.start, a.end, a.quiet)
-
-
 WEIGHTS = ROOT / "data" / "parquet" / "db1b" / "route_weights.parquet"
 
 
@@ -192,3 +180,20 @@ def write_weighted(mct: int = 45, start: str = "2024-01", end: str = "2025-12") 
         dst.parent.mkdir(parents=True, exist_ok=True)
         con.execute(f"COPY ({weighted_sql(src.as_posix())}) TO '{dst.as_posix()}' "
                     f"(FORMAT parquet, COMPRESSION zstd)")
+
+
+if __name__ == "__main__":
+    cfg = yaml.safe_load(CONFIG.read_text())["connections"]
+    p = argparse.ArgumentParser(description="Build synthetic connections (and optionally their DB1B weights).")
+    p.add_argument("--mct", type=int, nargs="*", default=[cfg["mct_min"]])
+    p.add_argument("--start", default="2024-01")
+    p.add_argument("--end", default="2025-12")
+    p.add_argument("--quiet", action="store_true", help="print counts only, no outcome rates")
+    p.add_argument("--weighted", action="store_true", help="also write the DB1B-weighted connections")
+    p.add_argument("--no-build", action="store_true", help="skip building connections (use with --weighted)")
+    a = p.parse_args()
+    for mct in a.mct:
+        if not a.no_build:
+            build(mct, cfg["max_extra_slack_min"], a.start, a.end, a.quiet)
+        if a.weighted:
+            write_weighted(mct, a.start, a.end)
