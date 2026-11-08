@@ -500,4 +500,6 @@ If a hub's real minimum is 15 minutes longer than assumed, prices set for 45 pay
 
 **A prediction written before the data exists (not part of the frozen set).** Expectation V2 in `PREREGISTRATION_2026H2_V3.md` ("no month above 1.54") is judged on all overnight-risk connections, as the test code computes it, and development passed it. On the sold view development did not (July, 111%). If September to December behave like this, V2 will pass as written and the sold loss ratio will still exceed 100% in at least one month. The test code is frozen by tag, so the sold view will be computed afterwards with `mcp.v3_audit` and reported as exploratory.
 
+**When the test is read.** Decided on 8 November 2026, before any of the data exists: the first read is when November 2026 is published (probably early February 2027), covering September to November, with `python -m mcp.holdout_v3 9 10 11`. It is not run earlier on fewer months, whatever the first months look like.
+
 **Not done.** A price loading for the selection effect (it would be fitted on these months and then graded on them); a model that takes the minimum connection time as an input; a real reinsurance quote.

@@ -235,3 +235,11 @@ def test_market_evidence_note_says_what_was_not_found():
     for needle in ("4% to 10% of trip cost", "about 25% of the ticket", "Not found.", "remains an assumption", "no number is quoted", "not a measurement"):
         assert needle in text, needle
     assert "Hopper" not in text                        # a figure from a page that could not be opened is not used
+
+
+def test_the_first_read_of_the_v3_test_is_fixed_in_advance_and_documented_in_the_same_way_everywhere():
+    for rel in ("docs/decisions.md", "docs/decision-memo.md", "VALIDATION.md"):
+        text = (ROOT / rel).read_text(encoding="utf-8")
+        assert "before any of the data exists" in text and "November" in text, rel
+    assert "python -m mcp.holdout_v3 9 10 11" in (ROOT / "VALIDATION.md").read_text(encoding="utf-8")
+    assert "python -m mcp.holdout_v3 9 10 11" in (ROOT / "README.md").read_text(encoding="utf-8")

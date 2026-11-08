@@ -29,7 +29,7 @@ Should we sell protection against missed connections, at what price, and where s
 - **Demand.** How many travellers buy, at what price, and whether the riskiest connections buy more. Public data cannot answer this.
 - **The test:** randomised price arms (0.8×, 1.0×, 1.25× the model price), a message test ("covers your hotel" against "covers a missed connection"), and a no-offer control as a guardrail on booking conversion.
 - **Sample size:** at a 2% attach rate, telling apart how strongly risky connections self-select (θ differing by 0.5) needs about 2,500 travellers shown the offer. Sizes for every assumption are in the [product brief](product-brief.md#7-the-experiment).
-- **Whether the gap cover's pricing holds.** This is already being tested: it is [pre-registered](../PREREGISTRATION_2026H2_V3.md) on September to December 2026, before that data existed. Results are due when BTS publishes those months (September had not appeared on 8 November).
+- **Whether the gap cover's pricing holds.** This is already being tested: it is [pre-registered](../PREREGISTRATION_2026H2_V3.md) on September to December 2026, before that data existed. The first read is planned for when November is published, probably early February 2027, so it covers three months (decided on 8 November, before any of the data exists).
 
 ## Next step
 
