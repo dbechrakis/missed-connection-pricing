@@ -3,3 +3,19 @@ connections:
   mct_min: 45               # minimum connection time (default)
   mct_sensitivity: [35, 60] # re-run label at these values
   max_extra_slack_min: 180  # window is [MCT, MCT + 180] scheduled minutes
+
+# ---- Pricing: ASSUMPTIONS, not measurements. None of these come from any company. ----------
+# They are plausible round numbers for a generic OTA; the sensitivity table shows how the
+# decision moves when they change. The WTP cap can only be learned with an experiment
+# (see docs/product-brief.md).
+pricing:
+  rebooking_cost: 75            # $ per missed connection: agent time + fare difference, generic
+  overnight_cost: 180           # $ extra when the next flight is the next day: hotel, meals, transfer
+  target_loss_ratio: 0.65       # expected claims / premium
+  wtp_cap_pct: 0.10             # offer only if price <= 10% of the DB1B fare for that route
+  min_overnight_wait_min: 240   # next flight must be on a later date AND >= 4h later to count as overnight
+  sensitivity:
+    rebooking_cost: [50, 75, 100]
+    overnight_cost: [120, 180, 250]
+    target_loss_ratio: [0.55, 0.65, 0.75]
+    wtp_cap_pct: [0.05, 0.10, 0.15]

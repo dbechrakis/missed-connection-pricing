@@ -76,13 +76,19 @@ def create_stats(con, flights: str = FLIGHTS, asos: str = ASOS, fit_flights: str
       FROM read_parquet('{asos}') WHERE {fit_asos} GROUP BY station, month""")
 
 
-def feature_sql(source: str, window_pred: str, frac: float = 1.0) -> str:
+def feature_sql(source: str, window_pred: str, frac: float = 1.0, severity: str | None = None) -> str:
     """Features for the connections in `source` (a table/view/subquery) inside `window_pred`.
 
     Returns FEATURES + y + weight. `y` and `weight` are the label and DB1B weight, not features.
+    With `severity` (path to the severity Parquet) it also returns wait_min, overnight and fare:
+    schedule-derived consequences of a miss used for pricing, never as model inputs.
     `frac` keeps a deterministic hash-based fraction of rows (stable across threads and reruns).
     """
     keep = f"AND (hash(r.carrier, r.in_flight_date, r.in_flight_number, r.in_crs_dep_hhmm, r.out_flight_date, r.out_flight_number, r.out_crs_dep_hhmm) % 1000000) < {int(frac * 1_000_000)}" if frac < 1 else ""
+    sev_cols = ", s.wait_min, s.overnight::INT AS overnight, r.fare_mean AS fare" if severity else ""
+    sev_join = (" LEFT JOIN read_parquet('" + severity + "') s ON s.carrier = r.carrier"
+                " AND s.flight_date = r.out_flight_date AND s.flight_number = r.out_flight_number"
+                " AND s.crs_dep_hhmm = r.out_crs_dep_hhmm") if severity else ""
     sub = lambda col: f"(COALESCE(t.{col}, 0) - COALESCE(m.{col}, 0))"  # leave-one-month-out when m exists
     return f"""
     SELECT r.hub, r.carrier, r.slack_min,
@@ -92,18 +98,18 @@ def feature_sql(source: str, window_pred: str, frac: float = 1.0) -> str:
            ({sub("s_late")} + {K} * p.late) / ({sub("n_comp")} + {K}) AS in_late15,
            ({sub("n_bad")} + {K} * p.bad) / ({sub("n_all")} + {K}) AS in_cancel,
            c.thunder, c.snow, c.low_vis, c.high_wind,
-           r.missed::INT AS y, r.weight, r.out_sched_dep
+           r.missed::INT AS y, r.weight, r.out_sched_dep{sev_cols}
     FROM {source} r
     LEFT JOIN leg_tot t ON t.carrier = r.carrier AND t.origin = r.origin AND t.dest = r.hub
     LEFT JOIN leg_month m ON m.carrier = r.carrier AND m.origin = r.origin AND m.dest = r.hub
                          AND m.ym = date_trunc('month', r.in_flight_date)::DATE
-    LEFT JOIN clim c ON c.hub = r.hub AND c.month = month(r.out_sched_dep)
+    LEFT JOIN clim c ON c.hub = r.hub AND c.month = month(r.out_sched_dep){sev_join}
     CROSS JOIN prior p
     WHERE {window_pred} {keep}
     """
 
 
-def build(window: str, n_rows: int) -> int:
+def build(window: str, n_rows: int, name: str | None = None, severity: str | None = None) -> int:
     """Sample ~n_rows connections from one window and write their features to Parquet."""
     con = duckdb.connect()
     create_stats(con)
@@ -111,9 +117,9 @@ def build(window: str, n_rows: int) -> int:
     src = f"read_parquet('{glob}')"
     (total,) = con.execute(f"SELECT count(*) FROM {src} WHERE {where(window)}").fetchone()
     frac = min(1.0, n_rows / total)
-    out = OUT / f"{window}.parquet"
+    out = OUT / f"{name or window}.parquet"
     out.parent.mkdir(parents=True, exist_ok=True)
-    con.execute(f"COPY ({feature_sql(src, where(window, 'r.out_sched_dep'), frac)}) TO '{out.as_posix()}' "
+    con.execute(f"COPY ({feature_sql(src, where(window, 'r.out_sched_dep'), frac, severity)}) TO '{out.as_posix()}' "
                 f"(FORMAT parquet, COMPRESSION zstd)")
     (n,) = con.execute(f"SELECT count(*) FROM '{out.as_posix()}'").fetchone()
     print(f"{window}: {total:,} connections -> sampled {n:,} ({frac:.1%})")

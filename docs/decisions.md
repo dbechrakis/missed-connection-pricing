@@ -76,3 +76,30 @@ One line per decision: what, why, and what it costs. Raw material for `method.md
 
 - **The real limit is level drift, not model class.** Observed miss rate: 7.6% (2024), 7.8% (Jan-Mar 2025), 9.1% (Apr-Jun 2025). After calibration the model still predicts 8.4% against 9.8% observed on May 16-Jun 30. A static price will lag a rising level; the backtest must show this as a sensitivity, not hide it in "model skill".
 - Features beyond hub, slack and the schedule add little signal (Brier within 0.0682-0.0685 across candidates). Honest reading: booking-time information is mostly slack.
+
+## Severity and pricing (step 6)
+
+| Decision | Why | Cost / caveat |
+| --- | --- | --- |
+| Severity from the **schedule**: next distinct departure of the same carrier, same hub to same destination | Known at booking, so it can sit in the price; the spec's method | Cancelled flights stay in the schedule; seat availability unknown, so severity is a **lower bound** |
+| Overnight = next departure is on a later date **and** at least 4h later | 23:30 then 00:20 next day is a 50-minute wait, not a hotel night | The 4h guard is mine, a config parameter with a test |
+| Flights at the same minute are not each other's fallback | A codeshare twin is not a second chance | — |
+| No later flight in the data counts as overnight | Only affects the last days of 2025 | Tiny edge effect |
+| Price is **per connection**, then averaged into table cells | Overnight is a schedule property of the connection, so averaging P(overnight) separately would blur it | Cell price is a mean, not a single quote |
+| Costs ($75 rebooking, $180 overnight), loss ratio 0.65, WTP cap 10% of fare are **assumptions** | No company data may be used; they are round numbers for a generic OTA | Every one has a sensitivity run; the cap is the one that matters |
+| Month in the price table varies only through schedule mix | The model has no `month` feature (step 5) | Say so in the README; do not present a seasonal price the model does not have |
+
+### Step 6 results (training-era connections, weighted; assumptions as above)
+
+| Slack (min) | P(miss) | Price | Fare | Offered |
+| --- | --- | --- | --- | --- |
+| 45-59 | 24.6% | $54.6 | $326 | 46% |
+| 60-74 | 15.4% | $36.0 | $330 | 64% |
+| 90-104 | 8.3% | $19.0 | $335 | 81% |
+| 150-164 | 4.4% | $9.7 | $330 | 97% |
+| 210+ | 3.2% | $6.7 | $328 | 99% |
+
+- Price falls about 8x from the tightest to the loosest slack: a flat price cannot be right at both ends (to be shown in the backtest).
+- 36% of connections would be overnight if missed, 42% among those that actually missed (tight connections skew to thin routes). Median wait if missed: 265 min.
+- **The "do not sell below N minutes" cut-off is driven by the WTP cap, not the model.** With the cap at 10% the cut-off is 45-60 minutes; at 5% it is 60-105; at 15% there is none. The result line in the README must say "under these assumptions".
+- The calibrator carries the Apr-Jun 2025 level (9.1%), so mean predicted P(miss) on 2024 rows (9.1%) sits above what 2024 saw (7.9%). That is intended for pricing H2 2025, and is exactly what the backtest tests.

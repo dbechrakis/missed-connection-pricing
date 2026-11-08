@@ -1,0 +1,171 @@
+{
+  "config": {
+    "rebooking_cost": 75,
+    "overnight_cost": 180,
+    "target_loss_ratio": 0.65,
+    "wtp_cap_pct": 0.1,
+    "min_overnight_wait_min": 240,
+    "sensitivity": {
+      "rebooking_cost": [
+        50,
+        75,
+        100
+      ],
+      "overnight_cost": [
+        120,
+        180,
+        250
+      ],
+      "target_loss_ratio": [
+        0.55,
+        0.65,
+        0.75
+      ],
+      "wtp_cap_pct": [
+        0.05,
+        0.1,
+        0.15
+      ]
+    }
+  },
+  "summary": {
+    "rows": 5998499,
+    "mean_p": 0.0908268235770832,
+    "observed": 0.07863694504331732,
+    "overnight_share_all": 0.3576850435922014,
+    "overnight_share_if_missed": 0.4249389518678366,
+    "wait_min_median_if_missed": 265.0,
+    "mean_price": 20.882093160138783,
+    "mean_fare": 318.24566486739553,
+    "offer_rate": 0.8052558935101983,
+    "cutoff_min_slack_by_hub": {
+      "ATL": 45,
+      "CLT": 60,
+      "DEN": 60,
+      "DFW": 60,
+      "ORD": 60
+    }
+  },
+  "sensitivity": {
+    "rebooking_cost=50": {
+      "offer_rate": 0.8404687891301341,
+      "cutoff_min_slack_by_hub": {
+        "ATL": 45,
+        "CLT": 45,
+        "DEN": 45,
+        "DFW": 45,
+        "ORD": 60
+      }
+    },
+    "rebooking_cost=75": {
+      "offer_rate": 0.8052558935101983,
+      "cutoff_min_slack_by_hub": {
+        "ATL": 45,
+        "CLT": 60,
+        "DEN": 60,
+        "DFW": 60,
+        "ORD": 60
+      }
+    },
+    "rebooking_cost=100": {
+      "offer_rate": 0.7622799638958807,
+      "cutoff_min_slack_by_hub": {
+        "ATL": 60,
+        "CLT": 75,
+        "DEN": 60,
+        "DFW": 75,
+        "ORD": 75
+      }
+    },
+    "overnight_cost=120": {
+      "offer_rate": 0.8369772944936974,
+      "cutoff_min_slack_by_hub": {
+        "ATL": 45,
+        "CLT": 60,
+        "DEN": 60,
+        "DFW": 60,
+        "ORD": 60
+      }
+    },
+    "overnight_cost=180": {
+      "offer_rate": 0.8052558935101983,
+      "cutoff_min_slack_by_hub": {
+        "ATL": 45,
+        "CLT": 60,
+        "DEN": 60,
+        "DFW": 60,
+        "ORD": 60
+      }
+    },
+    "overnight_cost=250": {
+      "offer_rate": 0.7725616816012991,
+      "cutoff_min_slack_by_hub": {
+        "ATL": 45,
+        "CLT": 60,
+        "DEN": 60,
+        "DFW": 60,
+        "ORD": 60
+      }
+    },
+    "target_loss_ratio=0.55": {
+      "offer_rate": 0.7666916413308859,
+      "cutoff_min_slack_by_hub": {
+        "ATL": 60,
+        "CLT": 60,
+        "DEN": 60,
+        "DFW": 60,
+        "ORD": 75
+      }
+    },
+    "target_loss_ratio=0.65": {
+      "offer_rate": 0.8052558935101983,
+      "cutoff_min_slack_by_hub": {
+        "ATL": 45,
+        "CLT": 60,
+        "DEN": 60,
+        "DFW": 60,
+        "ORD": 60
+      }
+    },
+    "target_loss_ratio=0.75": {
+      "offer_rate": 0.8334498694125793,
+      "cutoff_min_slack_by_hub": {
+        "ATL": 45,
+        "CLT": 60,
+        "DEN": 60,
+        "DFW": 60,
+        "ORD": 60
+      }
+    },
+    "wtp_cap_pct=0.05": {
+      "offer_rate": 0.6149679583462482,
+      "cutoff_min_slack_by_hub": {
+        "ATL": 60,
+        "CLT": 90,
+        "DEN": 75,
+        "DFW": 90,
+        "ORD": 105
+      }
+    },
+    "wtp_cap_pct=0.1": {
+      "offer_rate": 0.8052558935101983,
+      "cutoff_min_slack_by_hub": {
+        "ATL": 45,
+        "CLT": 60,
+        "DEN": 60,
+        "DFW": 60,
+        "ORD": 60
+      }
+    },
+    "wtp_cap_pct=0.15": {
+      "offer_rate": 0.8754902793274032,
+      "cutoff_min_slack_by_hub": {
+        "ATL": 45,
+        "CLT": 45,
+        "DEN": 45,
+        "DFW": 45,
+        "ORD": 45
+      }
+    }
+  }
+}
