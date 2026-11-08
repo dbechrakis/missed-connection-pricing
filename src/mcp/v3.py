@@ -55,6 +55,20 @@ TARGET_LR = 0.65
 WTP_CAP, WTP_CAPS = 0.05, (0.03, 0.05, 0.07)
 
 
+TRAINED_MCT = 45                 # the minimum connection time the frozen model was built and labelled with
+VALIDATED_MCT = (35, 60)         # the range over which the re-expression below was checked (VALIDATION.md 5G)
+
+
+def model_slack(slack_min, mct: float = TRAINED_MCT) -> np.ndarray:
+    """What the frozen model should be told the scheduled gap is, for an airline whose minimum connection time is `mct`.
+
+    A connection is missed when the passenger has less than the minimum between the real arrival and the real departure,
+    so the risk depends on the buffer above the minimum, (scheduled gap - minimum), not on the scheduled gap alone. The
+    model was built with a 45-minute minimum; a 70-minute gap at a 60-minute airport is a 10-minute buffer, which the
+    model knows as a 55-minute gap. Nothing is retrained."""
+    return np.asarray(slack_min, float) - (mct - TRAINED_MCT)
+
+
 def price(p, cost) -> np.ndarray:
     """Premium = expected payout / target loss ratio."""
     return np.asarray(p, float) * np.asarray(cost, float) / TARGET_LR
@@ -219,9 +233,17 @@ def audit_summary() -> dict | None:
         return None
     a = json.loads(AUDIT.read_text())
     sold = a["exposure"][f"offered_within_{WTP_CAP:.0%}_cap"]
-    return {"window": a["window"], "sold_monthly_loss_ratio": sold["monthly"], "sold_mean_weekly_loss_ratio": sold["mean"],
+    roll = ROOT / "results" / "v3_rolling.json"
+    rolling = None
+    if roll.exists():                  # the 26-month backtest, which supersedes the six-month window for the sold view
+        r = json.loads(roll.read_text())
+        s = r["sold_within_cap"]
+        rolling = {"months": r["months"], "first": r["first"], "last": r["last"], "loss_ratio": s["pooled_loss_ratio"], "months_above_100": s["months_loss_ratio_above_100"],
+                   "weeks": s["weeks"], "weeks_above_100": s["weeks_above_100"]}
+    return {"rolling": rolling, "window": a["window"], "sold_monthly_loss_ratio": sold["monthly"], "sold_mean_weekly_loss_ratio": sold["mean"],
             "sold_weeks": sold["weeks"], "sold_weeks_above_100": sold["weeks_above_100pct"],
-            "mct_realized_over_target": {m: v["all"]["realized_over_target"] for m, v in a["mct"].items()}}
+            "mct_realized_over_target": {m: v["all"]["realized_over_target"] for m, v in a["mct"].items()},
+            "mct_buffer_realized_over_target": {m: v["all_buffer"]["realized_over_target"] for m, v in a["mct"].items()}}
 
 
 def refresh_demo_audit() -> None:

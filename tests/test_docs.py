@@ -201,33 +201,72 @@ def test_decision_memo_numbers_match_the_results():
 def test_audit_numbers_in_validation_memo_brief_readme_and_demo_match_the_results():
     import re
     a = json.loads((ROOT / "results" / "v3_audit.json").read_text())
-    sold = a["exposure"]["offered_within_5%_cap"]
-    every = a["exposure"]["all_overnight_risk"]
+    roll = json.loads((ROOT / "results" / "v3_rolling.json").read_text())
+    sold, every = roll["sold_within_cap"], roll["all_overnight_risk"]
     m = {k: v["all"]["realized_over_target"] for k, v in a["mct"].items()}
+    bm = {k: v["all_buffer"]["realized_over_target"] for k, v in a["mct"].items()}
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
     val = (ROOT / "VALIDATION.md").read_text(encoding="utf-8")
     memo = (ROOT / "docs" / "decision-memo.md").read_text(encoding="utf-8")
     brief = (ROOT / "docs" / "product-brief.md").read_text(encoding="utf-8")
+    n = roll["months"]
+    # the sold view, from the 26-month backtest, is the one quoted everywhere
+    for text in (readme, memo, brief):
+        assert f"{sold['pooled_loss_ratio']:.0%}" in text, text[:40]
+        assert f"{sold['months_loss_ratio_above_100']} of {n} months above 100%" in text
+        assert f"{sold['weeks_above_100']} of {sold['weeks']} weeks above 100%" in text
+    for text in (memo, brief):
+        assert f"{sold['stop_loss_cost_per_premium']['attach_100%']:.1%}" in text and f"{sold['stop_loss_cost_per_premium']['attach_90%']:.1%}" in text
+    assert f"{sold['learning']['weeks']:.0f} weeks" in memo and f"{sold['learning']['weeks']:.0f} weeks" in brief and f"{sold['learning']['weeks']:.0f} weeks" in readme
+    # the minimum connection time, as is and told the buffer
     sec = val[val.index("### 5G."):]
-    # the sold view
-    assert f"**{sold['mean']:.0%}**" in sec and f"**{sold['worst_month']:.0%}** (July)" in sec
-    assert f"**{sold['weeks_above_100pct']} of {sold['weeks']}**" in sec and f"{every['worst_month']:.0%}" in sec
-    for text in (memo, brief, (ROOT / "README.md").read_text(encoding="utf-8")):
-        assert f"{sold['mean']:.0%}" in text and f"{sold['worst_month']:.0%} in July" in text
-        assert f"{sold['weeks_above_100pct']} of {sold['weeks']} weeks above 100%" in text
-    assert f"{sold['stop_loss_cost_per_premium']['attach_100%']:.1%}" in memo and f"{sold['stop_loss_cost_per_premium']['attach_90%']:.1%}" in memo
-    # minimum connection time
-    for text in (memo, brief, (ROOT / "README.md").read_text(encoding="utf-8")):
-        assert f"{m['60']:.2f}" in text and f"{m['35']:.2f}" in text
-    assert f"**{m['60']:.2f}**" in sec
+    assert f"**{m['60']:.2f}**" in sec and f"**{bm['35']:.2f}**" in sec and f"**{bm['60']:.2f}**" in sec
+    for text in (readme, memo):
+        assert f"{m['60']:.2f}" in text and f"{m['35']:.2f}" in text and f"{bm['60']:.2f}" in text
+    assert max(bm.values()) - min(bm.values()) < 0.03                      # told the buffer, the minimum no longer matters
     # the refit bootstrap
     b = a["bootstrap"]
     assert b["refits"] == 8 and f"{b['pooled_sd']:.4f}" in sec and f"{b['pooled_min']:.3f} to {b['pooled_max']:.3f}" in sec
-    assert b["pooled_max"] - b["pooled_min"] < 0.03                  # "about 0.01" in the memo and README: refits barely move it
-    # the demo file carries the same summary
+    assert b["pooled_max"] - b["pooled_min"] < 0.03
+    # the six-month sold view stays in 5G, where it was measured
+    s6 = a["exposure"]["offered_within_5%_cap"]
+    assert f"**{s6['mean']:.0%}**" in sec and f"**{s6['worst_month']:.0%}** (July)" in sec and f"**{s6['weeks_above_100pct']} of {s6['weeks']}**" in sec
+    # the demo file carries the same summaries
     demo = json.loads(re.sub(r"^window\.PRICES_V3 = |;\s*$", "", (ROOT / "site" / "prices_v3.js").read_text(encoding="utf-8")))["audit"]
-    assert demo["sold_mean_weekly_loss_ratio"] == sold["mean"] and demo["sold_monthly_loss_ratio"] == sold["monthly"]
-    assert demo["mct_realized_over_target"] == {k: v["all"]["realized_over_target"] for k, v in a["mct"].items()}
+    assert demo["rolling"]["loss_ratio"] == sold["pooled_loss_ratio"] and demo["rolling"]["months_above_100"] == sold["months_loss_ratio_above_100"]
+    assert demo["mct_realized_over_target"] == m and demo["mct_buffer_realized_over_target"] == bm
     assert "1.54" in (ROOT / "PREREGISTRATION_2026H2_V3.md").read_text(encoding="utf-8")        # V2 as frozen is about all connections
+    assert f"{every['ratio_sd']:.2f}" in val and "0.197" in val
+
+
+def test_5h_5i_5j_numbers_match_the_results():
+    val = (ROOT / "VALIDATION.md").read_text(encoding="utf-8")
+    comm = json.loads((ROOT / "results" / "commitments_v3.json").read_text())["unnamed_airlines_committed"]
+    outb = json.loads((ROOT / "results" / "outbound_v3.json").read_text())
+    cov = json.loads((ROOT / "results" / "coverage_v3.json").read_text())
+    roll = json.loads((ROOT / "results" / "v3_rolling.json").read_text())
+    eco = json.loads((ROOT / "results" / "economics_v3.json").read_text())
+    h = val[val.index("### 5H."):]
+    assert f"**{comm['overall']['own_commitment']:.1%}**" in h and f"{comm['overall']['uniform_rule']:.1%}" in h
+    assert f"**{outb['extra_over_gap_miss']:.1%} more events**" in h and f"**{cov['passengers_on_routes_with_a_modelled_pairing']:.1%}**" in h
+    assert f"{cov['pairings']['miss_rate_unrouted']:.2%} against {cov['pairings']['miss_rate_routed']:.2%}" in h
+    assert all(not v["airline_commits_to_hotel"] for k, v in comm["by_carrier"].items() if k == "F9")
+    hy = roll["by_hub_year_ratio"]["ORD"]
+    assert f"Chicago ran {hy['2024']:.2f} in 2024, {hy['2025']:.2f} in 2025 and {hy['2026']:.2f} in 2026" in h
+    assert f"**{eco['price_per_policy']:.2f}**" in h.replace("**$", "**") and f"**{eco['realized_loss_ratio_sold']:.0%}**" in h
+    assert eco["margin_per_policy"]["expense_30%"] < 0 < eco["margin_per_policy"]["expense_20%"]
+
+
+def test_readme_limits_table_has_every_limit_with_a_status_and_the_counts_are_right():
+    import re
+    text = (ROOT / "README.md").read_text(encoding="utf-8")
+    sec = text[text.index("## What this does **not** show"):text.index("## How it was validated")]
+    rows = re.findall(r"^\| (\d+) \| (.+?) \| \*\*(Closed|Reduced|Open)\*\* \|", sec, flags=re.M)
+    assert [int(r[0]) for r in rows] == list(range(1, 15))
+    counts = {s: sum(1 for r in rows if r[2] == s) for s in ("Closed", "Reduced", "Open")}
+    assert counts == {"Closed": 5, "Reduced": 7, "Open": 2}
+    assert "**5 are closed**" in sec and "**7 are reduced**" in sec and "**2 are open**" in sec and "Of the 14 limits" in sec
+    assert "agency-inputs.md" in sec
 
 
 def test_market_evidence_note_says_what_was_not_found():

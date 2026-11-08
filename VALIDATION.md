@@ -485,21 +485,116 @@ Realized/target on what is offered is 1.17 to 1.23 in every cell. At the 65% tar
 
 **Is it the model, or the weather? (refit bootstrap).** The gap model was refitted 8 times on resamples of 2,500,000 rows of its training sample (4,999,330 rows), and the same March to August connections were scored each time. Pooled realized/target: mean 1.123, standard deviation 0.0075, range 1.115 to 1.136, against 1.117 for the frozen model. Share offered within the cap: 38.7% to 40.0%. For comparison, resampling whole weeks gives an interval of 1.02 to 1.23. **Refitting moves the result by roughly a tenth of what the weather does.** The frozen model is not an unlucky draw; the uncertainty is in the risk, not the model. (The resamples come from the model's own 5-million-row training sample, so this understates variation from the choice of that sample.)
 
-**The minimum connection time.** The model assumes 45 minutes at every airport; real minimums differ by airport and airline. Hubs are independent, so one table covers every combination. It scores the frozen model's prices on connections built and labelled with a different minimum:
+**The minimum connection time.** The model assumes 45 minutes at every airport; real minimums differ by airport, airline and terminal (`docs/market-evidence.md`). Hubs are independent, so one table covers every combination. It scores the frozen model's prices on connections built and labelled with a different minimum, first as they are, then with the gap re-expressed above the true minimum:
 
 | True minimum | 35 min | 45 min (assumed) | 60 min |
 | --- | --- | --- | --- |
-| Realized/target, all hubs | 0.90 | 1.12 | **1.57** |
-| ATL | 0.89 | 1.13 | 1.64 |
-| CLT | 0.81 | 0.98 | 1.34 |
-| DEN | 0.88 | 1.14 | 1.68 |
-| DFW | 0.86 | 1.03 | 1.34 |
-| ORD | 1.06 | 1.31 | 1.86 |
+| Realized/target, model told the scheduled gap | 0.90 | 1.12 | **1.57** |
+| Realized/target, model told the buffer above the minimum | **1.11** | 1.12 | **1.13** |
+| Share offered within the 5% cap, told the buffer | 40% | 39% | 39% |
 
-If a hub's real minimum is 15 minutes longer than assumed, prices set for 45 pay out about 41% more than the model expected; 10 minutes shorter, about 20% less. This is the largest sensitivity found in the whole project. The model learned what a given scheduled gap means when 45 minutes are needed, and the label itself depends on the minimum. Caveat: the frozen model never saw the 4.1% of connections in the 35-minute population with under 45 minutes scheduled, so those rows are extrapolated. **What it means for a product:** price on the gap above each airline's own minimum for each connection, from the agency's booking system. Public data cannot do that; the agency can. A model trained across several minimums, with the minimum as an input, is the obvious next version.
+By hub (35 min: as is / buffer; 60 min: as is / buffer):
+
+| Hub | 35 min | 45 min | 60 min |
+| --- | --- | --- | --- |
+| ATL | 0.89 / 1.12 | 1.13 | 1.64 / 1.14 |
+| CLT | 0.81 / 0.98 | 0.98 | 1.34 / 0.99 |
+| DEN | 0.88 / 1.13 | 1.14 | 1.68 / 1.13 |
+| DFW | 0.86 / 1.03 | 1.03 | 1.34 / 1.03 |
+| ORD | 1.06 / 1.31 | 1.31 | 1.86 / 1.34 |
+
+**It was an input-definition error, and it is fixed without retraining.** A connection is missed when the passenger has less than the minimum between the real arrival and the real departure, so the risk depends on the buffer above the minimum, not on the scheduled gap alone. The model was built with 45 minutes. For an airline whose minimum is m it is told the scheduled gap minus (m − 45): `mcp.v3.model_slack`. A 70-minute gap at a 60-minute airport is a 10-minute buffer, which the model knows as a 55-minute gap. The same frozen model then prices connections at 35 and at 60 minutes, two minimums it never saw, as well as it prices 45 (1.11, 1.12, 1.13), and the hub pattern is unchanged (Chicago stays the worst). The demo has the selector.
+
+Three things this does **not** show. (1) The label uses the same rule, arrival plus the minimum later than departure, so part of this is by construction: it removes a modelling error, not the question of whether an airline's minimum is the right definition of a missed passenger. That needs real itineraries (`docs/agency-inputs.md`, rows 1 and 2). (2) It was checked from 35 to 60 minutes only. (3) After the re-expression no connection is scored outside the range the model was trained on, which the as-is scoring was not (4.1% of the 35-minute connections had under 45 minutes scheduled).
 
 **A prediction written before the data exists (not part of the frozen set).** Expectation V2 in `PREREGISTRATION_2026H2_V3.md` ("no month above 1.54") is judged on all overnight-risk connections, as the test code computes it, and development passed it. On the sold view development did not (July, 111%). If September to December behave like this, V2 will pass as written and the sold loss ratio will still exceed 100% in at least one month. The test code is frozen by tag, so the sold view will be computed afterwards with `mcp.v3_audit` and reported as exploratory.
 
 **When the test is read.** Decided on 8 November 2026, before any of the data exists: the first read is when November 2026 is published (probably early February 2027), covering September to November, with `python -m mcp.holdout_v3 9 10 11`. It is not run earlier on fewer months, whatever the first months look like.
 
 **Not done.** A price loading for the selection effect (it would be fitted on these months and then graded on them); a model that takes the minimum connection time as an input; a real reinsurance quote.
+
+### 5H. Who already pays, what the cover leaves out, and how much real traffic it represents (development data, January 2024 to August 2026)
+
+Written on 9 November 2026, before the September to December data exists. Code: `src/mcp/commitments.py`, `outbound.py`, `coverage.py`; results: `results/commitments_v3.json`, `outbound_v3.json`, `coverage_v3.json`. None of it changes the frozen v3 model or its pre-registered test, which apply one rule to every airline.
+
+**Not every airline pays for the hotel.** The US DOT's dashboard lists whether each airline commits to a free hotel after an overnight delay it controls. As read on 9 November 2026 (`data/external/dot/hotel_commitments.json`), every named airline does except **Frontier**; one row carries no carrier name and is not guessed. For an airline that does not commit, a missed connection that ends in a night away is a gap whatever its cause, so the right trigger is "any miss". Overnight misses by airline:
+
+| Airline | Share of overnight misses | Commits to a hotel | Caused by the airline | Share the cover pays, under its own commitment |
+| --- | --- | --- | --- | --- |
+| AA | 47.7% | yes | 15.3% | 84.7% |
+| DL | 13.5% | yes | 28.9% | 71.1% |
+| F9 | 6.0% | **no** | 24.3% | 100.0% |
+| NK | 0.4% | yes (not named on the page) | 20.0% | 80.0% |
+| UA | 24.1% | yes | 22.5% | 77.5% |
+| WN | 8.3% | yes | 15.8% | 84.2% |
+
+Overall the share of overnight misses the cover pays for moves from 80.5% (one rule for all) to **82.0%** under each airline's own commitment; the one airline the page does not name (Spirit is not confirmed) is 0.4% of the total, so counting it either way gives 82.0%. By hub: ATL 72.4% → 74.0% | ORD 80.6% → 80.6% | DFW 83.6% → 84.2% | DEN 78.7% → 82.9% | CLT 86.4% → 86.5%. It matters most at Denver, where Frontier flies. The dashboard changes and the saved copy is dated; a launch would refresh it.
+
+**Onward flights cancelled for reasons that are not the airline's.** The v3 label excludes pairs whose onward flight was cancelled, so a storm that cancels the flight a traveller was about to board pays nothing. Over the same connections and weights, overnight onward cancellations coded to weather, air traffic or security came to 1,063,120 weighted events against 5,129,458 missed-connection gaps the cover does pay for (weather 980,735, air traffic 81,952, security 433): **20.7% more events**. Those coded to the airline (240,606, 4.7%) are ones the airline owes a hotel for, so they stay out. By hub: DFW 32%, CLT 25%, ORD 21%, ATL 16%, DEN 9%. By month the addition ranges from 5% to 74% of the gap events, so it is a storm risk too. Whether to sell it is a product decision (`docs/agency-inputs.md`, row 6); it is not in the pre-registered test.
+
+**How much real traffic the connections represent.** The DB1B ticket sample says how many passengers really flew each route through the five hubs on one ticket: **97.7%** of them are on a route with at least one pairing in our connections. Of the pairings we build, 78.7% sit on a ticket-sample route and get a weight; the others are dropped. They could bias the headline if they missed at a different rate, and they do not: 9.15% against 9.23% (-0.08 points, March to August 2026). The regional-brand mismatch of v1 is gone because v3 pairs within the marketing network. What remains is which passengers actually connected, which public data does not say.
+
+
+### 5I. A rolling-origin backtest: 26 out-of-sample months instead of six (development data, 2024-07 to 2026-08)
+
+Code: `src/mcp/v3_rolling.py`; results: `results/v3_rolling.json` and the weekly series `results/v3_rolling_weeks.csv`. The same specification (v1 features, the gap label, no recalibration) was refitted at nine origins, each trained only on data before the block it then scored, so every one of the months was priced by a model that had not seen it. It is **not a clean test**: the specification was chosen on October 2025 to August 2026, a choice among 20 candidates. The pre-registered window is never read.
+
+| | All overnight-risk connections | Sold within the 5% cap |
+| --- | --- | --- |
+| Pooled realized/target | 1.04 | 1.15 |
+| Monthly realized/target: mean, sd | 1.05, 0.24 | 1.16, 0.40 |
+| Monthly realized/target: range | 0.65 to 1.54 | 0.51 to 1.85 |
+| Mean of the monthly ratios, 95% interval (3-month block bootstrap) | 0.91 to 1.17 | 0.94 to 1.31 |
+| Same, t-interval over the months | 0.95 to 1.15 | 0.99 to 1.32 |
+| Months with a loss ratio above 100% | 1 of 26 | **6 of 26** |
+| Weeks with a loss ratio above 100% | 10 of 114 | **28 of 114** |
+| Worst week | 127% | 248% |
+| Realized loss ratio, pooled (target 65%) | 68% | **75%** |
+
+**What it settles.** The six-month result (1.12, with single months from 0.84 to 1.37) was not a freak: over 26 months the monthly ratio has a standard deviation of 0.24, against the 0.197 used in the pre-registration, which came from 11 months. The cover as it would be sold lost money in 6 of 26 months, so the six-month finding in 5G was a real feature of the product, not a quirk of summer 2026. The month-block intervals are the proper ones: they treat neighbouring months as related, which the weekly bootstrap used earlier did not.
+
+**How long it takes to learn the loss ratio.** From the weekly series, allowing for neighbouring weeks being related (first-order autocorrelation 0.23 as sold): to know the average weekly loss ratio to within ±10% of itself takes about **202 weeks** for the cover as sold (94 for all overnight-risk connections), however many policies are sold, because weather hits everyone in a week at once. That replaces the 27 weeks quoted for v1.
+
+**By hub, over all 26 months.** Realized/target by hub and year:
+
+| Hub | 2024 (from July) | 2025 | 2026 (to August) | All | Months above 1 |
+| --- | --- | --- | --- | --- | --- |
+| ATL | 1.06 | 1.12 | 1.09 | 1.10 | 16 of 26 |
+| CLT | 0.98 | 0.94 | 0.97 | 0.96 | 8 of 26 |
+| DEN | 0.83 | 1.23 | 1.08 | 1.10 | 14 of 26 |
+| DFW | 0.79 | 1.03 | 0.94 | 0.95 | 11 of 26 |
+| ORD | 0.92 | 1.18 | 1.23 | 1.13 | 17 of 26 |
+
+Chicago ran 0.92 in 2024, 1.18 in 2025 and 1.23 in 2026: priced about right at first and under-priced since. That is a drift, not a standing pattern, so the older README line that Chicago is always too cheap was only half right. Denver (0.83, 1.23, 1.08) and Dallas (0.79, 1.03, 0.94) show the same upward movement; Charlotte barely moves (0.98, 0.94, 0.97). The 2024 numbers come from models trained on only six to twelve months, so part of that year's low level is a thin training set; it is not evidence that 2024 was calmer. In March to August 2026 Chicago's error was concentrated in connections of two hours or more (ratio 1.58 to 1.63 beyond three hours against 1.15 under one) and in five weeks that carried 29% of its claims; without them its ratio was 1.14. Its long-connection misses were 50% weather and air-traffic coded (33% and 17%) against 27% at the other hubs, so they are event days, storms and ground stops, that route history cannot see. A per-hub level correction is pre-registered as the second arm of the v3 test.
+
+**The pre-registered band is narrower than 26 months suggest.** `PREREGISTRATION_2026H2_V3.md` expectation V1 uses σ = 0.197 from the 11 months then available. Over 26 months the standard deviation is 0.24, which makes the band for three months 1 ± 0.28 instead of 1 ± 0.23. The tagged test will be judged with 0.197, as written. If it fails V1 only by falling between the two bands, this section is where to look first; both readings will be reported.
+
+**The level drifts.** Priced from earlier months with no recalibration, the model ran below target in 2024 for most hubs and above it since. A model that learns a trend or a rolling level could correct that, and the selection experiment found no recalibration policy that improved the log loss on October 2025 to August 2026. With three years visible, that is worth re-testing in a later version, on windows the first selection did not use.
+
+
+### 5J. What attach rate the cover needs (arithmetic on measured numbers; demand itself is untested)
+
+Public data cannot say how many travellers would buy. It can say what each policy earns, which fixes what demand has to be (`src/mcp/economics.py`, `results/economics_v3.json`). The cover as it would be sold averaged **$10.01** a policy over the backtest at a **75%** realized loss ratio. The expense ratio and the attach rate are inputs of a grid, not claims.
+
+| Margin per policy sold | expense 0% | expense 10% | expense 20% | expense 30% |
+| --- | --- | --- | --- | --- |
+| after claims and expenses | $2.52 | $1.52 | $0.52 | −$0.48 |
+
+Profit per 100,000 offers shown:
+
+| | expense 0% | expense 10% | expense 20% | expense 30% |
+| --- | --- | --- | --- | --- |
+| attach rate 1% | $2,519 | $1,519 | $518 | −$483 |
+| attach rate 2% | $5,039 | $3,037 | $1,035 | −$966 |
+| attach rate 5% | $12,596 | $7,593 | $2,589 | −$2,415 |
+| attach rate 10% | $25,193 | $15,185 | $5,177 | −$4,831 |
+
+Attach rate needed to cover a fixed cost per 100,000 offers shown:
+
+| Fixed cost | expense 0% | expense 10% | expense 20% | expense 30% |
+| --- | --- | --- | --- | --- |
+| $1,000 | 0.4% | 0.7% | 1.9% | never |
+| $5,000 | 2.0% | 3.3% | 9.7% | never |
+| $20,000 | 7.9% | 13.2% | 38.6% | never |
+
+**What this says.** A cover that averages $10 a policy and runs at a 75% loss ratio leaves little per policy once the agency's own costs are taken out, and nothing at all once they pass 25% of premium. It is a small-ticket ancillary: viable at very low marginal cost and a loss-ratio target that is actually reached, not as a stand-alone business. The experiment in the product brief is what measures the attach rate; this table says what to beat.

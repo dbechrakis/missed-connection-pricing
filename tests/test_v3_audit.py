@@ -43,3 +43,41 @@ def test_stop_loss_cost_is_the_average_excess_over_the_attachment():
 def test_by_hub_splits_by_hub():
     r = by_hub(toy(), ratio)
     assert set(r) == {"ATL", "ORD"} and r["ATL"] == pytest.approx(4.0)
+
+
+def test_model_slack_expresses_the_gap_above_the_minimum_on_the_scale_the_model_was_built_on():
+    from mcp.v3 import TRAINED_MCT, VALIDATED_MCT, model_slack
+    assert TRAINED_MCT == 45 and VALIDATED_MCT == (35, 60)
+    assert model_slack(70, 60) == 55                      # a 10-minute buffer is what the model knows as a 55-minute gap
+    assert model_slack(45, 45) == 45                      # the trained minimum changes nothing
+    assert model_slack(50, 35) == 60                      # a shorter minimum makes the same gap safer
+    assert model_slack([60, 90], 45).tolist() == [60, 90]
+
+
+def test_rolling_analysis_functions_on_a_toy_series():
+    import numpy as np
+    import pandas as pd
+    from mcp.v3_rolling import block_bootstrap_mean, monthly, weeks_to_learn, weekly
+    w = pd.DataFrame({"ym": ["m1", "m1", "m2", "m2"], "week": ["a", "b", "c", "d"], "hub": ["ATL"] * 4, "sold": [True, False, True, True],
+                      "claims": [10.0, 5.0, 30.0, 10.0], "expected": [8.0, 5.0, 20.0, 10.0], "premium": [10.0, 8.0, 20.0, 10.0], "w": [1.0] * 4})
+    m = monthly(w, sold_only=False)
+    assert m.loc["m1", "ratio"] == pytest.approx(15 / 13) and m.loc["m2", "loss_ratio"] == pytest.approx(40 / 30)
+    assert monthly(w, sold_only=True).loc["m1", "ratio"] == pytest.approx(10 / 8)               # only the sold row
+    assert weekly(w, sold_only=True).to_dict() == {"a": 1.0, "c": 1.5, "d": 1.0}
+    lo, hi = block_bootstrap_mean(np.array([1.0, 1.0, 1.0, 1.0, 1.0, 1.0]), block=2)
+    assert lo == hi == 1.0                                                                       # no variation, no interval
+    L = weeks_to_learn(pd.Series([0.5, 1.0, 0.5, 1.0, 0.5, 1.0, 0.5, 1.0]))
+    assert L["mean"] == pytest.approx(0.75) and L["weeks"] >= L["weeks_independent"] > 0
+
+
+def test_rolling_report_has_hub_and_year_splits(tmp_path, monkeypatch):
+    import pandas as pd
+    from mcp import v3_rolling as R
+    w = pd.DataFrame({"ym": ["2025-01", "2025-01", "2026-01", "2026-01"], "week": ["a", "a", "b", "b"], "hub": ["ATL", "ORD", "ATL", "ORD"],
+                      "sold": [True, True, True, True], "claims": [10.0, 30.0, 10.0, 10.0], "expected": [10.0, 20.0, 10.0, 20.0],
+                      "premium": [15.0, 30.0, 15.0, 30.0], "w": [1.0] * 4})
+    path = tmp_path / "w.csv"; w.to_csv(path, index=False)
+    monkeypatch.setattr(R, "OUT", path); monkeypatch.setattr(R, "RESULTS", tmp_path / "r.json")
+    r = R.report()
+    assert r["by_hub_year_ratio"]["ORD"] == {"2025": pytest.approx(1.5), "2026": pytest.approx(0.5)}
+    assert r["by_hub_pooled_ratio"]["ATL"] == pytest.approx(1.0) and r["by_hub_months_above_1"]["ORD"] == 1

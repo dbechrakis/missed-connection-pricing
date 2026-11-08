@@ -34,7 +34,7 @@ from mcp.connections import ROOT, WEIGHTED
 from mcp.model import _codes, fit_gbm
 from mcp.split import where
 from mcp.v2 import FEATURE_SETS, LEAVES
-from mcp.v3 import BUNDLE, DEV_GLOB, EVAL_FRAC, SEL_ROWS, TARGET_LR, WTP_CAP, claim_cost, frame_sql, gsa_table, labels, month_predicate
+from mcp.v3 import BUNDLE, DEV_GLOB, EVAL_FRAC, SEL_ROWS, TARGET_LR, WTP_CAP, claim_cost, frame_sql, gsa_table, labels, model_slack, month_predicate
 from mcp.variant import MARKETING
 
 CACHE = ROOT / "data" / "parquet" / "audit_v3"
@@ -175,14 +175,25 @@ def exposure(df: pd.DataFrame) -> dict:
     return out
 
 
+def shifted_p(df: pd.DataFrame, mct: int) -> np.ndarray:
+    """The frozen model's probability when told the buffer above the true minimum (mcp.v3.model_slack), not the raw gap."""
+    bundle = joblib.load(BUNDLE)
+    d = df.copy()
+    d["slack_min"] = model_slack(d["slack_min"], mct)
+    return bundle["gbm_gap"].predict_proba(_codes(d[bundle["features"]], bundle["cats"]))[:, 1]
+
+
 def mct_table(frames: dict) -> dict:
+    """Prices set for a 45-minute minimum scored on connections built and labelled with another minimum, as is ('all')
+    and with the gap re-expressed above the true minimum ('all_buffer'): the same frozen model both times."""
     out = {}
     for mct, df in frames.items():
+        shifted = df.assign(p=shifted_p(df, mct))
         cell = lambda g: {"connections": int(len(g)), "realized_over_target": ratio(g), "mean_p": float(np.average(g["p"], weights=g["weight"])),
                           "gap_miss_rate": float(np.average(g["y_gap"], weights=g["weight"])),
                           "share_offered_5pct": float(g["weight"][offered(g, WTP_CAP)].sum() / g["weight"].sum()),
                           "share_below_45min": float((g["slack_min"] < 45).mean())}
-        out[str(mct)] = {"all": cell(df), "by_hub": by_hub(df, cell)}
+        out[str(mct)] = {"all": cell(df), "by_hub": by_hub(df, cell), "all_buffer": cell(shifted), "by_hub_buffer": by_hub(shifted, cell)}
     return out
 
 

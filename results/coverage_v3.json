@@ -1,0 +1,58 @@
+{
+ "window": "ticket sample 2024 Q1 to 2025 Q2; pairings March to August 2026, minimum connection time 45",
+ "passengers_on_routes_with_a_modelled_pairing": 0.9772235958358625,
+ "by_ticketing_carrier": {
+  "DL": {
+   "share_of_ticket_sample": 0.24825263471936468,
+   "share_with_a_modelled_pairing": 0.9961411923412851
+  },
+  "AM": {
+   "share_of_ticket_sample": 1.4740101064028935e-07,
+   "share_with_a_modelled_pairing": 0.0
+  },
+  "AS": {
+   "share_of_ticket_sample": 0.002404994889606961,
+   "share_with_a_modelled_pairing": 0.0
+  },
+  "AC": {
+   "share_of_ticket_sample": 1.4740101064028935e-07,
+   "share_with_a_modelled_pairing": 0.0
+  },
+  "UA": {
+   "share_of_ticket_sample": 0.19730155917841036,
+   "share_with_a_modelled_pairing": 0.998115104860833
+  },
+  "B6": {
+   "share_of_ticket_sample": 5.896040425611574e-07,
+   "share_with_a_modelled_pairing": 0.75
+  },
+  "AA": {
+   "share_of_ticket_sample": 0.4446199662923369,
+   "share_with_a_modelled_pairing": 0.9963877433905418
+  },
+  "SK": {
+   "share_of_ticket_sample": 1.4740101064028935e-07,
+   "share_with_a_modelled_pairing": 0.0
+  },
+  "WN": {
+   "share_of_ticket_sample": 0.06919902585620089,
+   "share_with_a_modelled_pairing": 0.8675204117061908
+  },
+  "F9": {
+   "share_of_ticket_sample": 0.032937345431615216,
+   "share_with_a_modelled_pairing": 0.8584093370447609
+  },
+  "NK": {
+   "share_of_ticket_sample": 0.005283441825390532,
+   "share_with_a_modelled_pairing": 0.3179053677044973
+  }
+ },
+ "pairings": {
+  "share_on_a_ticket_sample_route": 0.7872906046021585,
+  "miss_rate_routed": 0.0923425043225736,
+  "miss_rate_unrouted": 0.09150445664711239,
+  "difference_points": -0.08380476754612093,
+  "count_routed": 61318794,
+  "count_unrouted": 16567051
+ }
+}

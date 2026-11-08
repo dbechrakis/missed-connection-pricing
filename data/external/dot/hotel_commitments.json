@@ -1,0 +1,59 @@
+{
+ "source": "https://www.transportation.gov/airconsumer/airline-customer-service-dashboard/complimentary-hotel-accommodations-any-passenger-0",
+ "title": "Complimentary hotel accommodations for any passenger affected by an overnight delay (Commitments for Controllable Delays)",
+ "read_on": "2026-11-09",
+ "how": "read from the page in a browser; the dashboard publishes no revision date in its text",
+ "note_blank_row": "one of the ten rows has no carrier name in the page text and is recorded as unattributed; it is not assumed to be any airline",
+ "rows": [
+  {
+   "carrier": "Alaska",
+   "iata": "AS",
+   "committed": "yes"
+  },
+  {
+   "carrier": "Allegiant",
+   "iata": "G4",
+   "committed": "yes"
+  },
+  {
+   "carrier": "American",
+   "iata": "AA",
+   "committed": "yes"
+  },
+  {
+   "carrier": "Delta",
+   "iata": "DL",
+   "committed": "yes"
+  },
+  {
+   "carrier": "Frontier",
+   "iata": "F9",
+   "committed": "no"
+  },
+  {
+   "carrier": "Hawaiian",
+   "iata": "HA",
+   "committed": "yes"
+  },
+  {
+   "carrier": "JetBlue",
+   "iata": "B6",
+   "committed": "yes"
+  },
+  {
+   "carrier": "Southwest",
+   "iata": "WN",
+   "committed": "yes"
+  },
+  {
+   "carrier": null,
+   "iata": null,
+   "committed": "yes"
+  },
+  {
+   "carrier": "United",
+   "iata": "UA",
+   "committed": "yes"
+  }
+ ]
+}

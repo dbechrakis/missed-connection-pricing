@@ -211,6 +211,56 @@
      "share_offered_5pct": 0.2386239846966173,
      "share_below_45min": 0.04535119673373591
     }
+   },
+   "all_buffer": {
+    "connections": 1617650,
+    "realized_over_target": 1.1143341243773313,
+    "mean_p": 0.07811398121904486,
+    "gap_miss_rate": 0.08621885451020558,
+    "share_offered_5pct": 0.39769914741791107,
+    "share_below_45min": 0.04142676104225265
+   },
+   "by_hub_buffer": {
+    "ATL": {
+     "connections": 337295,
+     "realized_over_target": 1.1181606986543526,
+     "mean_p": 0.05112429002492733,
+     "gap_miss_rate": 0.05719089377351946,
+     "share_offered_5pct": 0.6162286316000138,
+     "share_below_45min": 0.03802902503743014
+    },
+    "CLT": {
+     "connections": 234571,
+     "realized_over_target": 0.9799364593354425,
+     "mean_p": 0.09618602382082553,
+     "gap_miss_rate": 0.0942561916205343,
+     "share_offered_5pct": 0.37505390989708537,
+     "share_below_45min": 0.05736855792062957
+    },
+    "DEN": {
+     "connections": 312211,
+     "realized_over_target": 1.1293194893730814,
+     "mean_p": 0.06752270494900915,
+     "gap_miss_rate": 0.07590323071681654,
+     "share_offered_5pct": 0.3966203133034955,
+     "share_below_45min": 0.031103964946782785
+    },
+    "DFW": {
+     "connections": 365446,
+     "realized_over_target": 1.031676210666208,
+     "mean_p": 0.09305891207484442,
+     "gap_miss_rate": 0.09619036031987545,
+     "share_offered_5pct": 0.2954463346326543,
+     "share_below_45min": 0.03919594139763467
+    },
+    "ORD": {
+     "connections": 368127,
+     "realized_over_target": 1.3147243050925859,
+     "mean_p": 0.09124747727880704,
+     "gap_miss_rate": 0.12098660618411104,
+     "share_offered_5pct": 0.2791980779982661,
+     "share_below_45min": 0.04535119673373591
+    }
    }
   },
   "45": {
@@ -223,6 +273,56 @@
     "share_below_45min": 0.0
    },
    "by_hub": {
+    "ATL": {
+     "connections": 340667,
+     "realized_over_target": 1.1294643879062383,
+     "mean_p": 0.05480316181543905,
+     "gap_miss_rate": 0.06192751682258678,
+     "share_offered_5pct": 0.6089050343820765,
+     "share_below_45min": 0.0
+    },
+    "CLT": {
+     "connections": 229765,
+     "realized_over_target": 0.9803401099157908,
+     "mean_p": 0.09996607740552212,
+     "gap_miss_rate": 0.09800075531158003,
+     "share_offered_5pct": 0.37903008006892214,
+     "share_below_45min": 0.0
+    },
+    "DEN": {
+     "connections": 312500,
+     "realized_over_target": 1.1352017403275392,
+     "mean_p": 0.07845328149296704,
+     "gap_miss_rate": 0.08861547436261001,
+     "share_offered_5pct": 0.379109701083567,
+     "share_below_45min": 0.0
+    },
+    "DFW": {
+     "connections": 372197,
+     "realized_over_target": 1.0278776573079231,
+     "mean_p": 0.09765572056135048,
+     "gap_miss_rate": 0.10059360255761475,
+     "share_offered_5pct": 0.29547275538168866,
+     "share_below_45min": 0.0
+    },
+    "ORD": {
+     "connections": 362742,
+     "realized_over_target": 1.3067047298525538,
+     "mean_p": 0.10041264934961504,
+     "gap_miss_rate": 0.13230758885219168,
+     "share_offered_5pct": 0.26314321678509633,
+     "share_below_45min": 0.0
+    }
+   },
+   "all_buffer": {
+    "connections": 1617871,
+    "realized_over_target": 1.1174018137791766,
+    "mean_p": 0.08476654502746962,
+    "gap_miss_rate": 0.09382368459931187,
+    "share_offered_5pct": 0.39023877676602114,
+    "share_below_45min": 0.0
+   },
+   "by_hub_buffer": {
     "ATL": {
      "connections": 340667,
      "realized_over_target": 1.1294643879062383,
@@ -313,6 +413,56 @@
      "mean_p": 0.07267956674993956,
      "gap_miss_rate": 0.13655317059670063,
      "share_offered_5pct": 0.32396508902502213,
+     "share_below_45min": 0.0
+    }
+   },
+   "all_buffer": {
+    "connections": 1529701,
+    "realized_over_target": 1.1250056797465653,
+    "mean_p": 0.08668640207473037,
+    "gap_miss_rate": 0.09659908621626105,
+    "share_offered_5pct": 0.3941646444938773,
+    "share_below_45min": 0.0
+   },
+   "by_hub_buffer": {
+    "ATL": {
+     "connections": 334700,
+     "realized_over_target": 1.143273388820785,
+     "mean_p": 0.05780438698707124,
+     "gap_miss_rate": 0.0661311164703869,
+     "share_offered_5pct": 0.6082432261677843,
+     "share_below_45min": 0.0
+    },
+    "CLT": {
+     "connections": 212534,
+     "realized_over_target": 0.9883769916979718,
+     "mean_p": 0.09996031256311745,
+     "gap_miss_rate": 0.098798473020323,
+     "share_offered_5pct": 0.3889163686788688,
+     "share_below_45min": 0.0
+    },
+    "DEN": {
+     "connections": 292766,
+     "realized_over_target": 1.1329089745662877,
+     "mean_p": 0.08215396834018905,
+     "gap_miss_rate": 0.09262705075230428,
+     "share_offered_5pct": 0.38400695254288875,
+     "share_below_45min": 0.0
+    },
+    "DFW": {
+     "connections": 359330,
+     "realized_over_target": 1.0271599519227144,
+     "mean_p": 0.09889814453926236,
+     "gap_miss_rate": 0.10177237283043745,
+     "share_offered_5pct": 0.29860715578958313,
+     "share_below_45min": 0.0
+    },
+    "ORD": {
+     "connections": 330371,
+     "realized_over_target": 1.3353731277568466,
+     "mean_p": 0.10149836029676497,
+     "gap_miss_rate": 0.13655317059670063,
+     "share_offered_5pct": 0.26005590847447263,
      "share_below_45min": 0.0
     }
    }

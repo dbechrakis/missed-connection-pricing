@@ -1,0 +1,154 @@
+{
+ "source": "data/external/dot/hotel_commitments.json",
+ "window": "January 2024 to August 2026, overnight misses, minimum connection time 45",
+ "unnamed_airlines_committed": {
+  "by_carrier": {
+   "AA": {
+    "share_of_overnight_misses": 0.47661594498218113,
+    "airline_commits_to_hotel": true,
+    "named_on_dot_page": true,
+    "carrier_caused_share": 0.15331391469052133,
+    "gap_share_under_own_commitment": 0.8466860853094786,
+    "gap_share_uniform_rule": 0.8466860853094786
+   },
+   "B6": {
+    "share_of_overnight_misses": 3.1045642448262994e-07,
+    "airline_commits_to_hotel": true,
+    "named_on_dot_page": true,
+    "carrier_caused_share": 0.04583307235825757,
+    "gap_share_under_own_commitment": 0.9541669276417424,
+    "gap_share_uniform_rule": 0.9541669276417424
+   },
+   "DL": {
+    "share_of_overnight_misses": 0.1354814342711329,
+    "airline_commits_to_hotel": true,
+    "named_on_dot_page": true,
+    "carrier_caused_share": 0.289033247703252,
+    "gap_share_under_own_commitment": 0.710966752296748,
+    "gap_share_uniform_rule": 0.710966752296748
+   },
+   "F9": {
+    "share_of_overnight_misses": 0.059917561543468244,
+    "airline_commits_to_hotel": false,
+    "named_on_dot_page": true,
+    "carrier_caused_share": 0.24269097758837138,
+    "gap_share_under_own_commitment": 1.0,
+    "gap_share_uniform_rule": 0.7573090224116286
+   },
+   "NK": {
+    "share_of_overnight_misses": 0.004136686696090407,
+    "airline_commits_to_hotel": true,
+    "named_on_dot_page": false,
+    "carrier_caused_share": 0.19960463344558357,
+    "gap_share_under_own_commitment": 0.8003953665544165,
+    "gap_share_uniform_rule": 0.8003953665544165
+   },
+   "UA": {
+    "share_of_overnight_misses": 0.2412256573970206,
+    "airline_commits_to_hotel": true,
+    "named_on_dot_page": true,
+    "carrier_caused_share": 0.2249246839464027,
+    "gap_share_under_own_commitment": 0.7750753160535973,
+    "gap_share_uniform_rule": 0.7750753160535973
+   },
+   "WN": {
+    "share_of_overnight_misses": 0.08262240465368219,
+    "airline_commits_to_hotel": true,
+    "named_on_dot_page": true,
+    "carrier_caused_share": 0.1581363163032934,
+    "gap_share_under_own_commitment": 0.8418636836967066,
+    "gap_share_uniform_rule": 0.8418636836967066
+   }
+  },
+  "overall": {
+   "uniform_rule": 0.8050791296076181,
+   "own_commitment": 0.8196205811933138
+  }
+ },
+ "unnamed_airlines_not_committed": {
+  "by_carrier": {
+   "AA": {
+    "share_of_overnight_misses": 0.47661594498218113,
+    "airline_commits_to_hotel": true,
+    "named_on_dot_page": true,
+    "carrier_caused_share": 0.15331391469052133,
+    "gap_share_under_own_commitment": 0.8466860853094786,
+    "gap_share_uniform_rule": 0.8466860853094786
+   },
+   "B6": {
+    "share_of_overnight_misses": 3.1045642448262994e-07,
+    "airline_commits_to_hotel": true,
+    "named_on_dot_page": true,
+    "carrier_caused_share": 0.04583307235825757,
+    "gap_share_under_own_commitment": 0.9541669276417424,
+    "gap_share_uniform_rule": 0.9541669276417424
+   },
+   "DL": {
+    "share_of_overnight_misses": 0.1354814342711329,
+    "airline_commits_to_hotel": true,
+    "named_on_dot_page": true,
+    "carrier_caused_share": 0.289033247703252,
+    "gap_share_under_own_commitment": 0.710966752296748,
+    "gap_share_uniform_rule": 0.710966752296748
+   },
+   "F9": {
+    "share_of_overnight_misses": 0.059917561543468244,
+    "airline_commits_to_hotel": false,
+    "named_on_dot_page": true,
+    "carrier_caused_share": 0.24269097758837138,
+    "gap_share_under_own_commitment": 1.0,
+    "gap_share_uniform_rule": 0.7573090224116286
+   },
+   "NK": {
+    "share_of_overnight_misses": 0.004136686696090407,
+    "airline_commits_to_hotel": false,
+    "named_on_dot_page": false,
+    "carrier_caused_share": 0.19960463344558357,
+    "gap_share_under_own_commitment": 1.0,
+    "gap_share_uniform_rule": 0.8003953665544165
+   },
+   "UA": {
+    "share_of_overnight_misses": 0.2412256573970206,
+    "airline_commits_to_hotel": true,
+    "named_on_dot_page": true,
+    "carrier_caused_share": 0.2249246839464027,
+    "gap_share_under_own_commitment": 0.7750753160535973,
+    "gap_share_uniform_rule": 0.7750753160535973
+   },
+   "WN": {
+    "share_of_overnight_misses": 0.08262240465368219,
+    "airline_commits_to_hotel": true,
+    "named_on_dot_page": true,
+    "carrier_caused_share": 0.1581363163032934,
+    "gap_share_under_own_commitment": 0.8418636836967066,
+    "gap_share_uniform_rule": 0.8418636836967066
+   }
+  },
+  "overall": {
+   "uniform_rule": 0.8050791296076181,
+   "own_commitment": 0.8204462830249661
+  }
+ },
+ "by_hub": {
+  "ATL": {
+   "uniform_rule": 0.724427950999908,
+   "own_commitment": 0.7398308991926237
+  },
+  "ORD": {
+   "uniform_rule": 0.8056482893877115,
+   "own_commitment": 0.806066821786544
+  },
+  "DFW": {
+   "uniform_rule": 0.8355727999974069,
+   "own_commitment": 0.8424421831281946
+  },
+  "DEN": {
+   "uniform_rule": 0.7869734204912431,
+   "own_commitment": 0.8285054694614628
+  },
+  "CLT": {
+   "uniform_rule": 0.8637118898959513,
+   "own_commitment": 0.8649061917173881
+  }
+ }
+}

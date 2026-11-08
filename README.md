@@ -48,27 +48,31 @@ An audit of the assumptions above changed the product question ([`VALIDATION.md`
 - **v3 pays only in that gap:** the official GSA hotel-and-meals rate for the hub and month, when the connection is missed, the next flight is the next day, and BTS does not code the inbound problem to the airline. Every condition can be checked from public data. [Try it in the demo](https://dbechrakis.github.io/missed-connection-pricing/#gap-cover).
 - **Costs and the cap are now sourced.** A night costs $198 to $295 by hub and year (GSA), so the $180 assumption was 9 to 39% too low. The cap is 5% of fare, below what comprehensive travel insurance costs (about 4 to 10% of trip cost; [what the market evidence does and does not support](docs/market-evidence.md)).
 - **Connections follow how tickets are sold.** A Charlotte passenger on American often flies a PSA or Piedmont regional flight. Pairing by marketing airline doubles the population to 115.8 million connections in 2025.
-- **What the data says about the gap cover:** whole months come in 20 to 40% above or below the price, and no model choice removes it: no month term, no recalibration, no training on overnight connections only, and refitting the model eight times on resampled training data moves the pooled result by about 0.01. This is a correlated weather and air-traffic risk, carried by the margin and not by the model. On March to August 2026, outside its training data, v3 ran at **1.12** × target. Offering it only where the price is under 5% of fare reaches 39% of overnight-risk connections, which run 9% worse (the winner's curse of selecting on a low estimate). **Sold that way, the cover would have lost money in the worst months:** a 78% average loss ratio against the 65% target, 111% in July, 8 of 28 weeks above 100%, before any commission or handling cost.
+- **What the data says about the gap cover:** whole months come in 20 to 40% above or below the price, and no model choice removes it: no month term, no recalibration, no training on overnight connections only, and refitting the model eight times on resampled training data moves the pooled result by about 0.01. This is a correlated weather and air-traffic risk, carried by the margin and not by the model. On March to August 2026, outside its training data, v3 ran at **1.12** × target. Offering it only where the price is under 5% of fare reaches 39% of overnight-risk connections, which run 9% worse (the winner's curse of selecting on a low estimate). **Sold that way, the cover would have lost money in the worst months:** over 26 backtest months, a 75% realized loss ratio against the 65% target, 6 of 26 months above 100%, 28 of 114 weeks above 100%, worst week 248%, before any commission or handling cost.
 - **Pre-registered** for September to December 2026, with six falsifiable expectations and everything seen beforehand disclosed: [`PREREGISTRATION_2026H2_V3.md`](PREREGISTRATION_2026H2_V3.md). A weekly workflow opens an issue as each month is published.
 
 ## What this does **not** show
 
-These are limits, not footnotes.
+These are limits, not footnotes. Of the 14 limits this project started with, **5 are closed**, **7 are reduced** to one named input only an agency can supply, and **2 are open** because they need customers or time. Each row says what was found and what closes the rest; the inputs are collected in [`docs/agency-inputs.md`](docs/agency-inputs.md) and the work is in [`VALIDATION.md`](VALIDATION.md) Part 5.
 
-- **The connections are synthetic.** They are every same-airline pairing of an arriving and a departing flight at five US hubs, weighted by real route traffic. The data does not say which passengers actually connected, so risk is modelled, not observed in travellers.
-- **The minimum connection time is an assumption, and the most consequential one.** Prices set for 45 minutes would have paid out 1.57× the expected amount if a hub's real minimum were 60 (0.90× at 35). Public data cannot give each airline's own minimum; an agency has it. (45 minutes; 35 and 60 were tested by rebuilding the whole population, since MCT also decides which pairings exist, so those rates are not a pure label sensitivity). Same airline only, US domestic only.
-- **Costs, the 65% target and the 10% price cap are assumptions** ($75 to rebook, $180 more if the next flight is the next day). The headline ratio hardly depends on the dollar amounts; the prices and the offer cut-off do. (v3 replaces them with GSA rates and a sourced cap.)
-- **Demand is untested.** On one ticket an airline usually rebooks a missed connection for free, so protection must cover something extra. How many people would buy, at what price, and how strongly the riskiest connections self-select (θ) need an experiment ([designed in the brief](docs/product-brief.md#7-the-experiment)).
-- **Severity is a lower bound.** Seat availability on the next flight is not observable.
-- **No seasonal price in the demo.** v1 has no month term. v2 has one, and with a frozen calibrator it priced 2026 17% too high; because v2's good result also re-fits its calibrator every month, the 2026 test cannot say how much the month term itself helped.
-- **Hubs are not equally well priced.** The ordering persists in every version but one: Chicago (ORD) too cheap, Charlotte (CLT) and Dallas (DFW) too dear. On the 2026 test v1 (the demo's model) priced ORD about 7% too cheap and CLT and DFW about 18% and 16% too dear; v2 rolling about 16% too cheap and 12% and 12% too dear.
-- **Monthly recalibration assumes the whole previous month is known**, but a booking is made weeks before the flight. Re-pricing 2026 with the calibrator one month staler gives a 60.7% loss ratio (two months: 59.7%) against 62.3% with none; calibration error rises, and in a period when the level rises a stale calibrator would under-price instead. Exploratory ([`VALIDATION.md`](VALIDATION.md) Part 4), since 2026 had already been read.
-- **Eight months, 35 weeks of clean test data.** The intervals are wide (about ±0.08 around the ratio).
-- **Learning the loss ratio takes at least 27 weeks to ±10%**, however many policies are sold, because weather and operations hit all travellers in a week at once (89 weeks at 100 policies a week, 34 at 1,000).
-- **The intervals are probably a little narrow.** They treat weeks as independent, but the level moves by month. A t-interval over the eight monthly ratios is about ±0.11 for v1 and ±0.12 for v2 rolling, against about ±0.08 from the bootstrap; neither changes whether the interval contains the target.
-- **Not every synthetic connection is a real itinerary.** 23% have no DB1B route (their miss rates differ by about one point from the rest). Regional airlines fly for several mainline brands and the data used here does not say which brand sold a ticket, so some regional pairings may combine brands that could not be booked together. (v3 fixes this by pairing within the marketing network.)
-- **An onward flight cancelled by the airline is not covered.** Those pairs are excluded from the label; they are about 18% as many events as missed connections, so a product that paid for them would see that many more claims before any difference in cost.
-- **The loss ratio realizes the miss event, not what a miss cost.** Claim amounts are a schedule-based assumption; nothing here observes the actual cost of a missed connection.
+| # | Limit | Status | What was found | What closes the rest |
+| --- | --- | --- | --- | --- |
+| 1 | The connections are synthetic | **Reduced** | 97.7% of real hub-connecting passengers (DB1B ticket sample) are on a route we model. Pairings without a ticket-sample route miss at 9.15% against 9.23%: no bias | Which passengers actually connected: the agency's itineraries |
+| 2 | The minimum connection time is assumed (45 minutes) | **Reduced** | Prices set for 45 pay out 0.90× the expected amount at a true 35 and 1.57× at 60. The model now takes the minimum as an input, unretrained: 1.11×, 1.12×, 1.13× at 35, 45, 60 (demo selector) | Each airline's real minimum, and whether it is the right definition of a miss: the agency |
+| 3 | Costs, the 65% target and the price cap are assumptions | **Reduced** | Hotel and meals from GSA ($198 to $295 a night). Cap 5%, below the 4 to 10% of trip cost that travel insurance charges. Grid of 3 to 10% × 55 to 75%: 15% to 67% of overnight-risk connections offered. As sold the loss ratio is 75% | The agency's expense ratio and target |
+| 4 | Demand is untested | **Open** | Not closable from data. Design and sample sizes are in the brief. At $10.01 a policy and a 75% loss ratio, margin is $2.52 a policy before expenses and $0.52 at 20% | The pricing experiment |
+| 5 | Severity is a lower bound | **Closed** | v3 pays the government per-diem rate when the next flight is the next day: the benefit is defined by the schedule, so seat availability does not enter | — |
+| 6 | No seasonal price | **Closed** | Tested: a month term, recalibration and overnight-only training do not remove the swings. Over 26 backtest months the monthly ratio has a standard deviation of 0.24: weather. The payout does move by month (GSA) | — |
+| 7 | Hubs are not equally well priced | **Reduced** | Chicago ran 0.92 in 2024, 1.18 in 2025 and 1.23 in 2026: a drift, not a standing gap. Its long-connection misses are 50% weather and air-traffic coded | The pre-registered per-hub arm of the v3 test |
+| 8 | Monthly recalibration assumes the whole previous month is known | **Closed** | v3 uses no recalibration, and its selection was walk-forward with a one-month booking lag | — |
+| 9 | Eight months of clean test data | **Open** | Extended for development to 26 months by a rolling-origin backtest; not a clean test. The clean test reads September to November 2026 once, when November is published (probably early February 2027) | Time |
+| 10 | Learning the loss ratio takes at least 27 weeks | **Reduced** | For v3 it is longer: about 202 weeks to ±10% as sold (94 for all overnight-risk connections), because weather hits a whole week at once | Nothing: it is how the risk behaves. The margin has to be set from the model and reinsurance, not learned from claims |
+| 11 | The intervals are probably a little narrow | **Closed** | Month-block bootstrap over 26 months: the mean monthly ratio is 0.91 to 1.17 for all overnight-risk connections and 0.94 to 1.31 as sold | — |
+| 12 | Not every synthetic connection is a real itinerary | **Reduced** | 79% of pairings sit on a ticket-sample route and the rest behave the same; the regional-brand mismatch is gone because v3 pairs within the marketing network | Same as the first row |
+| 13 | An onward flight cancelled by the airline is not covered | **Reduced** | Onward flights cancelled for weather, air traffic or security would add 20.7% to the events the cover pays (Dallas 32%, Denver 9%). Airline-coded ones are the airline's to pay | A product decision: sell the trigger or not |
+| 14 | The loss ratio realizes the miss event, not what a miss cost | **Closed** | In v3 the cost of a claim is the benefit the cover is defined to pay, not an estimate of someone's loss | — |
+
+**Found while closing these, and not closed:** sold only where the price fits the 5% cap, the cover would have shown a 75% realized loss ratio against the 65% target, 6 of 26 months above 100%, 28 of 114 weeks above 100%, worst week 248%, before any commission or handling cost. The cap selects connections the model under-prices. A price loading is the fix and has to be fitted on months the test does not use.
 
 ## How it was validated
 
@@ -134,6 +138,19 @@ python -m mcp.v3 select && python -m mcp.v3 fit     # walk-forward selection wit
 python -m mcp.holdout_v3 9 10 11                    # ONLY under PREREGISTRATION_2026H2_V3.md, after the data is published
 ```
 
+The audit of the 14 limits (development months only; none of it reads the pre-registered window):
+
+```bash
+cd src
+export MCP_VARIANT=v3
+python -m mcp.v3_audit frames && python -m mcp.v3_audit bootstrap && python -m mcp.v3_audit report   # refit bootstrap, cap x loss ratio grid, exposure, minimum connection time
+python -m mcp.v3_rolling run && python -m mcp.v3_rolling report                                      # 26 out-of-sample months (about an hour)
+python -m mcp.commitments                           # which airlines pay for the hotel (data/external/dot)
+python -m mcp.outbound                              # onward flights cancelled for reasons that are not the airline's
+python -m mcp.coverage                              # how much real hub traffic the connections represent
+python -m mcp.economics                             # what attach rate the cover needs
+```
+
 ## What the day itself would add
 
 The price is quoted at booking, so it can only use what is known then. The spec's open question: how much would day-of information improve things, and does it justify a second product, an alert to the traveller? With the alert placed one hour before the inbound flight's scheduled arrival, knowing how late that flight left cuts the booking-time model's Brier error by **44%** and lets an alert on the riskiest 5% of connections catch **52%** of misses at **75%** precision (booking-time information: 19% at 28%). Hub weather adds under 1%, most likely because a delayed flight already carries it. A first version of this analysis leaked each flight's final delay and overstated the value (52% instead of 44%); it is corrected and both are reported in [`VALIDATION.md`](VALIDATION.md) 4H. It does **not** show that an alert would help anyone: that depends on whether a traveller can act in that hour and on what a real-time feed costs.
@@ -157,7 +174,7 @@ python -m mcp.monitor --month 2026-08                                           
 
 ```
 src/mcp/        ingest, connections, split, features, model, calibration, v2, pricing, experiment, backtest, holdout, selection, voi,
-                monitor, service, score, api, demo; v3: variant, causes, costs, v3, holdout_v3
+                monitor, service, score, api, demo; v3: variant, causes, costs, v3, holdout_v3, v3_audit, v3_rolling, commitments, outbound, coverage, economics
 config/         pricing.yaml (assumptions, frozen), guards.yaml (price floor), connections settings
 site/           the static demo (index.html + prices.js), published to GitHub Pages
 tests/          label logic, leakage, pricing maths, validation accounting, guards on the test windows

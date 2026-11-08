@@ -135,10 +135,14 @@ footer { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--line);
       <label for="g-month">Month of travel</label>
       <select id="g-month"></select>
 
+      <label for="g-mct">This airline's minimum connection time</label>
+      <select id="g-mct"></select>
+
       <div class="label" id="g-slack-label">Time between flights</div>
       <div class="range-out"><b id="g-slack-out"></b><span class="hint">scheduled</span></div>
-      <input id="g-slack" type="range" min="45" max="210" step="15" value="90" aria-labelledby="g-slack-label">
-      <p class="hint" style="margin-top:12px">Only connections where a miss means a night away: the last flights of the day. All airlines at the hub.</p>
+      <input id="g-slack" type="range" min="35" max="240" step="5" value="90" aria-labelledby="g-slack-label">
+      <p class="hint" id="g-buffer"></p>
+      <p class="hint" style="margin-top:12px">Only connections where a miss means a night away: the last flights of the day. All airlines at the hub. Minimums differ by airline, airport and terminal; the model was checked for 35 to 60 minutes.</p>
       <p class="hint" id="g-gap"></p>
     </section>
 
@@ -305,7 +309,8 @@ footer { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--line);
   var MON = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   var label = function (ym) { return MON[+ym.slice(5) - 1] + " " + ym.slice(0, 4); };
   var OFFER_AT = 0.9, REFUSE_AT = 0.1;     // same thresholds as the v1 calculator
-  var st = { hub: G.hubs[0], month: G.months[3], slack: 90 };
+  var st = { hub: G.hubs[0], month: G.months[3], slack: 90, mct: 45 };
+  var TRAINED_MCT = 45;      // the model was built with a 45-minute minimum; the gap is re-expressed above the airline's own
 
   function cell(hub, slack) {
     for (var i = 0; i < G.cells.length; i++) if (G.cells[i].hub === hub && G.cells[i].slack === slack) return G.cells[i];
@@ -313,11 +318,15 @@ footer { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--line);
   }
 
   function render() {
-    $("g-slack-out").textContent = st.slack === 210 ? "210–225 minutes" : st.slack + "–" + (st.slack + 14) + " minutes";
-    var c = cell(st.hub, st.slack), gap = G.gap[st.hub];
+    var modelSlack = st.slack - (st.mct - TRAINED_MCT), buffer = st.slack - st.mct;
+    var bucket = Math.min(210, 45 + 15 * Math.floor((modelSlack - 45) / 15));
+    $("g-slack-out").textContent = st.slack + " minutes";
+    $("g-buffer").textContent = buffer >= 0 ? "That is " + buffer + " minutes above a " + st.mct + "-minute minimum: the model prices the buffer, not the scheduled gap."
+      : "Shorter than this airline's minimum: the connection could not be booked.";
+    var c = buffer >= 0 ? cell(st.hub, bucket) : null, gap = G.gap[st.hub];
     $("g-gap").textContent = "At " + HUB[st.hub].replace(/ \(.*/, "") + ", " + pct(gap.broad, 0) + " to " + pct(gap.strict, 0) +
       " of missed connections are not the airline's fault (BTS delay causes; the range is whether a late-arriving aircraft counts as the airline's).";
-    if (!c) { $("g-d-title").textContent = "No data for this connection"; return; }
+    if (!c) { $("g-decision").className = "decision nooffer"; $("g-d-title").textContent = buffer < 0 ? "Not bookable" : "No data for this connection"; $("g-d-body").textContent = buffer < 0 ? "A connection shorter than the airline's minimum is not sold." : ""; return; }
     var m = c.months[st.month], price = c.p * m.cost / G.assumptions.target_loss_ratio, share = m.within_cap;
     $("g-p").textContent = pct(c.p);
     $("g-cost").textContent = money(m.cost);
@@ -344,21 +353,26 @@ footer { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--line);
 
   (function () {
     var A = G.audit; if (!A) return;
-    var months = Object.keys(A.sold_monthly_loss_ratio), worst = months[0];
-    months.forEach(function (k) { if (A.sold_monthly_loss_ratio[k] > A.sold_monthly_loss_ratio[worst]) worst = k; });
-    $("g-sold").textContent = "Sold only where the price fits the cap, as it would be, the same months ran a " + pct(A.sold_mean_weekly_loss_ratio, 0) +
-      " average loss ratio against the " + pct(G.assumptions.target_loss_ratio, 0) + " target, " + pct(A.sold_monthly_loss_ratio[worst], 0) + " in " + label(worst) +
-      ", and " + A.sold_weeks_above_100 + " of " + A.sold_weeks + " weeks above 100%: choosing cheap-looking connections picks the ones the model under-prices.";
+    var Rl = A.rolling;
+    $("g-sold").textContent = Rl
+      ? "Sold only where the price fits the cap, as it would be, " + Rl.months + " backtest months (each priced by a model that had not seen it) ran a " + pct(Rl.loss_ratio, 0) +
+        " loss ratio against the " + pct(G.assumptions.target_loss_ratio, 0) + " target, with " + Rl.months_above_100 + " of " + Rl.months + " months and " + Rl.weeks_above_100 + " of " + Rl.weeks +
+        " weeks above 100%: choosing cheap-looking connections picks the ones the model under-prices."
+      : "";
     var m = A.mct_realized_over_target;
     $("mct-note").innerHTML = "<b>The minimum connection time is assumed to be 45 minutes at every airport, and it matters more than anything else tested.</b> " +
       "Prices set for 45 would have paid out " + m["35"].toFixed(2) + "× the expected amount if the real minimum were 35 minutes and " + m["60"].toFixed(2) +
-      "× if it were 60, against " + m["45"].toFixed(2) + "× at 45. A real product would use each airline's own minimum for each connection.";
+      "× if it were 60, against " + m["45"].toFixed(2) + "× at 45. Told the buffer above each minimum instead (the selector in the gap cover), the same model gives " +
+      A.mct_buffer_realized_over_target["35"].toFixed(2) + "×, " + A.mct_buffer_realized_over_target["45"].toFixed(2) + "× and " + A.mct_buffer_realized_over_target["60"].toFixed(2) +
+      "×. That fixes the model; whether an airline's minimum is the right definition of a missed connection can only be tested with real itineraries.";
   })();
 
   $("g-hub").innerHTML = G.hubs.map(function (h) { return '<option value="' + h + '">' + (HUB[h] || h) + "</option>"; }).join("");
   $("g-month").innerHTML = G.months.map(function (m) { return '<option value="' + m + '"' + (m === st.month ? " selected" : "") + ">" + label(m) + "</option>"; }).join("");
   $("g-hub").addEventListener("change", function (e) { st.hub = e.target.value; render(); });
   $("g-month").addEventListener("change", function (e) { st.month = e.target.value; render(); });
+  $("g-mct").innerHTML = [35, 40, 45, 50, 55, 60].map(function (m) { return '<option value="' + m + '"' + (m === st.mct ? " selected" : "") + ">" + m + " minutes" + (m === TRAINED_MCT ? " (the model's)" : "") + "</option>"; }).join("");
+  $("g-mct").addEventListener("change", function (e) { st.mct = +e.target.value; render(); });
   $("g-slack").addEventListener("input", function (e) { st.slack = +e.target.value; render(); });
   render();
 })();

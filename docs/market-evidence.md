@@ -27,3 +27,16 @@ Public data cannot test demand for this product: nobody has bought it from us. W
 
 - The payout is the US government's per-diem for lodging plus meals and incidentals, by hub and month ([GSA](https://www.gsa.gov/travel/plan-book/per-diem-rates)). It is a public, dated figure, and it is what the government reimburses its own staff.
 - It may be **below** what a stranded traveller pays near an airport on a disrupted night, when hotels fill and prices rise. That is a plausible direction, not a measurement: no source for disruption-night hotel prices was found, so neither the direction nor the size is established.
+
+## Minimum connection time: what is public
+
+- Minimums are set by airport, airline, connection type and sometimes terminal. [One Mile at a Time](https://onemileatatime.com/guides/airport-minimum-connection-times/) (4 January 2026) says so, and gives no US domestic hub figures.
+- The one US domestic number that could be verified is American's **25 minutes** at Austin and Phoenix ([One Mile at a Time](https://onemileatatime.com/insights/american-airlines-minimum-connection-time/), 9 November 2022, updated 4 September 2024), which the author calls aggressive.
+- A travel-tools blog lists per-hub figures for individual airlines (35 to 40 minutes at the hubs used here) and says they match the airline industry's own table. Its method is not stated and its figures could not be checked against any primary source, so **none of it is used**.
+- Consequence: the 45 minutes assumed throughout may be longer than some real minimums, which would make the price too high, the safe direction. The real values are in an agency's booking system (`docs/agency-inputs.md`, row 1).
+
+## Who already pays for the hotel
+
+- The US DOT's Airline Customer Service Dashboard lists whether each airline commits to a free hotel after an overnight delay it controls. Read on 9 November 2026 ([page](https://www.transportation.gov/airconsumer/airline-customer-service-dashboard/complimentary-hotel-accommodations-any-passenger-0), saved with its reading date in `data/external/dot/hotel_commitments.json`): Alaska, Allegiant, American, Delta, Hawaiian, JetBlue, Southwest and United commit; **Frontier does not**. One of the ten rows has no carrier name in the page text and is recorded as unattributed, not guessed.
+- The page's own text carries no revision date, and search results from 2022 describe a different set (for example, Allegiant as the only airline with no commitments). The dashboard changes; the saved copy is what this project used.
+- What it changes in the cover: `mcp.commitments`, `VALIDATION.md` 5H.
