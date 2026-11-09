@@ -392,7 +392,7 @@ footer { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--line);
     }
     if (A.loading) {
       $("f-load").textContent = pc(A.loading.loaded_loss_ratio_out_of_sample);
-      $("f-load-s").textContent = "a loading of " + A.loading.lambda.toFixed(2) + ", out of sample (from " + pc(A.loading.unloaded_loss_ratio_out_of_sample) + ")";
+      $("f-load-s").textContent = "a loading refitted monthly on earlier months, out of sample (from " + pc(A.loading.unloaded_loss_ratio_out_of_sample) + "); frozen at " + A.loading.lambda.toFixed(2) + " for the pre-registered test";
     }
   })();
 

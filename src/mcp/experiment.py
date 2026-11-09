@@ -5,7 +5,8 @@ riskiest connections self-select. An experiment can. This module sizes it using 
 measure, and leaves every unmeasured quantity as an explicit input.
 
   n_two_prop        travellers per arm to detect a change in attach rate (two-proportion z-test)
-  n_slope           travellers needed to estimate how purchase rises with risk (the selection strength theta)
+  n_slope           travellers needed to estimate how purchase rises with risk at the prices charged (the net tilt)
+  n_theta_beyond_price  travellers needed to estimate theta with the price shown held fixed (only the arms move it)
   weeks_for_ratio   weeks of live data before the realized-over-target loss ratio is known to +-h
 
 Run:  python -m mcp.experiment      (from src/)   writes results/experiment_design.json
@@ -39,6 +40,25 @@ def n_slope(sd_x: float, attach: float, effect: float, alpha: float = 0.05, powe
     (e.g. distinguish theta = 0 from theta = effect). Logistic regression, low attach rate:
     var(slope) ~ 1 / (n x attach x (1-attach) x sd_x^2)."""
     return int(np.ceil(((z(1 - alpha / 2) + z(power)) / effect) ** 2 / (sd_x**2 * attach * (1 - attach))))
+
+
+ARM_MULTIPLIERS = (0.8, 1.0, 1.25)   # the price arms of the experiment, equally likely
+
+
+def sd_log_arm(arms=ARM_MULTIPLIERS) -> float:
+    """Spread of log(price multiplier) across equally likely arms: the only movement in price that is not movement in risk."""
+    return float(np.std(np.log(arms)))
+
+
+def n_theta_beyond_price(sd_risk: float, sd_arm: float, attach: float, effect: float, alpha: float = 0.05,
+                         power: float = 0.80) -> int:
+    """Travellers to estimate theta, the slope on log(risk) with log(price shown) in the model. The price is risk x payout x arm,
+    so log price = log risk + log arm + constant. Holding log price fixed leaves only the part of log risk that the arm moves,
+    whose variance is sd_risk^2 sd_arm^2 / (sd_risk^2 + sd_arm^2); with arms of 0.8x to 1.25x that is about 5% of the raw
+    variance, so theta needs about twenty times the travellers of the net tilt. Variation in the payout (hub, month) would add
+    to sd_arm; at one hub in one month there is none."""
+    resid = float(np.sqrt(sd_risk**2 * sd_arm**2 / (sd_risk**2 + sd_arm**2)))
+    return n_slope(resid, attach, effect, alpha, power)
 
 
 def weeks_for_ratio(cv_week: float, half_width: float, level: float = 0.95) -> int:
@@ -97,8 +117,11 @@ def design(inputs: dict) -> dict:
     attach = [0.01, 0.02, 0.05, 0.10]
     lifts = [0.10, 0.20, 0.30]
     out = {"inputs": inputs, "two_prop_per_arm": {f"{a:.0%}": {f"{l:.0%}": n_two_prop(a, l) for l in lifts} for a in attach}}
-    out["theta_travellers"] = {f"{a:.0%}": {f"theta_diff={e}": n_slope(inputs["sd_log_p"], a, e) for e in (0.25, 0.5, 1.0)}
-                               for a in attach}
+    out["net_risk_tilt_travellers"] = {f"{a:.0%}": {f"diff={e}": n_slope(inputs["sd_log_p"], a, e) for e in (0.25, 0.5, 1.0)}
+                                       for a in attach}
+    out["theta_beyond_price_travellers"] = {f"{a:.0%}": {f"theta_diff={e}": n_theta_beyond_price(inputs["sd_log_p"], sd_log_arm(), a, e)
+                                                         for e in (0.25, 0.5, 1.0)} for a in attach}
+    out["sd_log_arm"] = sd_log_arm()
     out["weeks_for_ratio"] = {f"+-{h:.0%}": weeks_for_ratio(inputs["cv_week_ratio"], h) for h in (0.05, 0.10, 0.15, 0.20)}
     out["weeks_for_ratio_by_volume"] = {
         f"{n:,} policies/week": {f"+-{h:.0%}": weeks_for_ratio_at_volume(inputs["cv_week_ratio"], inputs["cv_claim_per_policy"], n, h)
@@ -110,6 +133,9 @@ def design(inputs: dict) -> dict:
 
 
 if __name__ == "__main__":
-    d = design(derived_inputs())
+    import sys
+    # --from-results re-derives the tables from the inputs already in the results file (no data needed)
+    inputs = json.loads(RESULTS.read_text())["inputs"] if "--from-results" in sys.argv else derived_inputs()
+    d = design(inputs)
     RESULTS.write_text(json.dumps(d, indent=2))
     print(json.dumps(d, indent=1))

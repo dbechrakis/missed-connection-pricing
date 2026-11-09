@@ -143,7 +143,7 @@ The analytics fix the *cost* side. The experiment measures the *demand* side and
 | # | Hypothesis | How it is measured |
 | --- | --- | --- |
 | H1 | Attach rate falls as price rises, and by how much (price elasticity) | Attach rate by price arm |
-| H2 | (a) Riskier connections are bought more often, beyond what price explains (selection on risk the price already sees, θ); (b) buyers are riskier than the model expects (selection on risk it cannot see) | (a) Slope of purchase on risk, controlling for price. (b) Realized ÷ model-expected misses among buyers, against the same ratio among everyone shown the offer |
+| H2 | (a) Riskier connections are bought more often, beyond what price explains (selection on risk the price already sees, θ); (b) buyers are riskier than the model expects (selection on risk it cannot see) | (a) Slope of purchase on risk with the price shown held fixed (θ), and the net tilt at the prices charged. (b) Realized ÷ model-expected misses among buyers, against the same ratio among everyone shown the offer |
 | H3 | The willingness-to-pay cap sits near the assumed 10% of fare | Attach and margin by price-to-fare ratio |
 | H4 | The message matters: "covers hotel and meals" sells better than "covers a missed connection" | Attach by message arm, price held fixed |
 
@@ -168,16 +168,19 @@ All figures are computed in `src/mcp/experiment.py` and tested against textbook 
 | 5% | 31,234 | 8,158 | 3,780 |
 | 10% | 14,751 | 3,841 | 1,774 |
 
-**H2: travellers to tell apart a selection strength θ that differs by the amount shown.** Risk varies a lot across connections (the standard deviation of log P(miss) is 0.80 in our data), which helps.
+**H2(a): travellers to measure selection on risk.** Risk varies a lot across connections (the standard deviation of log P(miss) is 0.80 in our data, and 0.67 to 0.82 within any one hub for the gap cover), which helps. But the price is set from the risk, so a traveller who reacts to price also reacts to risk, and two different quantities have to be kept apart:
 
-| Baseline attach rate | θ differs by 1.0 | by 0.5 | by 0.25 |
-| --- | --- | --- | --- |
-| 1% | 1,229 | 4,916 | 19,661 |
-| 2% | 621 | 2,483 | 9,931 |
-| 5% | 257 | 1,025 | 4,098 |
-| 10% | 136 | 541 | 2,163 |
+- **The net tilt:** how much more often risky connections buy at the prices actually charged. It is θ plus the price response, it is what decides the mix of buyers, and it is cheap to measure because it uses all the variation in risk.
+- **θ beyond price:** how much more often risky connections buy at the *same* price shown. With the price held fixed, the only movement in risk left is what the 0.8×, 1.0× and 1.25× arms add, about 5% of the variation, so it needs about **twenty times** the travellers.
 
-H2 is much cheaper than H1: it uses variation in risk that already exists in the offered connections, not a price change.
+| Baseline attach rate | Net tilt differs by 0.5 | θ beyond price differs by 1.0 | by 0.5 | by 0.25 |
+| --- | --- | --- | --- | --- |
+| 1% | 4,916 | 25,113 | 100,449 | 401,794 |
+| 2% | 2,483 | 12,685 | 50,737 | 202,947 |
+| 5% | 1,025 | 5,234 | 20,936 | 83,743 |
+| 10% | 541 | 2,763 | 11,050 | 44,198 |
+
+*Corrected on 9 November 2026.* An earlier version of this table gave the net-tilt numbers (2,483 at 2%) as the travellers needed for θ beyond price, and the analysis code read θ from the price arm alone, which returns θ plus the price response: with a price elasticity of −1.5 a true θ of +0.5 reads as −1.0. The analysis now holds the price shown fixed (`mcp.demand`, tested against exactly that case), and θ beyond price is sized with `mcp.experiment.n_theta_beyond_price`. Wider price arms, or payouts that differ by hub and month, would shrink the second column.
 
 **H2(b) is the one that matters for the loss ratio, and it needs no claims to measure.** Flight outcomes are public, so for every connection shown an offer we can compute afterwards whether it was missed, whether or not the traveller bought. If buyers' connections miss more often than the model expected, and non-buyers' do not, that gap is the exposure to information the price cannot see (the project simulates it: pricing per connection runs at about exp(θκ²) times the target, 1.06 at θ = 1 for a hidden-risk spread κ of 0.25; see the README). It can be read as soon as enough offers have been shown, long before the loss ratio can.
 
@@ -275,7 +278,7 @@ Impact and confidence are judgement calls, stated with their reasons; effort is 
 - Whole months came in 20 to 40% above or below the price. No model choice removed that: the swings come from weather and air traffic.
 - On March to August 2026, outside the model's training data, payouts ran **1.12×** the expected amount.
 - At a 65% target, break-even is 1.54× the expected amount. Across all overnight-risk connections the 26-month backtest stayed near target (68%). **Sold only where the price fits the cap, as it would be, it did not:** a 75% loss ratio, 6 of 26 months above 100% and 28 of 114 weeks above 100%, before commission, payment and handling costs.
-- The connections the cap lets through ran **9% worse** than average: a low price partly reflects under-estimated risk. A loading of 1.16 on the price (pre-registered as v4) moved the sold loss ratio from 77.8% to 70.4% out of sample. That is not enough to reach 65%, and it does not remove bad weeks; the loaded price is the one to launch with (`VALIDATION.md` 5L).
+- The connections the cap lets through ran **9% worse** than average: a low price partly reflects under-estimated risk. A loading on the price, refitted each month on earlier months only, moved the sold loss ratio from 77.8% to 70.4% over 19 out-of-sample months; its frozen value, 1.16 (pre-registered as v4), was fitted on all 26 months and is first judged on September to November 2026. That is not enough to reach 65%, and it does not remove bad weeks; the loaded price is the one to launch with (`VALIDATION.md` 5L).
 - **Needed at launch:** an exposure cap per hub-week, or reinsurance. The worst week paid out 2.5 times its premium; a weekly stop-loss would have cost at least 8.6% of premium at a 100% attachment (11.5% at 90%) over 114 weeks, before any loading.
 - **The loss ratio is slow to learn:** about 202 weeks to ±10% as sold (94 for all overnight-risk connections), against the 27 weeks of Section 7.4, which was for v1.
 
