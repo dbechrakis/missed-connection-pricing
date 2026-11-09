@@ -1,4 +1,5 @@
 """Command-line quotes: python -m mcp.score --hub ORD --airline UA --minutes 60 --next-flight next
+                       python -m mcp.score --gap --hub ORD --minutes 90 --month 2026-12 --mct 60   (the gap cover)
 
 Prints what the demo page shows. Exit code 2 if the request cannot be priced.
 """
@@ -9,6 +10,7 @@ import json
 import sys
 
 from mcp.service import NEXT_FLIGHT, PriceService, QuoteError
+from mcp.service_gap import TRAINED_MCT, GapCoverService
 
 TEXT = {
     "offer": "OFFER protection",
@@ -35,6 +37,21 @@ def render(q: dict) -> str:
     return "\n".join(lines)
 
 
+def render_gap(q: dict) -> str:
+    A = q["assumptions"]
+    return "\n".join([
+        f"{q['hub']} gap cover, {q['connection_minutes']} min connection at a {q['minimum_connection_minutes']}-min minimum "
+        f"({q['buffer_minutes']} min buffer), {q['month']}",
+        f"  chance of an overnight miss not coded to the airline   {q['p_overnight_gap']:.1%}",
+        f"  payout (GSA hotel and meals)                           ${q['payout']:.0f}",
+        f"  price                                                  ${q['price']:.2f}   = {q['price_share_of_fare']:.1%} of a ${q['average_fare']:.0f} average fare",
+        f"  price with the pre-registered loading ({q['loading']:.2f})           ${q['price_loaded']:.2f}",
+        f"  within the {A['price_cap_share_of_fare']:.0%} cap (unloaded price)                  {q['share_within_price_cap_unloaded']:.0%} of connections like this",
+        f"  decision                                               {TEXT[q['decision']]}",
+        "  " + q["caveats"][1],
+    ])
+
+
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(description="Price one connection from the frozen v1 table.")
     p.add_argument("--hub", required=True)
@@ -42,7 +59,19 @@ def main(argv=None) -> int:
     p.add_argument("--airline", default=None, help="two-letter code, e.g. UA; default is all airlines at the hub")
     p.add_argument("--next-flight", default="typical", choices=NEXT_FLIGHT)
     p.add_argument("--json", action="store_true", help="print the full quote as JSON")
+    p.add_argument("--gap", action="store_true", help="price the gap cover (v3) instead of the original cover")
+    p.add_argument("--month", default=None, help="gap cover: month of travel, YYYY-MM")
+    p.add_argument("--mct", type=int, default=TRAINED_MCT, help="gap cover: the airline's minimum connection time")
     a = p.parse_args(argv)
+    if a.gap:
+        svc = GapCoverService.from_site()
+        try:
+            q = svc.quote(a.hub.upper(), a.minutes, a.month or svc.months[0], a.mct)
+        except QuoteError as e:
+            print(f"error: {e}", file=sys.stderr)
+            return 2
+        print(json.dumps(q, indent=1) if a.json else render_gap(q))
+        return 0
     try:
         q = PriceService.from_site().quote(a.hub.upper(), a.minutes, a.airline, a.next_flight)
     except QuoteError as e:

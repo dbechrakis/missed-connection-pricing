@@ -282,7 +282,7 @@ Impact and confidence are judgement calls, stated with their reasons; effort is 
 - **Needed at launch:** an exposure cap per hub-week, or reinsurance. The worst week paid out 2.5 times its premium; a weekly stop-loss would have cost at least 8.6% of premium at a 100% attachment (11.5% at 90%) over 114 weeks, before any loading.
 - **The loss ratio is slow to learn:** about 202 weeks to ±10% as sold (94 for all overnight-risk connections), against the 27 weeks of Section 7.4, which was for v1.
 
-**What is being tested.** The [pre-registration](../PREREGISTRATION_2026H2_V3.md) fixes six expectations for September to December 2026, before that data existed: calibration, no month above break-even, the selection effect inside the cap, the per-hub calibration option, the gap share, and reach. The [decision memo](decision-memo.md) gives the recommendation in one page.
+**What is being tested.** The [pre-registration](../PREREGISTRATION_2026H2_V3.md) fixes six expectations, written before September to December 2026 existed and judged on September to November: calibration, no month above break-even, the selection effect inside the cap, the per-hub calibration option, the gap share, and reach. The [decision memo](decision-memo.md) gives the recommendation in one page.
 
 **What changes in this brief.**
 - The experiment in Section 7 should run on the gap cover, not the blanket one.

@@ -16,10 +16,11 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-      - run: pip install -r requirements.txt
+      # the exact versions the frozen models were built with: tests/test_frozen_models.py fails under any other scikit-learn
+      - run: pip install -r requirements.lock
       - run: python -m pytest -q
 
-  # The API in its container must answer exactly what the code answers (450 quotes), refuse bad input,
+  # The API in its container must answer exactly what the code answers (750 quotes, both products), refuse bad input,
   # run as a non-root user on a read-only filesystem, and report the model hashes frozen in VALIDATION.md.
   container:
     runs-on: ubuntu-latest

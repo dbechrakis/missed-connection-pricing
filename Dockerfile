@@ -12,8 +12,8 @@ RUN pip install --no-cache-dir -r requirements-api.txt \
  && useradd --system --uid 10001 --no-create-home api
 
 # only what serving needs: the serving code, the price table and the frozen artefacts it reports hashes for
-COPY src/mcp/__init__.py src/mcp/service.py src/mcp/api.py src/mcp/
-COPY site/prices.js site/prices.js
+COPY src/mcp/__init__.py src/mcp/service.py src/mcp/service_gap.py src/mcp/api.py src/mcp/
+COPY site/prices.js site/prices_v3.js site/
 COPY models/pmiss.joblib models/pmiss_v2.joblib models/
 
 USER api
