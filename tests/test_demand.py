@@ -59,6 +59,20 @@ def test_the_decision_rule_uses_the_unfavourable_end_of_each_interval():
     r = analyse(simulate(300_000, seed=5, base_attach=0.05, theta=0.2, theta_hidden=0.0), n_boot=60)
     ok = decide(r, min_attach=0.03, max_theta=0.6, max_adverse=1.15, min_conversion_diff=-0.01)
     assert ok["go"] and all(ok.values())
-    assert not decide(r, min_attach=0.06, max_theta=0.6, max_adverse=1.15, min_conversion_diff=-0.01)["attach_at_model_price"]
+    arm = r["by_price_arm"]["1"]
+    between = (arm["lo"] + arm["attach"]) / 2                 # above the lower end, below the estimate: a conservative rule says no
+    assert not decide(r, min_attach=between, max_theta=0.6, max_adverse=1.15, min_conversion_diff=-0.01)["attach_at_model_price"]
+    assert not decide(r, min_attach=0.01, max_theta=(r["logit"]["log_risk"]["beta"] + r["logit"]["log_risk"]["hi"]) / 2,
+                      max_adverse=1.15, min_conversion_diff=-0.01)["self_selection_theta_ok"]
     bad = analyse(simulate(300_000, seed=5, theta_hidden=2.0, kappa=0.5), n_boot=60)
     assert not decide(bad, 0.01, 5.0, 1.15, -0.05)["adverse_selection_ok"]
+
+
+def test_theta_is_read_beyond_the_price_shown_not_confused_with_price_aversion():
+    """The price rises with risk, so a traveller who dislikes high prices also avoids risky connections. Holding only the arm
+    multiplier fixed would read theta + elasticity (here 0.5 - 1.5 = -1.0, the wrong sign); holding the price shown fixed reads
+    theta. Both are reported: the first as the net tilt of buyers toward risk at the prices charged."""
+    r = analyse(simulate(400_000, seed=11, elasticity=-1.5, theta=0.5, theta_hidden=0.0), n_boot=20)["logit"]
+    assert covers(r["log_risk"]["lo"], r["log_risk"]["hi"], 0.5)
+    assert covers(r["log_risk_net"]["lo"], r["log_risk_net"]["hi"], -1.0)
+    assert r["log_risk_net"]["hi"] < 0 < r["log_risk"]["lo"]

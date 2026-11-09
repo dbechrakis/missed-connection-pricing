@@ -28,28 +28,51 @@
       "30%": 1774
     }
   },
-  "theta_travellers": {
+  "net_risk_tilt_travellers": {
     "1%": {
-      "theta_diff=0.25": 19661,
-      "theta_diff=0.5": 4916,
-      "theta_diff=1.0": 1229
+      "diff=0.25": 19661,
+      "diff=0.5": 4916,
+      "diff=1.0": 1229
     },
     "2%": {
-      "theta_diff=0.25": 9931,
-      "theta_diff=0.5": 2483,
-      "theta_diff=1.0": 621
+      "diff=0.25": 9931,
+      "diff=0.5": 2483,
+      "diff=1.0": 621
     },
     "5%": {
-      "theta_diff=0.25": 4098,
-      "theta_diff=0.5": 1025,
-      "theta_diff=1.0": 257
+      "diff=0.25": 4098,
+      "diff=0.5": 1025,
+      "diff=1.0": 257
     },
     "10%": {
-      "theta_diff=0.25": 2163,
-      "theta_diff=0.5": 541,
-      "theta_diff=1.0": 136
+      "diff=0.25": 2163,
+      "diff=0.5": 541,
+      "diff=1.0": 136
     }
   },
+  "theta_beyond_price_travellers": {
+    "1%": {
+      "theta_diff=0.25": 401794,
+      "theta_diff=0.5": 100449,
+      "theta_diff=1.0": 25113
+    },
+    "2%": {
+      "theta_diff=0.25": 202947,
+      "theta_diff=0.5": 50737,
+      "theta_diff=1.0": 12685
+    },
+    "5%": {
+      "theta_diff=0.25": 83743,
+      "theta_diff=0.5": 20936,
+      "theta_diff=1.0": 5234
+    },
+    "10%": {
+      "theta_diff=0.25": 44198,
+      "theta_diff=0.5": 11050,
+      "theta_diff=1.0": 2763
+    }
+  },
+  "sd_log_arm": 0.18219594670412284,
   "weeks_for_ratio": {
     "+-5%": 108,
     "+-10%": 27,

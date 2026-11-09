@@ -1,7 +1,7 @@
 """Sample-size maths against textbook values worked out independently."""
 import pytest
 
-from mcp.experiment import n_slope, n_two_prop, weeks_for_ratio, z
+from mcp.experiment import n_slope, n_theta_beyond_price, n_two_prop, sd_log_arm, weeks_for_ratio, z
 
 
 def test_normal_quantiles():
@@ -65,3 +65,13 @@ def test_pause_threshold_by_hand_and_rises_for_small_books():
     assert pause_threshold(0.25, 4.0, 1000) == pytest.approx(1.5604, abs=1e-3)
     assert pause_threshold(0.25, 4.0, 100) > pause_threshold(0.25, 4.0, 1000) > pause_threshold(0.25, 4.0, 10_000_000)
     assert pause_threshold(0.25, 4.0, 10_000_000) == pytest.approx(1.5, abs=0.01)    # large book: 1 + 2 x weekly cv
+
+
+def test_theta_beyond_price_uses_only_the_variation_the_arms_add():
+    """By hand: arms 0.8, 1, 1.25 give sd(log arm) = 0.1822; with sd(log risk) = 0.80 the risk left once the price shown is held
+    fixed has variance 0.64 x 0.0332 / 0.6732 = 0.0316, about 5% of 0.64, so theta needs about twenty times the travellers."""
+    assert sd_log_arm() == pytest.approx(0.1822, abs=1e-4)
+    resid = (0.64 * sd_log_arm() ** 2 / (0.64 + sd_log_arm() ** 2)) ** 0.5
+    assert n_theta_beyond_price(0.8, sd_log_arm(), 0.02, 0.5) == n_slope(resid, 0.02, 0.5)
+    assert 18 < n_theta_beyond_price(0.8, sd_log_arm(), 0.02, 0.5) / n_slope(0.8, 0.02, 0.5) < 23
+    assert n_theta_beyond_price(0.8, 0.0001, 0.02, 0.5) > 10**8          # with no price arms theta is not identified at all

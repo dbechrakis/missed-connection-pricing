@@ -5,10 +5,18 @@ any customer is shown an offer, exactly how the experiment will be analysed and 
 that analysis. It takes one row per traveller shown the offer (or in the no-offer control) and returns:
 
   attach rate         by price arm, with Wilson intervals
-  price response      the logit coefficient on log price (about the elasticity of the attach rate when attach is small)
-  self-selection      the coefficient on log model risk (theta: do riskier connections buy more, beyond price), and the
-                      realized / expected claims among buyers over the same among everyone shown, with a weekly block
-                      bootstrap (buyers who know more than the model show up here)
+  price response      the logit coefficient on log price shown (about the elasticity of the attach rate when attach is small)
+  self-selection      the coefficient on log model risk with the price shown held fixed (theta: do riskier connections buy
+                      more, beyond price); the net tilt of buyers toward risk at the prices actually charged (theta plus
+                      the price response, because the price rises with risk); and the realized / expected claims among
+                      buyers over the same among everyone shown, with a weekly block bootstrap (buyers who know more than
+                      the model show up here)
+
+Why theta needs the price shown, not just the price arm. The price is the model's risk times the payout, times the arm's
+multiplier, so a traveller who reacts to price also reacts to risk. A regression on the arm multiplier alone returns
+theta + elasticity, not theta: with an elasticity of -1.5 a true theta of +0.5 reads as -1.0. With the price shown held fixed,
+only the arm multipliers move price independently of risk, so theta is identified from them alone and needs far more
+travellers than the net tilt (`mcp.experiment.n_theta_beyond_price`).
   message effect      the odds ratio of the outcome-led wording against the benefit-led one, price held fixed
   guardrail           booking conversion of travellers shown the offer against the no-offer control
   margin per offer    attach rate x (price - payout), per price arm
@@ -99,11 +107,17 @@ def analyse(df: pd.DataFrame, n_boot: int = 400) -> dict:
         arms[f"{m:g}"] = {"n": int(n), "attach": k / n, "lo": lo, "hi": hi, "mean_price_bought": price, "payout_per_policy": pay,
                           "margin_per_offer": (k / n) * (price - pay) if k else 0.0}
     out["by_price_arm"] = arms
-    X = np.column_stack([np.ones(len(shown)), np.log(shown["arm_price"]), np.log(shown["p"]) - np.log(shown["p"]).mean(),
-                         (shown["message"] == "outcome").astype(float)])
-    f = logit_fit(X, shown["purchased"].to_numpy())
-    names = ("intercept", "log_price", "log_risk", "message_outcome")
-    out["logit"] = {n: {"beta": float(b), "lo": float(b - 1.96 * s), "hi": float(b + 1.96 * s)} for n, b, s in zip(names, f["beta"], f["se"])}
+    lp = np.log(shown["p"]) - np.log(shown["p"]).mean()
+    lprice = np.log(shown["price"]) - np.log(shown["price"]).mean()
+    msg = (shown["message"] == "outcome").astype(float)
+    y = shown["purchased"].to_numpy()
+    interval = lambda b, s: {"beta": float(b), "lo": float(b - 1.96 * s), "hi": float(b + 1.96 * s)}
+    # theta beyond price: the price the traveller saw is held fixed
+    f = logit_fit(np.column_stack([np.ones(len(shown)), lprice, lp, msg]), y)
+    out["logit"] = {n: interval(b, s) for n, b, s in zip(("intercept", "log_price", "log_risk", "message_outcome"), f["beta"], f["se"])}
+    # the net tilt of buyers toward risk at the prices charged (theta + price response), with the randomised arm as the price term
+    g = logit_fit(np.column_stack([np.ones(len(shown)), np.log(shown["arm_price"]), lp, msg]), y)
+    out["logit"]["log_risk_net"] = interval(g["beta"][2], g["se"][2])
     out["adverse_selection"] = adverse_selection(shown, n_boot=n_boot)
     offered = df[df["shown"]]
     ctrl = df[~df["shown"]]
@@ -137,7 +151,8 @@ def oracle_adverse_selection(df: pd.DataFrame) -> float:
 
 def simulate(n: int, seed: int = 0, base_attach: float = 0.05, elasticity: float = -1.5, theta: float = 0.5, theta_hidden: float = 0.5,
              kappa: float = 0.3, message_effect: float = 0.15, conversion: float = 0.30, conversion_effect: float = 0.0, control_share: float = 0.10) -> pd.DataFrame:
-    """Travellers with planted answers: attach falls with price at `elasticity`, rises with model risk at `theta`, with a hidden
+    """Travellers with planted answers: attach falls with the price shown at `elasticity` (the price rises with risk, so the net
+    tilt toward risk is theta + elasticity), rises with model risk beyond price at `theta`, with a hidden
     risk factor (spread kappa) at `theta_hidden` (so buyers realize exp(kappa x theta_hidden) times the expected claims), and
     rises by `message_effect` on the logit scale for the outcome-led wording."""
     rng = np.random.default_rng(seed)
@@ -149,7 +164,8 @@ def simulate(n: int, seed: int = 0, base_attach: float = 0.05, elasticity: float
     msg = np.where(rng.uniform(size=n) < 0.5, "benefit", "outcome")
     price = mult * p * claim_cost / TARGET_LR
     lp = np.log(p) - np.log(p).mean()
-    eta = np.log(base_attach / (1 - base_attach)) + elasticity * np.log(mult) + theta * lp + theta_hidden * u + message_effect * (msg == "outcome")
+    lprice = np.log(price) - np.log(price).mean()          # travellers react to the price they see, which rises with risk
+    eta = np.log(base_attach / (1 - base_attach)) + elasticity * lprice + theta * lp + theta_hidden * u + message_effect * (msg == "outcome")
     purchased = (rng.uniform(size=n) < 1 / (1 + np.exp(-eta))) & shown
     p_true = np.minimum(0.95, p * np.exp(kappa * u - kappa ** 2 / 2))
     y = (rng.uniform(size=n) < p_true).astype(int)
