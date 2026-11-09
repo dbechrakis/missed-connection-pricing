@@ -282,3 +282,38 @@ def test_the_first_read_of_the_v3_test_is_fixed_in_advance_and_documented_in_the
         assert "before any of the data exists" in text and "November" in text, rel
     assert "python -m mcp.holdout_v3 9 10 11" in (ROOT / "VALIDATION.md").read_text(encoding="utf-8")
     assert "python -m mcp.holdout_v3 9 10 11" in (ROOT / "README.md").read_text(encoding="utf-8")
+
+
+# ---- the v4 pre-registration ----------------------------------------------------------------------------------
+
+def test_v4_preregistration_freezes_the_artefacts_and_its_numbers_match_the_development_results():
+    import hashlib
+    text = (ROOT / "PREREGISTRATION_2026H2_V4.md").read_text(encoding="utf-8")
+    for rel in ("models/pmiss_v3.joblib", "models/v4_loading.json", "results/gsa_costs.json"):
+        raw = (ROOT / rel).read_bytes()
+        raw = raw if rel.endswith(".joblib") else raw.replace(b"\r\n", b"\n")
+        assert hashlib.sha256(raw).hexdigest() in text, rel
+    assert hashlib.sha256((ROOT / "models" / "pmiss_v3.joblib").read_bytes()).hexdigest() == "339d3ad170cb2b67bd785533efed934beaf106b75b862844e6313ac4950c9107"   # unchanged since v3
+    d = json.loads((ROOT / "results" / "v3_loading.json").read_text())
+    f, sn = d["frozen"], d["frozen"]["september_to_november"]
+    assert d["lambda_all_months"] == f["lambda"] == json.loads((ROOT / "models" / "v4_loading.json").read_text())["lambda"] == 1.16 and "1.16" in text
+    for needle in (f"{d['unloaded']['loss_ratio']:.1%} to {d['loaded']['loss_ratio']:.1%}", f"{f['pooled_loss_ratio_loaded']:.1%}", f"{f['pooled_loss_ratio_unloaded']:.0%}",
+                   f"{sn['2024']['unloaded_loss_ratio']:.1%}", f"{sn['2025']['unloaded_loss_ratio']:.1%}", f"{sn['2024']['loaded_loss_ratio']:.1%}", f"{sn['2025']['loaded_loss_ratio']:.1%}",
+                   f"{f['share_sold_monthly']['min']:.1%} to {f['share_sold_monthly']['max']:.1%}", f"{f['three_month_blocks']['gain_points_mean']:.1f} on average",
+                   f"{f['weeks_above_100_loaded']} of {f['weeks']} weeks", f"{d['windows']['12']:.1%}", f"{d['windows']['9']:.1%}", f"{d['windows']['6']:.1%}"):
+        assert needle in text, needle
+    assert sn["2024"]["weeks_above_100_loaded"] == 0 and sn["2025"]["weeks_above_100_loaded"] == 0 and "None of the 27 weeks" in text
+    assert sn["2024"]["weeks"] + sn["2025"]["weeks"] == 27
+    # the bands sit around the development values they are based on
+    assert 0.25 < min(sn["2024"]["loaded_loss_ratio"], sn["2025"]["loaded_loss_ratio"]) and max(sn["2024"]["loaded_loss_ratio"], sn["2025"]["loaded_loss_ratio"]) < 0.55
+    assert 0.28 < f["share_sold_monthly"]["min"] and f["share_sold_monthly"]["max"] < 0.42
+    assert f["three_month_blocks"]["gain_points_min"] > 3.0 and "at least 3.0 points" in text
+    assert "calm season" in text and "Passing this test does not show" in text
+
+
+def test_the_experiment_plan_and_its_code_agree():
+    plan = (ROOT / "docs" / "experiment-plan.md").read_text(encoding="utf-8")
+    from mcp import demand
+    for name in ("analyse", "decide", "simulate"):
+        assert hasattr(demand, name) and name in plan
+    assert "ten independent simulated experiments" in plan and "about 200 weeks" in plan

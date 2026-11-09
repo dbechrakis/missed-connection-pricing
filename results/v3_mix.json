@@ -1,0 +1,67 @@
+{
+ "window": "2024-07 to 2026-08",
+ "status": "development; stylised mixes, not estimates of how travellers choose",
+ "scenarios": {
+  "equal": {
+   "all_ratio": 1.0443688262988247,
+   "all_loss_ratio": 0.678839737094236,
+   "sold_ratio": 1.1472690146131468,
+   "sold_loss_ratio": 0.7457248594985455,
+   "share_sold": 0.4143255687685885,
+   "months_sold_loss_above_100": 6,
+   "months": 26,
+   "mean_slack": 124.12988823643597
+  },
+  "prefer_short_60": {
+   "all_ratio": 1.0361503297597578,
+   "all_loss_ratio": 0.6734977143438426,
+   "sold_ratio": 1.1392448110866182,
+   "sold_loss_ratio": 0.7405091272063019,
+   "share_sold": 0.18473512061252048,
+   "months_sold_loss_above_100": 6,
+   "months": 26,
+   "mean_slack": 85.8210167918612
+  },
+  "prefer_short_30": {
+   "all_ratio": 1.034272687971922,
+   "all_loss_ratio": 0.6722772471817493,
+   "sold_ratio": 1.1157290915941382,
+   "sold_loss_ratio": 0.7252239095361899,
+   "share_sold": 0.08579206959277197,
+   "months_sold_loss_above_100": 2,
+   "months": 26,
+   "mean_slack": 69.25981177142403
+  },
+  "avoid_minimum": {
+   "all_ratio": 1.04618540999202,
+   "all_loss_ratio": 0.680020516494813,
+   "sold_ratio": 1.147476686393391,
+   "sold_loss_ratio": 0.7458598461557041,
+   "share_sold": 0.439612463528519,
+   "months_sold_loss_above_100": 6,
+   "months": 26,
+   "mean_slack": 128.57154573198056
+  },
+  "prefer_long_60": {
+   "all_ratio": 1.0634584284602164,
+   "all_loss_ratio": 0.6912479784991408,
+   "sold_ratio": 1.1382253276693968,
+   "sold_loss_ratio": 0.739846462985108,
+   "share_sold": 0.6720625947399558,
+   "months_sold_loss_above_100": 5,
+   "months": 26,
+   "mean_slack": 169.23823532566172
+  }
+ },
+ "range": {
+  "sold_loss_ratio": [
+   0.7252239095361899,
+   0.7458598461557041
+  ],
+  "all_loss_ratio": [
+   0.6722772471817493,
+   0.6912479784991408
+  ],
+  "sold_above_target_in_every_scenario": true
+ }
+}

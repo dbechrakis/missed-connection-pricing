@@ -144,8 +144,8 @@ def test_the_next_window_is_read_in_exactly_one_place_and_no_dev_code_names_it()
         n = len(re.findall(r"""where\(\s*["']NEXT["']""", path.read_text(encoding="utf-8")))
         if n:
             reads[path.name] = n
-    # one read per pre-registered test: v1/v2 (PREREGISTRATION_2026H2.md) and v3 (its own pre-registration)
-    assert reads == {"holdout.py": 1, "holdout_v3.py": 1}, reads
+    # one read per pre-registered test: v1/v2 (PREREGISTRATION_2026H2.md), v3 and v4 (each with its own pre-registration)
+    assert reads == {"holdout.py": 1, "holdout_v3.py": 1, "holdout_v4.py": 1}, reads
 
 
 def test_the_next_window_starts_after_the_holdout_ends_and_does_not_overlap_anything_used():

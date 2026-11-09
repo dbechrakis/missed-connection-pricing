@@ -14,3 +14,4 @@ models/*
 !models/v2_state.json
 !models/pmiss_v3.joblib
 !models/v3_state.json
+!models/v4_loading.json

@@ -1,0 +1,8 @@
+{
+ "lambda": 1.16,
+ "cap": 0.05,
+ "target_loss_ratio": 0.65,
+ "model": "models/pmiss_v3.joblib (frozen, unchanged)",
+ "rule": "smallest loading in 1.00..2.00 (step 0.01) at which the connections whose loaded premium is within the cap realize the target loss ratio",
+ "fitted_on": "2024-07 to 2026-08: 26 months of a rolling-origin backtest (10% sample of overnight-risk connections)"
+}
