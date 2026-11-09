@@ -1,6 +1,6 @@
 # Pre-registration: v5, protection for self-transfer connections
 
-Written **9 November 2026**, before any cross-airline pairing has been built, labelled or scored. It is a separate document; no earlier pre-registration is edited. It has its own tag, `prereg-v5-self-transfer`, pushed to GitHub before the first cross-airline pairing is built, so the tag's server-side push time bounds when this was fixed. It was drafted by Claude for the author, as the decision log records for earlier rounds.
+Written **9 November 2026**, before any cross-airline pairing has been built, labelled or scored. It is a separate document; no earlier pre-registration is edited. The commit that added it (`48b2dd20fd93`) was pushed to GitHub, on branch `claude/serene-hypatia-pk5fvr`, before the first cross-airline pairing was built, and GitHub's record of that push bounds when this was fixed. The tag `prereg-v5-self-transfer` marks that commit. The session that wrote this could push branches but not tags, so the author adds the tag. It was drafted by Claude for the author, as the decision log records for earlier rounds.
 
 ## 1. The question
 
