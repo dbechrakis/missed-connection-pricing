@@ -22,14 +22,21 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
         run: |
+          # v1 and v2 read the Reporting Carrier file; v3 and v4 read the Marketing Carrier file. BTS publishes them
+          # separately, so a month is ready only when both answer.
           for m in 9 10 11 12; do
-            url="https://transtats.bts.gov/PREZIP/On_Time_Reporting_Carrier_On_Time_Performance_1987_present_2026_${m}.zip"
-            code=$(curl -sI -o /dev/null -w '%{http_code}' --max-time 60 "$url" || echo 000)
+            rep="https://transtats.bts.gov/PREZIP/On_Time_Reporting_Carrier_On_Time_Performance_1987_present_2026_${m}.zip"
+            mkt="https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2026_${m}.zip"
+            c_rep=$(curl -sI -o /dev/null -w '%{http_code}' --max-time 60 "$rep" || echo 000)
+            c_mkt=$(curl -sI -o /dev/null -w '%{http_code}' --max-time 60 "$mkt" || echo 000)
             title="BTS published 2026-$(printf %02d $m): run the pre-registered test"
-            echo "2026-$m: HTTP $code"
-            if [ "$code" = "200" ] && [ -z "$(gh issue list -R "$REPO" --state all --search "\"$title\" in:title" --json number -q '.[].number')" ]; then
-              gh issue create -R "$REPO" --title "$title" --body "BTS on-time data for 2026-$(printf %02d $m) is available at $url.
+            echo "2026-$m: Reporting Carrier HTTP $c_rep, Marketing Carrier HTTP $c_mkt"
+            if [ "$c_rep" = "200" ] && [ "$c_mkt" = "200" ] && [ -z "$(gh issue list -R "$REPO" --state all --search "\"$title\" in:title" --json number -q '.[].number')" ]; then
+              gh issue create -R "$REPO" --title "$title" --body "BTS on-time data for 2026-$(printf %02d $m) is available in both files the tests read:
 
-          Follow section 4 of PREREGISTRATION_2026H2.md (and the procedure of each addendum) exactly, with no retuning. The new months are read once, by the pre-registered command; nothing else may score them first, the monthly job included. Report every pre-registered number in VALIDATION.md, pass or fail."
+          - Reporting Carrier (v1 and v2, PREREGISTRATION_2026H2.md and its addendum): $rep
+          - Marketing Carrier (v3 and v4, PREREGISTRATION_2026H2_V3.md and _V4.md): $mkt
+
+          Follow the procedure of each pre-registration exactly, with no retuning. The first read runs when September to November are all published; the December read is described in VALIDATION.md 5M. Nothing else may score these months first, the monthly job included. Report every pre-registered number, pass or fail."
             fi
           done
