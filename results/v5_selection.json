@@ -1,0 +1,18 @@
+{
+ "t_min": 90,
+ "log_loss": {
+  "0": 0.2501397369738938,
+  "50": 0.24985389696043742,
+  "200": 0.24983482966241186,
+  "1000": 0.2499929343923514
+ },
+ "chosen_k": 1000,
+ "selection_realized_over_target": 1.1420107354358378,
+ "selection_counts": {
+  "pairings": 2482047,
+  "not_usable": 44890,
+  "no_onward_fare": 1437,
+  "usable": 2435720
+ },
+ "status": "development: July to December 2025, used only to choose k"
+}
