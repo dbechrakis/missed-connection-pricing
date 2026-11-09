@@ -275,7 +275,7 @@ Impact and confidence are judgement calls, stated with their reasons; effort is 
 - Whole months came in 20 to 40% above or below the price. No model choice removed that: the swings come from weather and air traffic.
 - On March to August 2026, outside the model's training data, payouts ran **1.12×** the expected amount.
 - At a 65% target, break-even is 1.54× the expected amount. Across all overnight-risk connections the 26-month backtest stayed near target (68%). **Sold only where the price fits the cap, as it would be, it did not:** a 75% loss ratio, 6 of 26 months above 100% and 28 of 114 weeks above 100%, before commission, payment and handling costs.
-- The connections the cap lets through ran **9% worse** than average: a low price partly reflects under-estimated risk. A price loading on offered cover is the first change before launch.
+- The connections the cap lets through ran **9% worse** than average: a low price partly reflects under-estimated risk. A loading of 1.16 on the price (pre-registered as v4) moved the sold loss ratio from 77.8% to 70.4% out of sample. That is not enough to reach 65%, and it does not remove bad weeks; the loaded price is the one to launch with (`VALIDATION.md` 5L).
 - **Needed at launch:** an exposure cap per hub-week, or reinsurance. The worst week paid out 2.5 times its premium; a weekly stop-loss would have cost at least 8.6% of premium at a 100% attachment (11.5% at 90%) over 114 weeks, before any loading.
 - **The loss ratio is slow to learn:** about 202 weeks to ±10% as sold (94 for all overnight-risk connections), against the 27 weeks of Section 7.4, which was for v1.
 

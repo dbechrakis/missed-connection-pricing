@@ -73,8 +73,55 @@ footer { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--line);
 </head>
 <body>
 <main>
-  <h1>What should a missed-connection guarantee cost?</h1>
-  <p class="lede">Priced per connection from how often that kind of connection actually fails, and not offered at all where the price would be too high a share of the fare.</p>
+  <h1>Who pays when a connection is missed?</h1>
+  <p class="lede">US airlines already rebook a missed connection, and pay the hotel when the delay is their fault. This page prices the gap they leave: the hotel night after weather or air traffic. The older all-purpose cover is below for comparison. Every number comes from public data and is checked in public.</p>
+
+  <section id="found" aria-label="What was found">
+    <div class="metrics">
+      <div class="metric"><div class="k">Misses that are not the airline's fault</div><div class="v" id="f-gap"></div><div class="s">BTS delay causes; the airline already pays for the rest</div></div>
+      <div class="metric"><div class="k">Loss ratio as it would be sold</div><div class="v" id="f-sold"></div><div class="s" id="f-sold-s"></div></div>
+      <div class="metric"><div class="k">With the pre-registered loading</div><div class="v" id="f-load"></div><div class="s" id="f-load-s"></div></div>
+      <div class="metric"><div class="k">Months above 100%</div><div class="v" id="f-months"></div><div class="s" id="f-months-s"></div></div>
+    </div>
+    <p class="hint">Read next: <a href="https://github.com/dbechrakis/missed-connection-pricing/blob/main/docs/decision-memo.md">the one-page memo</a> · <a href="https://github.com/dbechrakis/missed-connection-pricing/blob/main/SCOREBOARD.md">the scoreboard of pre-registered predictions</a> · <a href="https://github.com/dbechrakis/missed-connection-pricing/blob/main/VALIDATION.md">how it was tested</a></p>
+  </section>
+
+  <h2 id="gap-cover">The gap cover: the hotel night the airline won't pay for</h2>
+  <p>US airlines already rebook a missed connection for free, and pay the hotel when an overnight disruption is their fault. The night after a weather or air-traffic disruption is the gap nobody covers. This cover pays the official government hotel-and-meals rate for the hub and month, only when the connection is missed, the next flight is the next day, and the delay is not coded to the airline. <span class="hint">(Model v3, connections paired the way tickets are sold. <a href="https://github.com/dbechrakis/missed-connection-pricing/blob/main/PREREGISTRATION_2026H2_V3.md">Pre-registered</a> for September to December 2026, results not in yet.)</span></p>
+
+  <div class="grid">
+    <section class="card" aria-label="Choose a connection for the gap cover">
+      <label for="g-hub">Connecting airport</label>
+      <select id="g-hub"></select>
+
+      <label for="g-month">Month of travel</label>
+      <select id="g-month"></select>
+
+      <label for="g-mct">This airline's minimum connection time</label>
+      <select id="g-mct"></select>
+
+      <div class="label" id="g-slack-label">Time between flights</div>
+      <div class="range-out"><b id="g-slack-out"></b><span class="hint">scheduled</span></div>
+      <input id="g-slack" type="range" min="35" max="240" step="5" value="90" aria-labelledby="g-slack-label">
+      <p class="hint" id="g-buffer"></p>
+      <p class="hint" style="margin-top:12px">Only connections where a miss means a night away: the last flights of the day. All airlines at the hub. Minimums differ by airline, airport and terminal; the model was checked for 35 to 60 minutes.</p>
+      <p class="hint" id="g-gap"></p>
+    </section>
+
+    <section class="card" aria-live="polite" aria-label="Gap cover result">
+      <div class="metrics">
+        <div class="metric"><div class="k">Chance of a gap night</div><div class="v" id="g-p"></div><div class="s">missed, not the airline's fault</div></div>
+        <div class="metric"><div class="k">Payout if it happens</div><div class="v" id="g-cost"></div><div class="s" id="g-cost-s"></div></div>
+        <div class="metric"><div class="k">Price</div><div class="v" id="g-price"></div><div class="s" id="g-price-s"></div></div>
+      </div>
+      <div class="decision" id="g-decision"><div class="t" id="g-d-title"></div><div id="g-d-body"></div></div>
+      <p class="note" id="g-risk"></p>
+      <p class="note" id="g-sold"></p>
+    </section>
+  </div>
+
+  <h2 id="blanket">The older cover: pay on every missed connection (v1)</h2>
+  <p>Priced per connection from how often that kind of connection fails, and not offered where the price is too high a share of the fare. It duplicates what the airline already pays in many cases, which is why the gap cover above replaced it; it is kept for comparison and because its 2026 test is the project's first clean result.</p>
 
   <div class="banner" id="banner" role="note"></div>
 
@@ -123,40 +170,6 @@ footer { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--line);
     <tbody id="why-body"></tbody>
   </table>
   <p class="hint" style="margin-top:8px">*A loss ratio of 65% is the target; above it the product loses money. Who really buys protection cannot be known from public data, so the project shows a range of buyer behaviour. "Favour risky" is one point on it (selection strength 1 on the scale used in the validation). The flat price is the average claim cost in the training period divided by the target.</p>
-
-  <h2 id="gap-cover">The gap cover: the hotel night the airline won't pay for</h2>
-  <p>US airlines already rebook a missed connection for free, and pay the hotel when an overnight disruption is their fault. The night after a weather or air-traffic disruption is the gap nobody covers. This cover pays the official government hotel-and-meals rate for the hub and month, only when the connection is missed, the next flight is the next day, and the delay is not coded to the airline. <span class="hint">(Model v3, connections paired the way tickets are sold. <a href="https://github.com/dbechrakis/missed-connection-pricing/blob/main/PREREGISTRATION_2026H2_V3.md">Pre-registered</a> for September to December 2026, results not in yet.)</span></p>
-
-  <div class="grid">
-    <section class="card" aria-label="Choose a connection for the gap cover">
-      <label for="g-hub">Connecting airport</label>
-      <select id="g-hub"></select>
-
-      <label for="g-month">Month of travel</label>
-      <select id="g-month"></select>
-
-      <label for="g-mct">This airline's minimum connection time</label>
-      <select id="g-mct"></select>
-
-      <div class="label" id="g-slack-label">Time between flights</div>
-      <div class="range-out"><b id="g-slack-out"></b><span class="hint">scheduled</span></div>
-      <input id="g-slack" type="range" min="35" max="240" step="5" value="90" aria-labelledby="g-slack-label">
-      <p class="hint" id="g-buffer"></p>
-      <p class="hint" style="margin-top:12px">Only connections where a miss means a night away: the last flights of the day. All airlines at the hub. Minimums differ by airline, airport and terminal; the model was checked for 35 to 60 minutes.</p>
-      <p class="hint" id="g-gap"></p>
-    </section>
-
-    <section class="card" aria-live="polite" aria-label="Gap cover result">
-      <div class="metrics">
-        <div class="metric"><div class="k">Chance of a gap night</div><div class="v" id="g-p"></div><div class="s">missed, not the airline's fault</div></div>
-        <div class="metric"><div class="k">Payout if it happens</div><div class="v" id="g-cost"></div><div class="s" id="g-cost-s"></div></div>
-        <div class="metric"><div class="k">Price</div><div class="v" id="g-price"></div><div class="s" id="g-price-s"></div></div>
-      </div>
-      <div class="decision" id="g-decision"><div class="t" id="g-d-title"></div><div id="g-d-body"></div></div>
-      <p class="note" id="g-risk"></p>
-      <p class="note" id="g-sold"></p>
-    </section>
-  </div>
 
   <h2>What this does not tell you</h2>
   <ul>
@@ -365,6 +378,22 @@ footer { margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--line);
       "× if it were 60, against " + m["45"].toFixed(2) + "× at 45. Told the buffer above each minimum instead (the selector in the gap cover), the same model gives " +
       A.mct_buffer_realized_over_target["35"].toFixed(2) + "×, " + A.mct_buffer_realized_over_target["45"].toFixed(2) + "× and " + A.mct_buffer_realized_over_target["60"].toFixed(2) +
       "×. That fixes the model; whether an airline's minimum is the right definition of a missed connection can only be tested with real itineraries.";
+  })();
+
+  (function () {
+    var A = G.audit; if (!A) return;
+    var pc = function (x, d) { return (x * 100).toFixed(d || 0) + "%"; };
+    if (A.gap_shares) $("f-gap").textContent = pc(A.gap_shares.broad, 1) + " to " + pc(A.gap_shares.strict, 1);
+    if (A.rolling) {
+      $("f-sold").textContent = pc(A.rolling.loss_ratio);
+      $("f-sold-s").textContent = "against a " + pc(G.assumptions.target_loss_ratio) + " target, " + A.rolling.months + " backtest months";
+      $("f-months").textContent = A.rolling.months_above_100 + " of " + A.rolling.months;
+      $("f-months-s").textContent = A.rolling.weeks_above_100 + " of " + A.rolling.weeks + " weeks above 100%";
+    }
+    if (A.loading) {
+      $("f-load").textContent = pc(A.loading.loaded_loss_ratio_out_of_sample);
+      $("f-load-s").textContent = "a loading of " + A.loading.lambda.toFixed(2) + ", out of sample (from " + pc(A.loading.unloaded_loss_ratio_out_of_sample) + ")";
+    }
   })();
 
   $("g-hub").innerHTML = G.hubs.map(function (h) { return '<option value="' + h + '">' + (HUB[h] || h) + "</option>"; }).join("");

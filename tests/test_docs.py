@@ -317,3 +317,16 @@ def test_the_experiment_plan_and_its_code_agree():
     for name in ("analyse", "decide", "simulate"):
         assert hasattr(demand, name) and name in plan
     assert "ten independent simulated experiments" in plan and "about 200 weeks" in plan
+
+
+def test_the_survey_instrument_matches_the_demo_prices_and_the_code():
+    import re
+    from mcp.survey import LADDER, sample_size_share
+    text = (ROOT / "docs" / "survey-instrument.md").read_text(encoding="utf-8")
+    d = json.loads(re.sub(r"^window\.PRICES_V3 = |;\s*$", "", (ROOT / "site" / "prices_v3.js").read_text(encoding="utf-8")))
+    for hub, slack in (("ATL", 105), ("ORD", 120), ("DFW", 135), ("DEN", 105), ("CLT", 150), ("ATL", 150)):
+        c = next(x for x in d["cells"] if x["hub"] == hub and x["slack"] == slack)
+        m = c["months"]["2027-01"]
+        assert f"${c['p'] * m['cost'] / 0.65:.2f}" in text and f"${m['cost']:.0f}" in text and f"${c['fare']:.0f}" in text, (hub, slack)
+    assert LADDER == (0.5, 0.8, 1.0, 1.25, 1.5, 2.0) and "0.5×, 0.8×, 1.0×, 1.25×, 1.5×, 2×" in text
+    assert f"**{sample_size_share(0.05)}**" in text and f"**{sample_size_share(0.03):,}**" in text

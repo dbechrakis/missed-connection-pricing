@@ -40,3 +40,13 @@ Public data cannot test demand for this product: nobody has bought it from us. W
 - The US DOT's Airline Customer Service Dashboard lists whether each airline commits to a free hotel after an overnight delay it controls. Read on 9 November 2026 ([page](https://www.transportation.gov/airconsumer/airline-customer-service-dashboard/complimentary-hotel-accommodations-any-passenger-0), saved with its reading date in `data/external/dot/hotel_commitments.json`): Alaska, Allegiant, American, Delta, Hawaiian, JetBlue, Southwest and United commit; **Frontier does not**. One of the ten rows has no carrier name in the page text and is recorded as unattributed, not guessed.
 - The page's own text carries no revision date, and search results from 2022 describe a different set (for example, Allegiant as the only airline with no commitments). The dashboard changes; the saved copy is what this project used.
 - What it changes in the cover: `mcp.commitments`, `VALIDATION.md` 5H.
+
+## What the literature says about demand
+
+No peer-reviewed study of take-up or willingness to pay for a missed-connection cover was found. Related, verified at the source:
+
+- [Koster, Verhoef and Kroes (2011)](https://tinbergen.nl/publication/160520/travel-time-variability-and-airport-accessibility), *Transportation Research Part B* 45(10): a stated-choice experiment estimating what air travellers would pay to reduce the chance of missing a flight; the abstract calls the values "relatively high" and gives no figures.
+- [Theis (2011)](https://dspace.mit.edu/handle/1721.1/66854), MIT thesis: misconnection risk as one of three things travellers weigh about a connection; in one airline's booking data up to 25% of passengers in a sample market chose a longer connection voluntarily, and connections close to the minimum are valued less.
+- No open dataset of observed missed connections exists. The closest public item is an estimated 2007 itinerary dataset from the Barnhart group at Dartmouth (built from public flows and a small booking sample; later years listed as "coming soon"); commercial booking data is sold by OAG. A web search on 9 November 2026 found nothing else.
+
+What this supports: that travellers do value protection against missing a connection, in stated choices. What it does not: any attach rate or price for this cover. The survey (`docs/survey-instrument.md`) and the experiment (`docs/experiment-plan.md`) are how that gets measured.

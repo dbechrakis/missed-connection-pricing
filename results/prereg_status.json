@@ -1,0 +1,157 @@
+{
+ "when": "The first read is planned for when November 2026 is published (probably early February 2027), decided before any of the data exists. Until then every row is pending.",
+ "expectations": [
+  {
+   "id": "E1",
+   "claim": "Both v1 as shipped and v2 rolling land within 15% of target (0.85 to 1.15)",
+   "document": "PREREGISTRATION_2026H2.md",
+   "tag": "prereg-2026h2",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "E2",
+   "claim": "v2 rolling has lower calibration error than v1, and a Brier score no worse",
+   "document": "PREREGISTRATION_2026H2.md",
+   "tag": "prereg-2026h2",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "E3",
+   "claim": "Hub ordering persists: Chicago above 1, Charlotte and Dallas below 1",
+   "document": "PREREGISTRATION_2026H2.md",
+   "tag": "prereg-2026h2",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "E4",
+   "claim": "A flat price at θ = 1 runs at least 1.5× target; per-connection pricing stays within 0.10 of its θ = 0 value",
+   "document": "PREREGISTRATION_2026H2.md",
+   "tag": "prereg-2026h2",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "E5",
+   "claim": "v2 static is further from 1 than v2 rolling",
+   "document": "PREREGISTRATION_2026H2.md",
+   "tag": "prereg-2026h2",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "E6",
+   "claim": "No prediction which of v1 and v2 has the better headline (reported either way)",
+   "document": "PREREGISTRATION_2026H2.md",
+   "tag": "prereg-2026h2",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "A1",
+   "claim": "The monthly job's overall rule says \"recalibrate\" in at most 1 evaluated month",
+   "document": "PREREGISTRATION_2026H2_ADDENDUM.md",
+   "tag": "prereg-2026h2-addendum",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "A2",
+   "claim": "The hub rule alerts in at most 2 hub checks",
+   "document": "PREREGISTRATION_2026H2_ADDENDUM.md",
+   "tag": "prereg-2026h2-addendum",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "A3",
+   "claim": "The old single-month rule says \"recalibrate\" in at least half of the months",
+   "document": "PREREGISTRATION_2026H2_ADDENDUM.md",
+   "tag": "prereg-2026h2-addendum",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "V1",
+   "claim": "v3 gap cover priced within 1 ± 2σ/√n of expected claims (σ = 0.197)",
+   "document": "PREREGISTRATION_2026H2_V3.md",
+   "tag": "prereg-2026h2-v3",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "V2",
+   "claim": "No single month above 1.54 times expected claims (a loss ratio of 100%)",
+   "document": "PREREGISTRATION_2026H2_V3.md",
+   "tag": "prereg-2026h2-v3",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "V3",
+   "claim": "Connections offered within the 5% cap run worse than all overnight-risk connections",
+   "document": "PREREGISTRATION_2026H2_V3.md",
+   "tag": "prereg-2026h2-v3",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "V4",
+   "claim": "Per-hub calibration narrows the worst hub deviation",
+   "document": "PREREGISTRATION_2026H2_V3.md",
+   "tag": "prereg-2026h2-v3",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "V5",
+   "claim": "70% to 90% of overnight misses are in the gap (not coded to the airline)",
+   "document": "PREREGISTRATION_2026H2_V3.md",
+   "tag": "prereg-2026h2-v3",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "V6",
+   "claim": "25% to 55% of overnight-risk connections priced within the cap",
+   "document": "PREREGISTRATION_2026H2_V3.md",
+   "tag": "prereg-2026h2-v3",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "L1",
+   "claim": "The 1.16 loading lowers the sold loss ratio by at least 3.0 points, in every month",
+   "document": "PREREGISTRATION_2026H2_V4.md",
+   "tag": "prereg-2026h2-v4",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "L2",
+   "claim": "The loaded sold loss ratio is between 25% and 55% (a calm season)",
+   "document": "PREREGISTRATION_2026H2_V4.md",
+   "tag": "prereg-2026h2-v4",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "L3",
+   "claim": "The loaded share sold is between 28% and 42% in each month",
+   "document": "PREREGISTRATION_2026H2_V4.md",
+   "tag": "prereg-2026h2-v4",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "L4",
+   "claim": "At most one week above a 100% loss ratio under the loading",
+   "document": "PREREGISTRATION_2026H2_V4.md",
+   "tag": "prereg-2026h2-v4",
+   "status": "pending",
+   "result": null
+  }
+ ]
+}

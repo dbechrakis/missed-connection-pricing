@@ -1,16 +1,80 @@
 # Missed-connection protection pricing
 
-**The decision, in three lines** ([one-page memo](docs/decision-memo.md)):
+> **Should a travel agency sell protection against missing a connection, at what price, and where should it refuse?** Answered from public US data only, then tested in public: the predictions below were written, hashed and tagged before the data they are judged on exists.
+
+| If you have | Read |
+| --- | --- |
+| **30 seconds** | the four lines below, then the [live demo](https://dbechrakis.github.io/missed-connection-pricing/) |
+| **5 minutes** | the [one-page decision memo](docs/decision-memo.md) |
+| **30 minutes** | the [limits table](#what-this-does-not-show), then [`VALIDATION.md`](VALIDATION.md) Part 5 and the [scoreboard](SCOREBOARD.md) |
+| **An agency's view** | [what only the agency can supply](docs/agency-inputs.md), the [experiment plan](docs/experiment-plan.md) and the [demand survey](docs/survey-instrument.md) |
+
+**The decision, in four lines** ([one-page memo](docs/decision-memo.md)):
 
 1. **Price per connection, never one flat price.** Prices fixed before the test ran a **60.5%** loss ratio on 37.1 million unseen connections from January to August 2026 (95% interval 55.4% to 66.1%), against a 65% target. A flat price would have run 117% if buyers favour risky connections.
 2. **Refuse to sell where the price is too large a share of the fare.** Under an assumed 10% price cap, fewer than half of the connections under about 60 minutes can be priced within the cap at DEN, CLT, DFW and ORD (Atlanta has no such limit). At a 5% cap that line moves to 75 to 105 minutes. It comes from the assumed cap and costs, not from the data.
 3. **Airlines already pay for much of this, so the product worth building covers the gap they leave.** That is the hotel night after a weather or air-traffic disruption. It carries a correlated weather risk the margin must absorb, and is [pre-registered](PREREGISTRATION_2026H2_V3.md) on September to December 2026.
+4. **As it would be sold, the cover lost money in bad months, and a price loading helps but does not fix it.** Over 26 backtest months it ran a 75% loss ratio against a 65% target. A loading of 1.16 (pre-registered as [v4](PREREGISTRATION_2026H2_V4.md)) cut that to 70% out of sample. Weather moves whole months at once, so the rest needs an exposure cap, not a price.
 
 **[Try the live demo](https://dbechrakis.github.io/missed-connection-pricing/)** · [Decision memo](docs/decision-memo.md) · [Product brief](docs/product-brief.md) · [Method](docs/method.md) · [Validation](VALIDATION.md) · [Decision log](docs/decisions.md)
 
 How much should an online travel agency charge to protect a connection, and on which connections should it not offer protection at all? This repository answers with a price table by hub, airline and connection time, and an offer rule, built only from public data, with a validation designed so the answer cannot be flattered.
 
-## The result in three pictures
+**What is real and what is modelled.** Real: every flight's scheduled and actual times, cancellations and delay causes (8.1 million flights, BTS); passengers and fares by route (DB1B ticket sample); hotel and meal rates (GSA); which airlines commit to a hotel (DOT); weather. Modelled: which passengers connected (every same-airline pairing, weighted by real route traffic), the minimum connection time, how travellers choose among pairings, and demand. [Details and a test of how much the pairing assumption matters](VALIDATION.md).
+
+## Round two: who already pays, and a cover for the gap (v3)
+
+An audit of the assumptions above changed the product question ([`VALIDATION.md`](VALIDATION.md) Part 5).
+
+- **Airlines already pay for most of what v1 insures.** US airlines commit to a hotel when an overnight disruption is their fault. BTS delay causes say the airline caused 27.5% of missed connections, and late-arriving aircraft caused another 31.9%. So **40.6% to 72.5%** of misses fall in a gap nobody covers, depending on whether late aircraft count as the airline's fault.
+- **v3 pays only in that gap:** the official GSA hotel-and-meals rate for the hub and month, when the connection is missed, the next flight is the next day, and BTS does not code the inbound problem to the airline. Every condition can be checked from public data. [Try it in the demo](https://dbechrakis.github.io/missed-connection-pricing/#gap-cover).
+- **Costs and the cap are now sourced.** A night costs $198 to $295 by hub and year (GSA), so the $180 assumption was 9 to 39% too low. The cap is 5% of fare, below what comprehensive travel insurance costs (about 4 to 10% of trip cost; [what the market evidence does and does not support](docs/market-evidence.md)).
+- **Connections follow how tickets are sold.** A Charlotte passenger on American often flies a PSA or Piedmont regional flight. Pairing by marketing airline doubles the population to 115.8 million connections in 2025.
+- **What the data says about the gap cover:** whole months come in 20 to 40% above or below the price, and no model choice removes it: no month term, no recalibration, no training on overnight connections only, and refitting the model eight times on resampled training data moves the pooled result by about 0.01. This is a correlated weather and air-traffic risk, carried by the margin and not by the model. On March to August 2026, outside its training data, v3 ran at **1.12** × target. Offering it only where the price is under 5% of fare reaches 39% of overnight-risk connections, which run 9% worse (the winner's curse of selecting on a low estimate). **Sold that way, the cover would have lost money in the worst months:** over 26 backtest months, a 75% realized loss ratio against the 65% target, 6 of 26 months above 100%, 28 of 114 weeks above 100%, worst week 248%, before any commission or handling cost.
+- **Pre-registered** for September to December 2026, with six falsifiable expectations and everything seen beforehand disclosed: [`PREREGISTRATION_2026H2_V3.md`](PREREGISTRATION_2026H2_V3.md). A weekly workflow opens an issue as each month is published.
+
+## What this does **not** show
+
+These are limits, not footnotes. Of the 14 limits this project started with, **5 are closed**, **7 are reduced** to one named input only an agency can supply, and **2 are open** because they need customers or time. Each row says what was found and what closes the rest; the inputs are collected in [`docs/agency-inputs.md`](docs/agency-inputs.md) and the work is in [`VALIDATION.md`](VALIDATION.md) Part 5.
+
+| # | Limit | Status | What was found | What closes the rest |
+| --- | --- | --- | --- | --- |
+| 1 | The connections are synthetic | **Reduced** | 97.7% of real hub-connecting passengers (DB1B ticket sample) are on a route we model. Pairings without a ticket-sample route miss at 9.15% against 9.23%: no bias. Across five stylised ways travellers might choose connections the sold loss ratio stays between 72.5% and 74.6%; only reach moves (9% to 67%) | Which passengers actually connected: the agency's itineraries |
+| 2 | The minimum connection time is assumed (45 minutes) | **Reduced** | Prices set for 45 pay out 0.90× the expected amount at a true 35 and 1.57× at 60. The model now takes the minimum as an input, unretrained: 1.11×, 1.12×, 1.13× at 35, 45, 60 (demo selector) | Each airline's real minimum, and whether it is the right definition of a miss: the agency |
+| 3 | Costs, the 65% target and the price cap are assumptions | **Reduced** | Hotel and meals from GSA ($198 to $295 a night). Cap 5%, below the 4 to 10% of trip cost that travel insurance charges. Grid of 3 to 10% × 55 to 75%: 15% to 67% of overnight-risk connections offered. As sold the loss ratio is 75% | The agency's expense ratio and target |
+| 4 | Demand is untested | **Open** | Not closable from data. The experiment's analysis and decision rule ([`docs/experiment-plan.md`](docs/experiment-plan.md)) and a stated-demand survey ([`docs/survey-instrument.md`](docs/survey-instrument.md)) are written and checked on simulated answers; the survey can rule the idea out cheaply, not prove it. At $10.01 a policy and a 75% loss ratio, margin is $2.52 a policy before expenses and $0.52 at 20% | The pricing experiment |
+| 5 | Severity is a lower bound | **Closed** | v3 pays the government per-diem rate when the next flight is the next day: the benefit is defined by the schedule, so seat availability does not enter | — |
+| 6 | No seasonal price | **Closed** | Tested: a month term, recalibration and overnight-only training do not remove the swings. Over 26 backtest months the monthly ratio has a standard deviation of 0.24: weather. The payout does move by month (GSA) | — |
+| 7 | Hubs are not equally well priced | **Reduced** | Chicago ran 0.92 in 2024, 1.18 in 2025 and 1.23 in 2026: a drift, not a standing gap. Its long-connection misses are 50% weather and air-traffic coded | The pre-registered per-hub arm of the v3 test |
+| 8 | Monthly recalibration assumes the whole previous month is known | **Closed** | v3 uses no recalibration, and its selection was walk-forward with a one-month booking lag | — |
+| 9 | Eight months of clean test data | **Open** | Extended for development to 26 months by a rolling-origin backtest; not a clean test. The clean test reads September to November 2026 once, when November is published (probably early February 2027) | Time |
+| 10 | Learning the loss ratio takes at least 27 weeks | **Reduced** | For v3 it is longer: about 202 weeks to ±10% as sold (94 for all overnight-risk connections), because weather hits a whole week at once | Nothing: it is how the risk behaves. The margin has to be set from the model and reinsurance, not learned from claims |
+| 11 | The intervals are probably a little narrow | **Closed** | Month-block bootstrap over 26 months: the mean monthly ratio is 0.91 to 1.17 for all overnight-risk connections and 0.94 to 1.31 as sold | — |
+| 12 | Not every synthetic connection is a real itinerary | **Reduced** | 79% of pairings sit on a ticket-sample route and the rest behave the same; the regional-brand mismatch is gone because v3 pairs within the marketing network | Same as the first row |
+| 13 | An onward flight cancelled by the airline is not covered | **Reduced** | Onward flights cancelled for weather, air traffic or security would add 20.7% to the events the cover pays (Dallas 32%, Denver 9%). Airline-coded ones are the airline's to pay | A product decision: sell the trigger or not |
+| 14 | The loss ratio realizes the miss event, not what a miss cost | **Closed** | In v3 the cost of a claim is the benefit the cover is defined to pay, not an estimate of someone's loss | — |
+
+**Found while closing these, and not closed:** sold only where the price fits the 5% cap, the cover would have shown a 75% realized loss ratio against the 65% target, 6 of 26 months above 100%, 28 of 114 weeks above 100%, worst week 248%, before any commission or handling cost. The cap selects connections the model under-prices. A loading of 1.16 on the price (pre-registered as v4) moved the sold loss ratio from 77.8% to 70.4% out of sample. That is not enough to reach 65%, and it does not remove bad weeks ([`VALIDATION.md`](VALIDATION.md) 5L, [`PREREGISTRATION_2026H2_V4.md`](PREREGISTRATION_2026H2_V4.md)).
+
+## How it was validated
+
+**[Scoreboard](SCOREBOARD.md):** every pre-registered prediction (19 across four documents), each graded by a rule written before the data exists, and its status. Nothing has been read yet.
+
+Prices are set from information up to the booking, then scored on months the model has never seen. Every test was **pre-registered**: the protocol, the frozen model hashes and the list of what may not change afterwards were committed *locally* before the window was read. They reached GitHub together with the results, so the commit times are the author's own and cannot be independently checked; the two model files are in the repository so the frozen hashes can be verified. The next test (BTS data for September to December 2026, not yet published) has its protocol, frozen hashes and falsifiable expectations in [`PREREGISTRATION_2026H2.md`](PREREGISTRATION_2026H2.md), written and tagged before the data exists.
+
+| Window | Role | Result |
+| --- | --- | --- |
+| 2024 to mid-2025 | Fit and select v1 | Brier about 1 to 2% better than a hub × connection-time baseline (itself about 5% better than a flat rate): booking-time information is mostly connection time |
+| July to December 2025 | v1 backtest, read once | 59.1% loss ratio vs 65% (spent; v1 over-priced because its calibrator carried a high level) |
+| through December 2025 | v2 development (walk-forward) | Not quoted as validation |
+| **January to August 2026** | **Clean holdout of v1 and v2, read once** | **60.5% and 62.3%**, both intervals contain 65% |
+
+What did not go as hoped is written up in [`VALIDATION.md`](VALIDATION.md): v2 did not clearly beat v1 on the headline, a frozen calibrator on a month term priced 17% too high, and one of the four pre-registered expectations was not supported.
+
+## Evidence and reproduction
+
+<details>
+<summary><b>The v1 evidence in pictures, and the 2026 holdout table</b></summary>
 
 **1. The risk is real and steep.** About 21% of 45 to 59 minute connections are missed, against about 3% at 210 minutes or more. Price follows risk: about eight times as much for the tightest connections.
 
@@ -40,54 +104,10 @@ By connection time, v1 as shipped follows what happened most closely (its predic
 | v2, calibrator frozen at December 2025 | 53.7% | 49.4 to 58.3 |
 | One flat price | 68.2% | 62.6 to 74.3 |
 
-## Round two: who already pays, and a cover for the gap (v3)
+</details>
 
-An audit of the assumptions above changed the product question ([`VALIDATION.md`](VALIDATION.md) Part 5).
-
-- **Airlines already pay for most of what v1 insures.** US airlines commit to a hotel when an overnight disruption is their fault. BTS delay causes say the airline caused 27.5% of missed connections, and late-arriving aircraft caused another 31.9%. So **40.6% to 72.5%** of misses fall in a gap nobody covers, depending on whether late aircraft count as the airline's fault.
-- **v3 pays only in that gap:** the official GSA hotel-and-meals rate for the hub and month, when the connection is missed, the next flight is the next day, and BTS does not code the inbound problem to the airline. Every condition can be checked from public data. [Try it in the demo](https://dbechrakis.github.io/missed-connection-pricing/#gap-cover).
-- **Costs and the cap are now sourced.** A night costs $198 to $295 by hub and year (GSA), so the $180 assumption was 9 to 39% too low. The cap is 5% of fare, below what comprehensive travel insurance costs (about 4 to 10% of trip cost; [what the market evidence does and does not support](docs/market-evidence.md)).
-- **Connections follow how tickets are sold.** A Charlotte passenger on American often flies a PSA or Piedmont regional flight. Pairing by marketing airline doubles the population to 115.8 million connections in 2025.
-- **What the data says about the gap cover:** whole months come in 20 to 40% above or below the price, and no model choice removes it: no month term, no recalibration, no training on overnight connections only, and refitting the model eight times on resampled training data moves the pooled result by about 0.01. This is a correlated weather and air-traffic risk, carried by the margin and not by the model. On March to August 2026, outside its training data, v3 ran at **1.12** × target. Offering it only where the price is under 5% of fare reaches 39% of overnight-risk connections, which run 9% worse (the winner's curse of selecting on a low estimate). **Sold that way, the cover would have lost money in the worst months:** over 26 backtest months, a 75% realized loss ratio against the 65% target, 6 of 26 months above 100%, 28 of 114 weeks above 100%, worst week 248%, before any commission or handling cost.
-- **Pre-registered** for September to December 2026, with six falsifiable expectations and everything seen beforehand disclosed: [`PREREGISTRATION_2026H2_V3.md`](PREREGISTRATION_2026H2_V3.md). A weekly workflow opens an issue as each month is published.
-
-## What this does **not** show
-
-These are limits, not footnotes. Of the 14 limits this project started with, **5 are closed**, **7 are reduced** to one named input only an agency can supply, and **2 are open** because they need customers or time. Each row says what was found and what closes the rest; the inputs are collected in [`docs/agency-inputs.md`](docs/agency-inputs.md) and the work is in [`VALIDATION.md`](VALIDATION.md) Part 5.
-
-| # | Limit | Status | What was found | What closes the rest |
-| --- | --- | --- | --- | --- |
-| 1 | The connections are synthetic | **Reduced** | 97.7% of real hub-connecting passengers (DB1B ticket sample) are on a route we model. Pairings without a ticket-sample route miss at 9.15% against 9.23%: no bias | Which passengers actually connected: the agency's itineraries |
-| 2 | The minimum connection time is assumed (45 minutes) | **Reduced** | Prices set for 45 pay out 0.90× the expected amount at a true 35 and 1.57× at 60. The model now takes the minimum as an input, unretrained: 1.11×, 1.12×, 1.13× at 35, 45, 60 (demo selector) | Each airline's real minimum, and whether it is the right definition of a miss: the agency |
-| 3 | Costs, the 65% target and the price cap are assumptions | **Reduced** | Hotel and meals from GSA ($198 to $295 a night). Cap 5%, below the 4 to 10% of trip cost that travel insurance charges. Grid of 3 to 10% × 55 to 75%: 15% to 67% of overnight-risk connections offered. As sold the loss ratio is 75% | The agency's expense ratio and target |
-| 4 | Demand is untested | **Open** | Not closable from data. Design and sample sizes are in the brief. At $10.01 a policy and a 75% loss ratio, margin is $2.52 a policy before expenses and $0.52 at 20% | The pricing experiment |
-| 5 | Severity is a lower bound | **Closed** | v3 pays the government per-diem rate when the next flight is the next day: the benefit is defined by the schedule, so seat availability does not enter | — |
-| 6 | No seasonal price | **Closed** | Tested: a month term, recalibration and overnight-only training do not remove the swings. Over 26 backtest months the monthly ratio has a standard deviation of 0.24: weather. The payout does move by month (GSA) | — |
-| 7 | Hubs are not equally well priced | **Reduced** | Chicago ran 0.92 in 2024, 1.18 in 2025 and 1.23 in 2026: a drift, not a standing gap. Its long-connection misses are 50% weather and air-traffic coded | The pre-registered per-hub arm of the v3 test |
-| 8 | Monthly recalibration assumes the whole previous month is known | **Closed** | v3 uses no recalibration, and its selection was walk-forward with a one-month booking lag | — |
-| 9 | Eight months of clean test data | **Open** | Extended for development to 26 months by a rolling-origin backtest; not a clean test. The clean test reads September to November 2026 once, when November is published (probably early February 2027) | Time |
-| 10 | Learning the loss ratio takes at least 27 weeks | **Reduced** | For v3 it is longer: about 202 weeks to ±10% as sold (94 for all overnight-risk connections), because weather hits a whole week at once | Nothing: it is how the risk behaves. The margin has to be set from the model and reinsurance, not learned from claims |
-| 11 | The intervals are probably a little narrow | **Closed** | Month-block bootstrap over 26 months: the mean monthly ratio is 0.91 to 1.17 for all overnight-risk connections and 0.94 to 1.31 as sold | — |
-| 12 | Not every synthetic connection is a real itinerary | **Reduced** | 79% of pairings sit on a ticket-sample route and the rest behave the same; the regional-brand mismatch is gone because v3 pairs within the marketing network | Same as the first row |
-| 13 | An onward flight cancelled by the airline is not covered | **Reduced** | Onward flights cancelled for weather, air traffic or security would add 20.7% to the events the cover pays (Dallas 32%, Denver 9%). Airline-coded ones are the airline's to pay | A product decision: sell the trigger or not |
-| 14 | The loss ratio realizes the miss event, not what a miss cost | **Closed** | In v3 the cost of a claim is the benefit the cover is defined to pay, not an estimate of someone's loss | — |
-
-**Found while closing these, and not closed:** sold only where the price fits the 5% cap, the cover would have shown a 75% realized loss ratio against the 65% target, 6 of 26 months above 100%, 28 of 114 weeks above 100%, worst week 248%, before any commission or handling cost. The cap selects connections the model under-prices. A price loading is the fix and has to be fitted on months the test does not use.
-
-## How it was validated
-
-Prices are set from information up to the booking, then scored on months the model has never seen. Every test was **pre-registered**: the protocol, the frozen model hashes and the list of what may not change afterwards were committed *locally* before the window was read. They reached GitHub together with the results, so the commit times are the author's own and cannot be independently checked; the two model files are in the repository so the frozen hashes can be verified. The next test (BTS data for September to December 2026, not yet published) has its protocol, frozen hashes and falsifiable expectations in [`PREREGISTRATION_2026H2.md`](PREREGISTRATION_2026H2.md), written and tagged before the data exists.
-
-| Window | Role | Result |
-| --- | --- | --- |
-| 2024 to mid-2025 | Fit and select v1 | Brier about 1 to 2% better than a hub × connection-time baseline (itself about 5% better than a flat rate): booking-time information is mostly connection time |
-| July to December 2025 | v1 backtest, read once | 59.1% loss ratio vs 65% (spent; v1 over-priced because its calibrator carried a high level) |
-| through December 2025 | v2 development (walk-forward) | Not quoted as validation |
-| **January to August 2026** | **Clean holdout of v1 and v2, read once** | **60.5% and 62.3%**, both intervals contain 65% |
-
-What did not go as hoped is written up in [`VALIDATION.md`](VALIDATION.md): v2 did not clearly beat v1 on the headline, a frozen calibrator on a month term priced 17% too high, and one of the four pre-registered expectations was not supported.
-
-## Reproduce
+<details>
+<summary><b>Reproduce it (data, commands, the sealed holdout, v3 and the audit)</b></summary>
 
 Python 3.12. About 3 GB of downloads and 6 GB of Parquet on disk. On a laptop the compute (DuckDB, scikit-learn) is roughly two hours in total; download time depends on how BTS throttles you. Raw data is not in the repository.
 
@@ -151,11 +171,16 @@ python -m mcp.coverage                              # how much real hub traffic 
 python -m mcp.economics                             # what attach rate the cover needs
 ```
 
-## What the day itself would add
+</details>
+
+<details>
+<summary><b>What the day itself would add (value of information)</b></summary>
 
 The price is quoted at booking, so it can only use what is known then. The spec's open question: how much would day-of information improve things, and does it justify a second product, an alert to the traveller? With the alert placed one hour before the inbound flight's scheduled arrival, knowing how late that flight left cuts the booking-time model's Brier error by **44%** and lets an alert on the riskiest 5% of connections catch **52%** of misses at **75%** precision (booking-time information: 19% at 28%). Hub weather adds under 1%, most likely because a delayed flight already carries it. A first version of this analysis leaked each flight's final delay and overstated the value (52% instead of 44%); it is corrected and both are reported in [`VALIDATION.md`](VALIDATION.md) 4H. It does **not** show that an alert would help anyone: that depends on whether a traveller can act in that hour and on what a real-time feed costs.
 
 ![What day-of information adds](docs/figures/voi.png)
+
+</details>
 
 ## Use it
 

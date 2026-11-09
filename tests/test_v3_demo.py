@@ -50,3 +50,21 @@ def test_product_brief_gap_cover_ranges_match_the_demo_file():
     assert f"${min(lo):.0f} to ${max(lo):.0f} for long" in brief and f"${min(hi):.0f} to ${max(hi):.0f} for the tightest" in brief
     fit = rng(210, lambda c, v: v["within_cap"])
     assert f"{min(fit):.0%} to {max(fit):.0%} of the time" in brief
+
+
+def test_the_demo_leads_with_the_gap_cover_and_its_strip_is_filled_from_the_results():
+    import json
+    import re
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    page = (root / "site" / "index.html").read_text(encoding="utf-8")
+    d = json.loads(re.sub(r"^window\.PRICES_V3 = |;\s*$", "", (root / "site" / "prices_v3.js").read_text(encoding="utf-8")))["audit"]
+    assert page.index('id="found"') < page.index('id="gap-cover"') < page.index('id="blanket"') < page.index("What this does not tell you")
+    for ident in ("f-gap", "f-sold", "f-load", "f-months", "g-mct", "g-sold", "mct-note", "banner", "m-price"):
+        assert f'id="{ident}"' in page, ident
+    causes = json.loads((root / "results" / "causes_v3.json").read_text())["all_misses"]
+    loading = json.loads((root / "results" / "v3_loading.json").read_text())
+    assert d["gap_shares"]["strict"] == causes["gap_strict"] and d["gap_shares"]["broad"] == causes["gap_broad"]
+    assert d["loading"]["lambda"] == loading["frozen"]["lambda"] == 1.16
+    assert d["loading"]["loaded_loss_ratio_out_of_sample"] == loading["loaded"]["loss_ratio"]
+    assert "SCOREBOARD.md" in page and "decision-memo.md" in page

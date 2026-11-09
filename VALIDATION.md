@@ -1,5 +1,24 @@
 # Validation
 
+## Map of this file
+
+This file is long because it records everything, including what went wrong. Start with the row that matches your question.
+
+| If you want to know | Go to |
+| --- | --- |
+| Does the original all-purpose cover (v1, v2) price well on data it never saw? | Part 3C (the January to August 2026 holdout) |
+| What did not go as hoped? | Part 3C, "What did not go as hoped", and Part 4 (independent review) |
+| Who already pays for a missed connection, and what is left for a new product? | 5A (BTS delay causes), 5H (airline hotel commitments) |
+| What does the gap cover earn, and where does it lose money? | 5E, 5G (as sold), **5I (26 backtest months)** |
+| How much does the minimum connection time matter? | 5G |
+| What does the price loading do, and what is pre-registered about it? | 5L |
+| How much do results depend on which connections travellers book? | 5K |
+| How real is the data? | 5H (coverage) and 5K (what is observed and what is constructed) |
+| What attach rate does the cover need? | 5J |
+| What was predicted before the data, and how did it turn out? | Part 3B, `PREREGISTRATION_2026H2*.md`, and the [scoreboard](SCOREBOARD.md) |
+
+The parts were written in order and **earlier parts are not edited after later results**: a correction goes in the later part, marked as one (for example the correction in 5D that 5G makes).
+
 This file is written in two parts. **Part 1 (below) was committed before the test window was read.** Part 2 (results) is appended after the single backtest run. Nothing in Part 1 was changed after seeing results; a git diff shows it.
 
 ## Part 1: Backtest protocol (frozen before reading H2 2025)
@@ -598,3 +617,56 @@ Attach rate needed to cover a fixed cost per 100,000 offers shown:
 | $20,000 | 7.9% | 13.2% | 38.6% | never |
 
 **What this says.** A cover that averages $10 a policy and runs at a 75% loss ratio leaves little per policy once the agency's own costs are taken out, and nothing at all once they pass 25% of premium. It is a small-ticket ancillary: viable at very low marginal cost and a loss-ratio target that is actually reached, not as a stand-alone business. The experiment in the product brief is what measures the attach rate; this table says what to beat.
+
+### 5K. What is real and what is modelled, and how much the pairing mix matters (development data, 2024-07 to 2026-08)
+
+Code: `src/mcp/v3_mix.py`, results: `results/v3_mix.json`. Written on 9 November 2026, before the September to December data exists.
+
+**What is observed and what is constructed.**
+
+| Observed (real data) | Constructed or assumed |
+| --- | --- |
+| Every flight's scheduled and actual times, cancellations, diversions and delay-cause codes: 8.1 million flights, January 2024 to August 2026 (BTS) | Which passengers connected: every same-airline pairing of an arriving and a departing flight, weighted by the route's real traffic |
+| Passengers and fares by route and airline (DB1B ticket sample) | The minimum connection time rule (a model input now, `VALIDATION.md` 5G) |
+| Hotel and meals rates by hub and month (GSA) | How travellers choose among a route's pairings |
+| Which airlines commit to a hotel (DOT dashboard, read 9 November 2026) | The trigger and the target loss ratio |
+| Weather at the hubs (ASOS) | Demand |
+
+The one construction that touches every result is the **mix**: public data does not say which of a route's pairings travellers book. Published work on airline booking data finds that some choose a longer connection voluntarily and value connections close to the minimum less (Theis, MIT thesis, 2011), and booking systems show short connections first. The same connections were re-weighted under five stylised mixes:
+
+| Mix | All overnight-risk connections, loss ratio | **Sold within the cap, loss ratio** | Share sold | Months above 100% (sold) | Average scheduled gap |
+| --- | --- | --- | --- | --- | --- |
+| Equal (as modelled) | 67.9% | **74.6%** | 41.4% | 6 of 26 | 124 min |
+| Prefer short connections, gentle (weight e^(−buffer/60)) | 67.3% | **74.1%** | 18.5% | 6 of 26 | 86 min |
+| Prefer short connections, steep (e^(−buffer/30)) | 67.2% | **72.5%** | 8.6% | 2 of 26 | 69 min |
+| Avoid connections within 15 minutes of the minimum (half as often) | 68.0% | **74.6%** | 44.0% | 6 of 26 | 129 min |
+| Prefer long connections (e^(+buffer/60)), the opposite stress | 69.1% | **74.0%** | 67.2% | 5 of 26 | 169 min |
+
+**What survives and what does not.** The cover as sold stays above its 65% target in every mix, between **72.5% and 74.6%**; the all-connections figure stays between 67.2% and 69.1%. So the finding that the sold cover loses to its target does not depend on the one thing public data cannot tell us. **Reach does**: the share of connections that fit the cap runs from 9% to 67%, because short connections are priced out of the cap. Any statement about how many travellers could be offered the cover, including expectation V6 of `PREREGISTRATION_2026H2_V3.md` (25% to 55% priced within the cap), holds for the equal mix only. The months above 100% fall to 2 of 26 in the steepest short-connection mix only because almost nothing is sold there (9%).
+
+The mixes are stylised. They give a range, not an estimate of how travellers choose.
+
+
+### 5L. The price loading (development data; pre-registered as v4)
+
+Code: `src/mcp/v3_loading.py`, results: `results/v3_loading.json`, frozen artefact `models/v4_loading.json`, pre-registration `PREREGISTRATION_2026H2_V4.md` (tag `prereg-2026h2-v4`).
+
+**The problem.** Sold only where the price is within 5% of the fare, the cover ran a 75% loss ratio against a 65% target over 26 backtest months. The cap lets through the connections the model rates safest, which are partly the ones it under-rates.
+
+**The loading.** A factor on the premium. It raises the price and also changes which connections pass the cap, so the right factor is a fixed point: the smallest one at which the connections that pass the cap *at that factor* realize the target loss ratio.
+
+**Out of sample.** Fitted only on months before each test month, with the one-month booking lag the cover would have, over the 19 months from 2025-02 to 2026-08:
+
+| | Unloaded | Loaded |
+| --- | --- | --- |
+| Sold loss ratio, pooled (target 65%) | 77.8% | **70.4%** |
+| Months above 100% | 4 | 3 |
+| Share sold | 40.7% | 36.1% |
+
+It helps and it is **not enough**: it does not reach 65%, because the level rose across the period, so a loading fitted on earlier months was always a little behind. Fitting on the last 12, 9 or 6 months instead gave 69.6%, 72.2% and 70.2%: no better in a way that could be told from noise, so the simplest rule, all history, was kept rather than tuned on the same months.
+
+**Frozen at 1.16**, fitted on all 26 months. On those months the pooled sold loss ratio is 64.8% (from 74.6%) **by construction**, so that figure is not evidence. What is informative: the loaded price is below the unloaded one in 24 of 24 three-month blocks (by 4.0 points at least, 9.6 on average); months above 100% fall from 6 to 1; weeks above 100% from 28 to 17 of 114; the worst week from 252% to 224%.
+
+**What a loading cannot do.** It sets the average. Weather moves a whole month at once, so 17 of 114 weeks still exceed a 100% loss ratio. That is a matter for an exposure cap or reinsurance (`docs/agency-inputs.md`, row 7), not for the price.
+
+**The test and its warning.** `PREREGISTRATION_2026H2_V4.md` fixes four expectations for September to November 2026. That window is the calmest of the year in the data: 38.3% and 45.0% unloaded, 34.3% and 38.1% loaded, with no week above 100% in either year. A good result there does not show the product is fixed; summer is the real test and is a year away.

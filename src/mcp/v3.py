@@ -240,7 +240,16 @@ def audit_summary() -> dict | None:
         s = r["sold_within_cap"]
         rolling = {"months": r["months"], "first": r["first"], "last": r["last"], "loss_ratio": s["pooled_loss_ratio"], "months_above_100": s["months_loss_ratio_above_100"],
                    "weeks": s["weeks"], "weeks_above_100": s["weeks_above_100"]}
-    return {"rolling": rolling, "window": a["window"], "sold_monthly_loss_ratio": sold["monthly"], "sold_mean_weekly_loss_ratio": sold["mean"],
+    causes, loading = ROOT / "results" / "causes_v3.json", ROOT / "results" / "v3_loading.json"
+    gap = None
+    if causes.exists():
+        c = json.loads(causes.read_text())["all_misses"]
+        gap = {"strict": c["gap_strict"], "broad": c["gap_broad"], "carrier": c["carrier"], "late_aircraft": c["late_aircraft"]}
+    load = None
+    if loading.exists():
+        l = json.loads(loading.read_text())
+        load = {"lambda": l["frozen"]["lambda"], "unloaded_loss_ratio_out_of_sample": l["unloaded"]["loss_ratio"], "loaded_loss_ratio_out_of_sample": l["loaded"]["loss_ratio"]}
+    return {"gap_shares": gap, "loading": load, "rolling": rolling, "window": a["window"], "sold_monthly_loss_ratio": sold["monthly"], "sold_mean_weekly_loss_ratio": sold["mean"],
             "sold_weeks": sold["weeks"], "sold_weeks_above_100": sold["weeks_above_100pct"],
             "mct_realized_over_target": {m: v["all"]["realized_over_target"] for m, v in a["mct"].items()},
             "mct_buffer_realized_over_target": {m: v["all_buffer"]["realized_over_target"] for m, v in a["mct"].items()}}
