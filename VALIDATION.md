@@ -687,3 +687,40 @@ It helps and it is **not enough**: it does not reach 65%, because the level rose
 ****The gap cover is served.** `/gap-quote` and `python -m mcp.score --gap` price the gap cover from `site/prices_v3.js`, the same table as the demo, with the airline's minimum connection time as an input and the frozen loading. A test drives the demo page's own script through every control combination (over 10,000) and compares it with the API. The container check now compares 750 quotes, 300 of them for the gap cover. The share within the cap is reported at the unloaded price, because that is what the table holds.
 
 The frozen models are now checked by behaviour, not only by hash.** A pickled scikit-learn model can load under another library version with only a warning and then predict differently. `tests/test_frozen_models.py` scores every frozen model on 300 fixed rows and compares the result with golden predictions written under `requirements.lock`, to 1e-10. CI now installs `requirements.lock`, not the looser `requirements.txt`. Under scikit-learn 1.8.0 the test fails, as it should.
+
+**The December read, confirmed.** On 9 November 2026, still before any of September to December exists, the author confirmed the decision above: v1 and v2 get their December read, once, and v3 and v4 do not.
+
+
+## Part 6: v5, protection for self-transfer connections
+
+Pre-registered in `PREREGISTRATION_V5_SELF_TRANSFER.md` (commit `48b2dd2`, pushed before any cross-airline pairing existed). Code: `src/mcp/v5.py`, tests: `tests/test_v5.py`.
+
+### 6A. Built and frozen before the holdout is read (9 November 2026)
+
+- **Pairings.** A 5% uniform hash sample of every cross-network pairing at the five hubs with a 90 to 300 minute gap. The full population is about 1.5 million pairings a week, too many to hold, and a uniform sample of an unweighted population estimates the same quantities. Development months, January 2024 to December 2025: 9,265,229 sampled, 9,121,925 usable after excluding cancelled outbound flights, missing times and markets with no DB1B fare (1,785). Monthly miss rates at T = 90 ran from 4.7% (October 2024) to 10.8% (January 2024). The January to August 2026 holdout was built with counts only: 3,242,771 usable pairings in eight months before markets without a fare are dropped, and no outcome printed.
+- **Source files.** The 32 Marketing Carrier zips, downloaded again from BTS for this part, hash identically to the ones recorded in `data/manifest.json` for v3, so v5 and v3 read the same flights.
+- **Fares.** 10,799 nonstop markets from DB1B 2024 Q1 to 2025 Q2, passenger-weighted, with the same placeholder rule as `mcp.ingest` (no bulk fares, $20 to $5,000). Median market fare $227.
+- **Selection of k** (July to December 2025, table fitted on January 2024 to June 2025): log loss 0.25014 (k = 0), 0.24985 (50), 0.24983 (200), 0.24999 (1000). k = 1000 is within the 0.0002 tie band of the best and ties go to the larger k, so **k = 1000**. On the selection months the table fitted on earlier months ran at 1.14 times its expected payout: the level moved up in the second half of 2025, as it did for v3.
+- **Frozen table** (`models/v5_table.json`, January 2024 to December 2025, 2,005 cells): SHA-256 `154b580d86094700a8307520334f0d948bf3c4e84c940b31d4787380bf7519d1`.
+
+### 6B. The holdout, read once (9 November 2026, January to August 2026, 3,228,037 pairings)
+
+Run once with the frozen table (hash above), `results/v5_holdout.json`. Nothing was changed after the read.
+
+| # | Expectation | Result | Verdict |
+| --- | --- | --- | --- |
+| S1 | Realized ÷ target 0.85 to 1.15 | **1.159** [1.05, 1.28] | **Failed** |
+| S2 | Cancellations and diversions 20% to 50% of misses | 25.0% | Passed |
+| S3 | 90 to 104 minute miss rate above 165 to 179 at every hub | 23.6% to 27.2% against 5.0% to 8.1% | Passed |
+| S4 | Monthly standard deviation 0.08 to 0.35 | 0.17 (0.94 to 1.36 by month) | Passed |
+| S5 | Offered within the 10% cap runs worse than all | 1.175 against 1.159 | Passed |
+
+**The headline failed.** Priced from 2024 and 2025, the cover would have paid out 16% more than expected in 2026: a 75% loss ratio against the 65% target. By the pre-registration's own rule the price is not right on average, and the cover is not priced as it stands. The failure was foreseeable in kind. On the development selection window a table fitted on earlier months already ran at 1.14, so the level was rising, and a table frozen on 2024 to 2025 carried an average of a lower level into 2026. That is the same drift v3 showed (5I).
+
+**Where it is wrong.** By hub: ATL 1.20, ORD 1.24, CLT 1.11, DEN 1.08, DFW 0.95. By month: 1.23, 0.97, 1.36, 1.00, 0.94, 1.15, 1.30, 1.33. By gap the error grows with time: 1.07 at 90 to 104 minutes, 1.21 at 135 to 149, about 1.30 beyond four hours. Long gaps are missed mostly through cancellations, so the cancellation level is what moved most.
+
+**Sensitivities (pre-registered, not used to choose).** A 60-minute self-transfer minimum: 1.23 (miss rate 5.7%). A 120-minute one: 1.05 (17%). The definition of a miss matters as much as the model. A payout of 1.5 or 2 times the mean fare: 1.15 and 1.15, because the ratio is a calibration ratio. A mix that favours short gaps: 1.12. Offered within a 5%, 10% or 15% cap: 56%, 79% and 88% of pairings, at 1.19, 1.18 and 1.16.
+
+**What the cover would cost** (development months, July to December 2025, so the holdout is read once): median price $85 at 90 to 104 minutes (19% of the two-ticket fare), $34 at 120 to 134, $19 over all gaps, against a median payout of $226. The 10% cap cuts off the shortest self-transfers, from 76% (ORD) to 83% (CLT) of pairings offered.
+
+**What would fix S1, and why it is not done here.** A recalibrated level (a rolling level shift, as v2 used) is the obvious repair, but choosing it on these months would grade its own homework. It needs a new pre-registration and data after August 2026.

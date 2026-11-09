@@ -1,5 +1,5 @@
 {
- "when": "The first read is planned for when November 2026 is published (probably early February 2027), decided before any of the data exists. Until then every row is pending.",
+ "when": "v5 (S1 to S5) was read on 9 November 2026. The other rows are read when November 2026 is published (probably early February 2027), decided before any of that data exists.",
  "expectations": [
   {
    "id": "E1",
@@ -152,6 +152,46 @@
    "tag": "prereg-2026h2-v4",
    "status": "pending",
    "result": null
+  },
+  {
+   "id": "S1",
+   "claim": "v5 self-transfer cover priced within 0.85 to 1.15 of its payout on January to August 2026",
+   "document": "PREREGISTRATION_V5_SELF_TRANSFER.md",
+   "tag": "prereg-v5-self-transfer",
+   "status": "fail",
+   "result": "realized/target 1.159 [1.05, 1.28] against 0.85 to 1.15"
+  },
+  {
+   "id": "S2",
+   "claim": "Inbound cancellations and diversions are 20% to 50% of misses",
+   "document": "PREREGISTRATION_V5_SELF_TRANSFER.md",
+   "tag": "prereg-v5-self-transfer",
+   "status": "pass",
+   "result": "25.0% of misses after a cancellation or diversion"
+  },
+  {
+   "id": "S3",
+   "claim": "At every hub the 90 to 104 minute miss rate is above the 165 to 179 minute rate",
+   "document": "PREREGISTRATION_V5_SELF_TRANSFER.md",
+   "tag": "prereg-v5-self-transfer",
+   "status": "pass",
+   "result": "miss rate 90 to 104 min against 165 to 179 min: ATL 26.2%/6.4%, ORD 27.2%/8.1%, DFW 25.3%/6.6%, DEN 24.8%/5.0%, CLT 23.6%/5.6%"
+  },
+  {
+   "id": "S4",
+   "claim": "The standard deviation of the eight monthly ratios is 0.08 to 0.35",
+   "document": "PREREGISTRATION_V5_SELF_TRANSFER.md",
+   "tag": "prereg-v5-self-transfer",
+   "status": "pass",
+   "result": "monthly sd 0.17"
+  },
+  {
+   "id": "S5",
+   "claim": "Pairings offered within the 10% cap run worse than all pairings",
+   "document": "PREREGISTRATION_V5_SELF_TRANSFER.md",
+   "tag": "prereg-v5-self-transfer",
+   "status": "pass",
+   "result": "within the 10% cap 1.175, all 1.159"
   }
  ]
 }

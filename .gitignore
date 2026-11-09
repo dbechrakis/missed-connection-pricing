@@ -15,3 +15,4 @@ models/*
 !models/pmiss_v3.joblib
 !models/v3_state.json
 !models/v4_loading.json
+!models/v5_table.json

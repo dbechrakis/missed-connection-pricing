@@ -44,7 +44,7 @@ def test_v4_graders_use_the_thresholds_of_the_preregistration():
     assert grade.grade_v4(v4_result(weeks=1))["L4"]["pass"] and not grade.grade_v4(v4_result(weeks=2))["L4"]["pass"]
 
 
-def test_every_prediction_in_the_four_documents_is_on_the_scoreboard_and_nothing_has_been_read():
+def test_every_prediction_in_the_five_documents_is_on_the_scoreboard_and_only_v5_has_been_read():
     status = json.loads((ROOT / "results" / "prereg_status.json").read_text(encoding="utf-8"))
     on_board = {e["id"]: e for e in status["expectations"]}
     for e in on_board.values():
@@ -52,9 +52,11 @@ def test_every_prediction_in_the_four_documents_is_on_the_scoreboard_and_nothing
         assert re.search(rf"^\| {e['id']} \|", text, flags=re.M), (e["id"], e["document"])
     in_docs = set()
     for doc in {e["document"] for e in on_board.values()}:
-        in_docs |= set(re.findall(r"^\| ([EAVL]\d) \|", (ROOT / doc).read_text(encoding="utf-8"), flags=re.M))
-    assert in_docs == set(on_board) and len(on_board) == 19
-    assert all(e["status"] == "pending" and e["result"] is None for e in on_board.values())
+        in_docs |= set(re.findall(r"^\| ([EAVLS]\d) \|", (ROOT / doc).read_text(encoding="utf-8"), flags=re.M))
+    assert in_docs == set(on_board) and len(on_board) == 24
+    assert all(e["status"] == "pending" and e["result"] is None for k, e in on_board.items() if not k.startswith("S"))
+    v5 = grade.grade_v5(json.loads((ROOT / "results" / "v5_holdout.json").read_text(encoding="utf-8")))
+    assert all(on_board[k]["status"] == ("pass" if g["pass"] else "fail") and on_board[k]["result"] == g["value"] for k, g in v5.items())
     assert (ROOT / "SCOREBOARD.md").read_text(encoding="utf-8") == grade.render(status)
 
 

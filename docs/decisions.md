@@ -240,3 +240,11 @@ One line per decision: what, why, and what it costs. Raw material for `method.md
 | Stopped attributing the 70.4% out-of-sample result to the loading of 1.16 | It came from a loading refitted each month (1.00 to 1.23); 1.16 is fitted on all 26 months | The frozen value has no out-of-sample evidence until the pre-registered read |
 | v1 and v2 **will** get the December read their pre-registration allows, and v3 and v4 will not | An optional second read is a degree of freedom that could be chosen after seeing the first. Fixing it before any data exists removes that. v3 and v4 fixed their months at the first read | The v1 and v2 verdict is reported twice, on three months and on four |
 | The frozen models are tested by their predictions, and CI installs `requirements.lock` | A hash proves the file is unchanged, not that today's scikit-learn reads it the same way | CI pins every library, so dependency updates need a deliberate re-freeze of the golden predictions |
+
+## Self-transfers (v5, 9 November 2026)
+
+| Decision | Why | Cost / caveat |
+| --- | --- | --- |
+| Pre-registered before building any cross-airline pairing, with a holdout read once | Every earlier analysis used same-network pairings, so this population was unseen | The design (90-minute minimum, unweighted pairings) is a judgement fixed in advance |
+| A shrunk cell table, not a gradient-boosted model | v1 found booking-time models only 1% to 2% better than a hub × connection-time table | It cannot follow a level that moves, which is what failed |
+| Reported S1's failure as the headline and did not refit | Refitting on the holdout would grade its own homework | The repair needs new data after August 2026 |
