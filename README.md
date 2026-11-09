@@ -33,6 +33,15 @@ An audit of the assumptions above changed the product question ([`VALIDATION.md`
 - **What the data says about the gap cover:** whole months come in 20 to 40% above or below the price, and no model choice removes it: no month term, no recalibration, no training on overnight connections only, and refitting the model eight times on resampled training data moves the pooled result by about 0.01. This is a correlated weather and air-traffic risk, carried by the margin and not by the model. On March to August 2026, outside its training data, v3 ran at **1.12** × target. Offering it only where the price is under 5% of fare reaches 39% of overnight-risk connections, which run 9% worse (the winner's curse of selecting on a low estimate). **Sold that way, the cover would have lost money in the worst months:** over 26 backtest months, a 75% realized loss ratio against the 65% target, 6 of 26 months above 100%, 28 of 114 weeks above 100%, worst week 248%, before any commission or handling cost.
 - **Pre-registered** before September to December 2026 existed and judged on September to November, with six falsifiable expectations and everything seen beforehand disclosed: [`PREREGISTRATION_2026H2_V3.md`](PREREGISTRATION_2026H2_V3.md). A weekly workflow opens an issue as each month is published.
 
+## Round three: self-transfers, pre-registered and failed on the headline (v5)
+
+The brief named separate tickets as the case where protection matters most, because no airline owes anything across two tickets. [`PREREGISTRATION_V5_SELF_TRANSFER.md`](PREREGISTRATION_V5_SELF_TRANSFER.md) fixed the design before any cross-airline pairing was built: pairings of two different marketing networks at the five hubs, 90 to 300 minute gaps, a miss on any cause with a 90-minute self-transfer minimum, a payout of the DB1B nonstop onward fare plus a GSA night when no later flight exists, and a cell table. January to August 2026 was read once.
+
+- **The price is not right on average.** The table paid out **1.16** times its expected cost on 3.2 million 2026 pairings [1.05, 1.28], a 75% loss ratio against 65%. The pre-registered band was 0.85 to 1.15, so **S1 failed** and the cover is not priced as it stands. The level rose from 2024 to 2026, as for v3.
+- **The other four held:** a quarter of misses follow a cancellation or diversion, risk falls steeply with the gap (about 25% at 90 minutes against 5% to 8% at 165), months vary with a standard deviation of 0.17, and the cap selects slightly worse risk.
+- **What it would cost:** a median $85 at 90 to 104 minutes (19% of the two-ticket fare) and $19 over all gaps, against a $226 median payout.
+- **The definition of a miss matters as much as the model:** with a 120-minute minimum the same procedure lands at 1.05, with 60 at 1.23. [`VALIDATION.md`](VALIDATION.md) Part 6 has every number.
+
 ## What this does **not** show
 
 These are limits, not footnotes. Of the 14 limits this project started with, **5 are closed**, **7 are reduced** to one named input only an agency can supply, and **2 are open** because they need customers or time. Each row says what was found and what closes the rest; the inputs are collected in [`docs/agency-inputs.md`](docs/agency-inputs.md) and the work is in [`VALIDATION.md`](VALIDATION.md) Part 5.
@@ -64,7 +73,7 @@ These are limits, not footnotes. Of the 14 limits this project started with, **5
 
 ## How it was validated
 
-**[Scoreboard](SCOREBOARD.md):** every pre-registered prediction (19 across four documents), each graded by a rule written before the data exists, and its status. Nothing has been read yet.
+**[Scoreboard](SCOREBOARD.md):** every pre-registered prediction (24 across five documents), each graded by a rule written before the data exists, and its status. The five self-transfer predictions have been read (one failed, see below). The other 19 are pending.
 
 Prices are set from information up to the booking, then scored on months the model has never seen. Every test was **pre-registered**: the protocol, the frozen model hashes and the list of what may not change afterwards were committed *locally* before the window was read. They reached GitHub together with the results, so the commit times are the author's own and cannot be independently checked; the two model files are in the repository so the frozen hashes can be verified. The next test (BTS data for September to December 2026, not yet published) has its protocol, frozen hashes and falsifiable expectations in [`PREREGISTRATION_2026H2.md`](PREREGISTRATION_2026H2.md), written and tagged before the data exists.
 

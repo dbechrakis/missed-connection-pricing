@@ -53,6 +53,22 @@ def grade_v4(res: dict) -> dict:
     }
 
 
+def grade_v5(res: dict) -> dict:
+    """S1 to S5 from results/v5_holdout.json (written by mcp.v5 holdout), thresholds as in PREREGISTRATION_V5_SELF_TRANSFER.md."""
+    m = res["primary"]
+    cap, ratio = m["cap"]["0.10"]["realized_over_target"], m["realized_over_target"]
+    s3 = m["s3_rates_90_vs_165"]
+    return {
+        "S1": {"pass": 0.85 <= ratio <= 1.15, "value": f"realized/target {ratio:.3f} [{m['interval_95'][0]:.2f}, {m['interval_95'][1]:.2f}] against 0.85 to 1.15"},
+        "S2": {"pass": 0.20 <= m["share_of_misses_by_cancellation_or_diversion"] <= 0.50,
+               "value": f"{m['share_of_misses_by_cancellation_or_diversion']:.1%} of misses after a cancellation or diversion"},
+        "S3": {"pass": all(a > b for a, b in s3.values()),
+               "value": "miss rate 90 to 104 min against 165 to 179 min: " + ", ".join(f"{h} {a:.1%}/{b:.1%}" for h, (a, b) in s3.items())},
+        "S4": {"pass": 0.08 <= m["monthly_sd"] <= 0.35, "value": f"monthly sd {m['monthly_sd']:.2f}"},
+        "S5": {"pass": cap > ratio, "value": f"within the 10% cap {cap:.3f}, all {ratio:.3f}"},
+    }
+
+
 def render(status: dict) -> str:
     """SCOREBOARD.md from the status file: one row per pre-registered prediction."""
     icon = {"pending": "pending", "pass": "**passed**", "fail": "**failed**"}
@@ -88,7 +104,7 @@ def apply(status: dict, grades: dict) -> dict:
 
 def main() -> None:
     status = load()
-    for name, grader in (("holdout_v3_next.json", grade_v3), ("holdout_v4_next.json", grade_v4)):
+    for name, grader in (("holdout_v3_next.json", grade_v3), ("holdout_v4_next.json", grade_v4), ("v5_holdout.json", grade_v5)):
         path = ROOT / "results" / name
         if path.exists():
             apply(status, grader(json.loads(path.read_text(encoding="utf-8"))))

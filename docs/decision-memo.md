@@ -32,6 +32,10 @@ Should we sell protection against missed connections, at what price, and where s
 - **Sample size:** the price rises with risk, so how strongly risky connections self-select *beyond price* can only be measured from the price arms. At a 2% attach rate, telling apart a θ that differs by 0.5 needs about **51,000 travellers** shown the offer (about 2,500 to see the net tilt of buyers toward risk at the prices charged, which is not the same thing). Sizes for every assumption are in the [product brief](product-brief.md#7-the-experiment).
 - **Whether the gap cover's pricing holds.** This is already being tested: it was [pre-registered](../PREREGISTRATION_2026H2_V3.md) before September to December 2026 existed, and is judged on September to November. The first read is planned for when November is published, probably early February 2027, so it covers three months (decided on 8 November, before any of the data exists).
 
+## Self-transfers: tested, and not yet priced right
+
+Separate tickets are where an agency's customers have no airline protection at all. A pre-registered test on 3.2 million cross-airline connections in January to August 2026 found that a table built on 2024 and 2025 paid out **16% more** than it charged for (a 75% loss ratio), outside the band it was judged by. Risk is steep in the gap: a median price of $85 at 90 minutes against $19 over all gaps. Do not sell it at these prices. It needs a recalibrated level, tested on months after August 2026, and the real minimum self-transfer time, which moves the result as much as the model does.
+
 ## Next step
 
 Approve a four-week pricing experiment on the gap cover at one hub where the gap is largest (Dallas, 21% of misses from weather, or Chicago, 20% from air traffic control). Price it on each airline's own minimum connection time, load the price for the selection effect, set a claims exposure cap per hub-week and pre-agree the stop rule. Do not launch the blanket cover.

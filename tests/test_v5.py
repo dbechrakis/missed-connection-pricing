@@ -151,3 +151,13 @@ def test_the_frozen_table_is_the_one_recorded_before_the_holdout():
     t = json.loads(table.read_text())
     assert t["k"] == json.loads((ROOT / "results" / "v5_selection.json").read_text())["chosen_k"] == 1000
     assert t["fitted_on"] == list(v5.WINDOWS["FINAL"])
+
+
+def test_the_readme_quotes_the_holdout_as_read():
+    r = json.loads((ROOT / "results" / "v5_holdout.json").read_text())
+    m, text = r["primary"], (ROOT / "README.md").read_text(encoding="utf-8")
+    assert f"**{m['realized_over_target']:.2f}**" in text and f"[{m['interval_95'][0]:.2f}, {m['interval_95'][1]:.2f}]" in text
+    assert r["grades"] == {"S1": False, "S2": True, "S3": True, "S4": True, "S5": True} and "**S1 failed**" in text
+    assert f"{m['monthly_sd']:.2f}" in text and r["table_sha256"] in (ROOT / "VALIDATION.md").read_text(encoding="utf-8")
+    sens = r["sensitivity"]["t_min"]
+    assert f"{sens['120']['realized_over_target']:.2f}" in text and f"{sens['60']['realized_over_target']:.2f}" in text

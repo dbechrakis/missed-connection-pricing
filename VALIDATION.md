@@ -701,3 +701,25 @@ Pre-registered in `PREREGISTRATION_V5_SELF_TRANSFER.md` (commit `48b2dd2`, pushe
 - **Fares.** 10,799 nonstop markets from DB1B 2024 Q1 to 2025 Q2, passenger-weighted, with the same placeholder rule as `mcp.ingest` (no bulk fares, $20 to $5,000). Median market fare $227.
 - **Selection of k** (July to December 2025, table fitted on January 2024 to June 2025): log loss 0.25014 (k = 0), 0.24985 (50), 0.24983 (200), 0.24999 (1000). k = 1000 is within the 0.0002 tie band of the best and ties go to the larger k, so **k = 1000**. On the selection months the table fitted on earlier months ran at 1.14 times its expected payout: the level moved up in the second half of 2025, as it did for v3.
 - **Frozen table** (`models/v5_table.json`, January 2024 to December 2025, 2,005 cells): SHA-256 `154b580d86094700a8307520334f0d948bf3c4e84c940b31d4787380bf7519d1`.
+
+### 6B. The holdout, read once (9 November 2026, January to August 2026, 3,228,037 pairings)
+
+Run once with the frozen table (hash above), `results/v5_holdout.json`. Nothing was changed after the read.
+
+| # | Expectation | Result | Verdict |
+| --- | --- | --- | --- |
+| S1 | Realized ÷ target 0.85 to 1.15 | **1.159** [1.05, 1.28] | **Failed** |
+| S2 | Cancellations and diversions 20% to 50% of misses | 25.0% | Passed |
+| S3 | 90 to 104 minute miss rate above 165 to 179 at every hub | 23.6% to 27.2% against 5.0% to 8.1% | Passed |
+| S4 | Monthly standard deviation 0.08 to 0.35 | 0.17 (0.94 to 1.36 by month) | Passed |
+| S5 | Offered within the 10% cap runs worse than all | 1.175 against 1.159 | Passed |
+
+**The headline failed.** Priced from 2024 and 2025, the cover would have paid out 16% more than expected in 2026: a 75% loss ratio against the 65% target. By the pre-registration's own rule the price is not right on average, and the cover is not priced as it stands. The failure was foreseeable in kind. On the development selection window a table fitted on earlier months already ran at 1.14, so the level was rising, and a table frozen on 2024 to 2025 carried an average of a lower level into 2026. That is the same drift v3 showed (5I).
+
+**Where it is wrong.** By hub: ATL 1.20, ORD 1.24, CLT 1.11, DEN 1.08, DFW 0.95. By month: 1.23, 0.97, 1.36, 1.00, 0.94, 1.15, 1.30, 1.33. By gap the error grows with time: 1.07 at 90 to 104 minutes, 1.21 at 135 to 149, about 1.30 beyond four hours. Long gaps are missed mostly through cancellations, so the cancellation level is what moved most.
+
+**Sensitivities (pre-registered, not used to choose).** A 60-minute self-transfer minimum: 1.23 (miss rate 5.7%). A 120-minute one: 1.05 (17%). The definition of a miss matters as much as the model. A payout of 1.5 or 2 times the mean fare: 1.15 and 1.15, because the ratio is a calibration ratio. A mix that favours short gaps: 1.12. Offered within a 5%, 10% or 15% cap: 56%, 79% and 88% of pairings, at 1.19, 1.18 and 1.16.
+
+**What the cover would cost** (development months, July to December 2025, so the holdout is read once): median price $85 at 90 to 104 minutes (19% of the two-ticket fare), $34 at 120 to 134, $19 over all gaps, against a median payout of $226. The 10% cap cuts off the shortest self-transfers, from 76% (ORD) to 83% (CLT) of pairings offered.
+
+**What would fix S1, and why it is not done here.** A recalibrated level (a rolling level shift, as v2 used) is the obvious repair, but choosing it on these months would grade its own homework. It needs a new pre-registration and data after August 2026.
