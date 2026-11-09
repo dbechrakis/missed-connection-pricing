@@ -16,6 +16,7 @@ import urllib.request
 from pathlib import Path
 
 from mcp.service import PriceService
+from mcp.service_gap import MCT_OPTIONS, GapCoverService
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -43,6 +44,20 @@ def main(base: str) -> int:
                         errors.append(f"{params}: status {status}, differs from the core")
     for bad in ({"hub": "ORD", "minutes": 30}, {"hub": "XXX", "minutes": 60}, {"hub": "ORD", "minutes": 60, "next_flight": "soon"}):
         status, _ = get(base, "/quote", **bad)
+        if status != 422:
+            errors.append(f"{bad} should be refused with 422, got {status}")
+    gap = GapCoverService.from_site()
+    for hub in gap.hubs:
+        for month in (gap.months[0], gap.months[6]):
+            for mct in MCT_OPTIONS:
+                for minutes in (60, 75, 90, 135, 240):
+                    status, body = get(base, "/gap-quote", hub=hub, minutes=minutes, month=month, mct=mct)
+                    want = json.loads(json.dumps(gap.quote(hub, minutes, month, mct)))
+                    checked += 1
+                    if status != 200 or body != want:
+                        errors.append(f"gap {hub} {month} {mct} {minutes}: status {status}, differs from the core")
+    for bad in ({"hub": "ORD", "minutes": 40, "month": gap.months[0], "mct": 45}, {"hub": "ORD", "minutes": 90, "month": "2030-01"}):
+        status, _ = get(base, "/gap-quote", **bad)
         if status != 422:
             errors.append(f"{bad} should be refused with 422, got {status}")
     status, model = get(base, "/model")

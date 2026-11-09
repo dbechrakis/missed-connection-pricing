@@ -60,7 +60,7 @@ These are limits, not footnotes. Of the 14 limits this project started with, **5
 
 - **Claims cannot be paid on the night.** The trigger needs the BTS cause code of the inbound delay, and BTS publishes a month's file about two months after the month ends (November 2026 is expected in early February 2027). A traveller stranded tonight would wait one to three months to be paid, or the agency pays first and recovers later on a provisional rule. Either changes what is being sold, and neither is priced here.
 - **Airlines code their own delay causes.** The cover pays exactly when the cause is *not* coded to the airline, and the DOT hotel commitments make an airline-coded overnight delay costly for the airline. If carriers shift coding toward weather or air traffic control, payouts rise with no change in the weather. Expectation V5 (70% to 90% of overnight misses in the gap) is the early warning. A launched cover would need its own check of coding against a second source.
-- **The API and container serve v1, not the recommended cover.** `/quote` and the Docker image price the original all-purpose cover from `site/prices.js`, with its 10% cap. The gap cover with the 5% cap, the minimum-connection-time input and the loading exists only in the demo page (`site/prices_v3.js`).
+- **The served share within the cap is at the unloaded price.** `/gap-quote` returns the v3 price and the loaded (v4) price, but the share of connections that fit the 5% cap is stored per cell at the v3 price only. At the loaded price fewer fit, by an amount the table cannot give for one cell (36% instead of 41% overall in the backtest, `VALIDATION.md` 5L).
 
 ## How it was validated
 
@@ -190,16 +190,17 @@ The price is quoted at booking, so it can only use what is known then. The spec'
 
 ## Use it
 
-The same price table serves the demo page, a command-line tool and a small API, so they cannot disagree.
+The same price tables serve the demo page, a command-line tool and a small API, so they cannot disagree. Two products are served: the gap cover the memo recommends (`site/prices_v3.js`), and the original all-purpose cover (`site/prices.js`).
 
 ```bash
 cd src
-python -m mcp.score --hub ORD --airline UA --minutes 60 --next-flight next      # one quote, printed
+python -m mcp.score --gap --hub ORD --minutes 90 --month 2026-12 --mct 60       # the gap cover, at an airline's own minimum
+python -m mcp.score --hub ORD --airline UA --minutes 60 --next-flight next      # the original cover
 uvicorn mcp.api:app                                                              # API; interactive docs at http://127.0.0.1:8000/docs
 python -m mcp.monitor --month 2026-08                                            # monthly recalibration and drift report
 ```
 
-`/quote` returns the chance of a miss, expected claim cost, price, the share of such connections that fit the price cap, a three-state decision (offer, offer selectively, do not offer), the model's validated loss ratio, the assumptions and the caveats. `/model` reports the SHA-256 of the frozen model files, which match the hashes in [`VALIDATION.md`](VALIDATION.md). The monthly job prices the month with a calibrator built only from earlier months, reports drift by hub and week, alerts when the claim-weighted ratio over the last three months leaves a band sized from the 2025 spread (a rule that replaced hand-picked single-month bands that fired in 5 of 8 months; it is slow on purpose and cannot see steady hub gaps of 12 to 16%, see [`VALIDATION.md`](VALIDATION.md) 4J), and only then adds the month to its state.
+`/gap-quote` (hub, minutes, month, the airline's minimum connection time) returns the chance of an overnight miss not coded to the airline, the GSA payout, the price, the price with the pre-registered 1.16 loading, the share within the 5% cap, the decision and the caveats. `tests/test_service_gap.py` drives the demo page's own script through every hub, month, minimum and connection time and checks the API shows the same. `/quote` (the original cover) returns the chance of a miss, expected claim cost, price, the share of such connections that fit the price cap, a three-state decision (offer, offer selectively, do not offer), the model's validated loss ratio, the assumptions and the caveats. `/model` reports the SHA-256 of the frozen model files, which match the hashes in [`VALIDATION.md`](VALIDATION.md). The monthly job prices the month with a calibrator built only from earlier months, reports drift by hub and week, alerts when the claim-weighted ratio over the last three months leaves a band sized from the 2025 spread (a rule that replaced hand-picked single-month bands that fired in 5 of 8 months; it is slow on purpose and cannot see steady hub gaps of 12 to 16%, see [`VALIDATION.md`](VALIDATION.md) 4J), and only then adds the month to its state.
 
 ## Repository
 

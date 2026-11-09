@@ -20,7 +20,7 @@ jobs:
       - run: pip install -r requirements.lock
       - run: python -m pytest -q
 
-  # The API in its container must answer exactly what the code answers (450 quotes), refuse bad input,
+  # The API in its container must answer exactly what the code answers (750 quotes, both products), refuse bad input,
   # run as a non-root user on a read-only filesystem, and report the model hashes frozen in VALIDATION.md.
   container:
     runs-on: ubuntu-latest
