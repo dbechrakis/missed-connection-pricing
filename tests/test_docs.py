@@ -330,3 +330,20 @@ def test_the_survey_instrument_matches_the_demo_prices_and_the_code():
         assert f"${c['p'] * m['cost'] / 0.65:.2f}" in text and f"${m['cost']:.0f}" in text and f"${c['fare']:.0f}" in text, (hub, slack)
     assert LADDER == (0.5, 0.8, 1.0, 1.25, 1.5, 2.0) and "0.5×, 0.8×, 1.0×, 1.25×, 1.5×, 2×" in text
     assert f"**{sample_size_share(0.05)}**" in text and f"**{sample_size_share(0.03):,}**" in text
+
+
+def test_the_survey_preregistration_freezes_its_files_and_agrees_with_the_code():
+    import hashlib
+    from mcp.survey import DECISION_SCENARIOS, LADDER, MIN_TIME_FRACTION, ANSWER_CODE, sample_size_share
+    pre = (ROOT / "PREREGISTRATION_SURVEY.md").read_text(encoding="utf-8")
+    assert "{" not in pre
+    for rel in ("docs/survey-instrument.md", "docs/survey-question-bank.csv"):
+        assert hashlib.sha256((ROOT / rel).read_bytes().replace(b"\r\n", b"\n")).hexdigest() in pre, rel
+    inst = (ROOT / "docs" / "survey-instrument.md").read_text(encoding="utf-8")
+    assert DECISION_SCENARIOS == (0.01, 0.03, 0.10) and "**1%, 3% and 10%**" in inst and "**1%, 3% and 10%**" in pre
+    assert LADDER == (0.5, 0.8, 1.0, 1.25, 1.5, 2.0) and "0.5×, 0.8×, 1.0×, 1.25×, 1.5×, 2×" in pre
+    assert abs(MIN_TIME_FRACTION - 1 / 3) < 1e-12 and "a third of the median" in pre and "a third of the median" in inst
+    assert sample_size_share(0.05) == 385 and "**400 respondents have passed the checks**" in pre
+    assert set(ANSWER_CODE.values()) == {"definitely", "probably", "no"} and "No prediction of the share is made" in pre
+    fielding = (ROOT / "docs" / "survey-fielding.md").read_text(encoding="utf-8")
+    assert "prereg-survey" in fielding and "python -m mcp.survey analyse responses.csv" in fielding and "python -m mcp.survey analyse responses.csv" in inst

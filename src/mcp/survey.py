@@ -68,6 +68,8 @@ def elasticity(curve: dict) -> float:
     """Slope of log share on log price multiple over the points with a positive share: about the price elasticity of stated demand."""
     m, s = np.array(curve["mult"]), np.array(curve["share"])
     keep = s > 0
+    if keep.sum() < 2:                      # nobody (or almost nobody) says yes: the slope cannot be estimated, and the cover is ruled out anyway
+        return float("nan")
     return float(np.polyfit(np.log(m[keep]), np.log(s[keep]), 1)[0])
 
 
@@ -99,3 +101,104 @@ def true_demand(mult: float, median_wtp: float = 0.9, sigma: float = 0.7, sure_s
     z = (log(mult) - log(median_wtp)) / sigma
     s = 0.5 * (1 - erf(z / sqrt(2)))
     return s if level == "any" else s * sure_share
+
+
+# ---- the question bank, the pre-specified cleaning, and the analysis of a real export ------------------------------------------
+
+SCENARIOS = (("ATL", 105), ("ORD", 120), ("DFW", 135), ("DEN", 105), ("CLT", 150), ("ATL", 150))     # fixed in docs/survey-instrument.md
+HUB_NAMES = {"ATL": "Atlanta", "ORD": "Chicago O'Hare", "DFW": "Dallas-Fort Worth", "DEN": "Denver", "CLT": "Charlotte"}
+WORDINGS = {
+    "benefit": "Imagine you could add protection to this trip. If you miss your connection and the delay is not the airline's responsibility, you get ${payout} toward a hotel and meals.",
+    "outcome": "Imagine you could add protection to this trip. If a delay leaves you stuck overnight at {airport} and the airline will not pay for your hotel, you are covered for ${payout}.",
+}
+QUESTION = "Would you buy this protection for this trip at ${price}?"
+ANSWERS = ("Definitely would", "Probably would", "Probably would not", "Definitely would not")
+ANSWER_CODE = {"Definitely would": "definitely", "Probably would": "probably", "Probably would not": "no", "Definitely would not": "no"}
+MIN_TIME_FRACTION = 1 / 3                       # respondents faster than this share of the median completion time are dropped
+DECISION_SCENARIOS = (0.01, 0.03, 0.10)          # attach rates the cover might need (docs/experiment-plan.md); each is reported, none is chosen afterwards
+
+
+def question_bank(payload: dict, month: str = "2027-01") -> list[dict]:
+    """Every question a respondent can be shown: 6 connections x 2 wordings x 6 price multiples, with the price in dollars. `payload` is the
+    demo's price table (site/prices_v3.js). The model price is chance of a gap night x the government hotel-and-meals rate / 0.65."""
+    rows = []
+    cells = {(c["hub"], c["slack"]): c for c in payload["cells"]}
+    for sid, (hub, slack) in enumerate(SCENARIOS, start=1):
+        c = cells[(hub, slack)]
+        cost = c["months"][month]["cost"]
+        model_price = c["p"] * cost / payload["assumptions"]["target_loss_ratio"]
+        for wording, text in WORDINGS.items():
+            for mult in LADDER:
+                price = round(model_price * mult)
+                rows.append({"scenario": sid, "hub": hub, "scheduled_gap_min": slack, "fare": round(c["fare"]), "payout": round(cost), "model_price": round(model_price, 2),
+                             "wording": wording, "mult": mult, "price": price,
+                             "description": text.format(payout=round(cost), airport=HUB_NAMES[hub]), "question": QUESTION.format(price=price)})
+    return rows
+
+
+def clean(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+    """The exclusions fixed before fielding: fail the attention check, or finish faster than a third of the median time. Nothing else is
+    dropped. `df` has one row per respondent x price with columns respondent, answer, mult, attention_ok, seconds."""
+    per = df.groupby("respondent").agg(attention_ok=("attention_ok", "first"), seconds=("seconds", "first"))
+    median = float(per["seconds"].median())
+    failed = ~per["attention_ok"].astype(bool)
+    fast = per["seconds"] < MIN_TIME_FRACTION * median
+    drop = per.index[failed | fast]
+    kept = df[~df["respondent"].isin(drop)].copy()
+    return kept, {"raw": int(len(per)), "failed_attention": int(failed.sum()), "too_fast": int((fast & ~failed).sum()), "kept": int(len(per) - len(drop)), "median_seconds": median}
+
+
+def inconsistent_share(df: pd.DataFrame) -> float:
+    """Share of respondents who say yes at a higher price and no at a lower one. Kept in the analysis and reported."""
+    bad = 0
+    for _, g in df.groupby("respondent"):
+        g = g.sort_values("mult")
+        yes = g["answer"].isin(LEVELS["any"]).to_numpy()
+        bad += bool(any(yes[j] and not yes[i] for i in range(len(yes)) for j in range(i + 1, len(yes))))
+    return bad / df["respondent"].nunique()
+
+
+def analyse_responses(df: pd.DataFrame, n_boot: int = 400) -> dict:
+    """The pre-registered analysis of a real export (docs/survey-instrument.md): clean, then both demand curves, the elasticity, the share at
+    the model price by wording, and which of the pre-declared attach-rate scenarios the upper end of the 'any' interval at 1.0x clears."""
+    kept, counts = clean(df)
+    out = {"respondents": counts, "inconsistent_share": inconsistent_share(kept)}
+    for level in ("definitely", "any"):
+        c = demand_curve(kept, level=level, n_boot=n_boot)
+        out[level] = {"curve": c, "elasticity": elasticity(c), "at_model_price": share_at(c, 1.0)}
+    if "wording" in kept.columns:
+        out["by_wording"] = {w: share_at(demand_curve(g, level="definitely", n_boot=n_boot), 1.0) for w, g in kept.groupby("wording")}
+    hi = out["any"]["at_model_price"]["hi"]
+    out["decision"] = {f"{a:.0%}": {"upper_end_of_any_share_at_model_price": hi, "survives": bool(hi >= a)} for a in DECISION_SCENARIOS}
+    return out
+
+
+def main(argv: list[str]) -> None:
+    import json
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[2]
+    if argv[:1] == ["design"]:
+        import csv
+        import re
+        payload = json.loads(re.sub(r"^window\.PRICES_V3 = |;\s*$", "", (root / "site" / "prices_v3.js").read_text(encoding="utf-8")))
+        rows = question_bank(payload)
+        out = root / "docs" / "survey-question-bank.csv"
+        with out.open("w", newline="", encoding="utf-8") as f:
+            w = csv.DictWriter(f, fieldnames=list(rows[0]), lineterminator=chr(10))
+            w.writeheader()
+            w.writerows(rows)
+        print(f"wrote {out.name}: {len(rows)} questions")
+    elif argv[:1] == ["analyse"] and len(argv) == 2:
+        res = analyse_responses(pd.read_csv(argv[1]))
+        (root / "results" / "survey_results.json").write_text(json.dumps(res, indent=1, default=float))
+        c = res["respondents"]
+        print(f"{c['kept']} of {c['raw']} respondents kept; at the model price: definitely {res['definitely']['at_model_price']['share']:.1%}, any {res['any']['at_model_price']['share']:.1%}; "
+              + ", ".join(f"{k}: {'survives' if v['survives'] else 'ruled out'}" for k, v in res["decision"].items()))
+    else:
+        print("usage: python -m mcp.survey design | analyse responses.csv")
+
+
+if __name__ == "__main__":
+    import sys
+    main(sys.argv[1:])
+
