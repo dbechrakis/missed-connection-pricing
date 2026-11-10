@@ -17,3 +17,4 @@ models/*
 !models/v4_loading.json
 !models/v5_table.json
 !models/v5_1_prices.json
+!models/v5_2_prices.json

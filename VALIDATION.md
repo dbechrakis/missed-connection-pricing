@@ -744,3 +744,11 @@ Pre-registered in `PREREGISTRATION_V5_1_LEVEL.md` (commit `46055a6`, pushed befo
 **What the selection already says, before the test.** No candidate fixes the under-pricing on the development months: all of them pay out 1.12 to 1.16 times what they charge. With a five-month publication lag a level learned from the past is always behind a level that keeps rising, and refitting on more recent months closes little of the gap. Expectation R1 is therefore likely to fail. It stays as written. If it fails, the next repair is a loading on the price, as v4 did for the gap cover, which this document does not test.
 
 **Frozen prices** (`models/v5_1_prices.json`, three monthly tables fitted through April, May and June 2026, level 1): SHA-256 `ac3b9e0ca54454821e972233fe1d8f511160c5a90c82b08fff69dde6201dac19`.
+
+### 6D. v5.2: a fixed loading of 1.16, frozen for December 2026 to February 2027 (10 November 2026)
+
+Pre-registered in `PREREGISTRATION_V5_2_LOADING.md` (commit `6444e22`, pushed while no BTS month after August 2026 existed). Code: `src/mcp/v5_2.py`, tests: `tests/test_v5_2.py`.
+
+- **Why a loading.** On v5.1's walk-forward (July 2025 to August 2026) claims ran 1.159 times the expected payout, and no level correction removed it (6C). A loading re-estimated each month from earlier walk-forward months only brought February to August 2026 from 1.154 to 1.005, out of sample. That is development evidence, not a test.
+- **Frozen:** v5's cell table refitted on January 2024 to August 2026 (k = 1000) and λ = 1.16, in `models/v5_2_prices.json`, SHA-256 `56180af9135ae112c9ab97a7d78bf8e6d0c63ea59f0dbeb4943321895ace697b`.
+- **The read:** December 2026 to February 2027, once, when February 2027 is published in both BTS files (probably early May 2027). Expectations W1 to W5 are on the scoreboard. Winter is the hard season: last December ran 1.34 unloaded on the same walk-forward.
