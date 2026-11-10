@@ -40,7 +40,15 @@ The brief named separate tickets as the case where protection matters most, beca
 - **The price is not right on average.** The table paid out **1.16** times its expected cost on 3.2 million 2026 pairings [1.05, 1.28], a 75% loss ratio against 65%. The pre-registered band was 0.85 to 1.15, so **S1 failed** and the cover is not priced as it stands. The level rose from 2024 to 2026, as for v3.
 - **The other four held:** a quarter of misses follow a cancellation or diversion, risk falls steeply with the gap (about 25% at 90 minutes against 5% to 8% at 165), months vary with a standard deviation of 0.17, and the cap selects slightly worse risk.
 - **What it would cost:** a median $85 at 90 to 104 minutes (19% of the two-ticket fare) and $19 over all gaps, against a $226 median payout.
+- **The repair is pre-registered, and the development data already says it is not enough.** [`PREREGISTRATION_V5_1_LEVEL.md`](PREREGISTRATION_V5_1_LEVEL.md) refits the table on every month published when a cover is sold and chose, by a rule fixed in advance, among five level corrections. It chose none, because none helped: on 14 development months every candidate still paid out 1.12 to 1.16 times its price, since a level learned five months late trails a level that keeps rising. Its prices for September to November 2026 are frozen and are read once when November is published. The likely next repair is a loading on the price, as for the gap cover.
 - **The definition of a miss matters as much as the model:** with a 120-minute minimum the same procedure lands at 1.05, with 60 at 1.23. [`VALIDATION.md`](VALIDATION.md) Part 6 has every number.
+
+**For the read in February 2027.** Besides the four tests the scheduled job runs, v5.1 needs two commands once September to November are published:
+
+```bash
+cd src && python -m mcp.v5 build --t 90 --sealed --start 2026-09 --end 2026-11    # counts only
+python -m mcp.v5_1 holdout && python -m mcp.grade                                 # the single read, then the scoreboard
+```
 
 ## What this does **not** show
 
@@ -73,7 +81,7 @@ These are limits, not footnotes. Of the 14 limits this project started with, **5
 
 ## How it was validated
 
-**[Scoreboard](SCOREBOARD.md):** every pre-registered prediction (24 across five documents), each graded by a rule written before the data exists, and its status. The five self-transfer predictions have been read (one failed, see below). The other 19 are pending.
+**[Scoreboard](SCOREBOARD.md):** every pre-registered prediction (29 across six documents), each graded by a rule written before the data exists, and its status. The five self-transfer predictions have been read (one failed, see below). The other 24 are pending.
 
 Prices are set from information up to the booking, then scored on months the model has never seen. Every test was **pre-registered**: the protocol, the frozen model hashes and the list of what may not change afterwards were committed *locally* before the window was read. They reached GitHub together with the results, so the commit times are the author's own and cannot be independently checked; the two model files are in the repository so the frozen hashes can be verified. The next test (BTS data for September to December 2026, not yet published) has its protocol, frozen hashes and falsifiable expectations in [`PREREGISTRATION_2026H2.md`](PREREGISTRATION_2026H2.md), written and tagged before the data exists.
 

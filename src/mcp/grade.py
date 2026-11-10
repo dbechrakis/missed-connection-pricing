@@ -69,6 +69,18 @@ def grade_v5(res: dict) -> dict:
     }
 
 
+def grade_v5_1(res: dict) -> dict:
+    """R1 to R5 from results/v5_1_holdout.json (written by mcp.v5_1 holdout), thresholds as in PREREGISTRATION_V5_1_LEVEL.md."""
+    r, g = res["v5_1"], res["grades"]
+    return {
+        "R1": {"pass": g["R1"], "value": f"realized/target {r['realized_over_target']:.3f} [{r['interval_95'][0]:.2f}, {r['interval_95'][1]:.2f}] against 0.85 to 1.15"},
+        "R2": {"pass": g["R2"], "value": f"v5.1 {r['realized_over_target']:.3f}, frozen v5 {res['v5_frozen']['realized_over_target']:.3f}"},
+        "R3": {"pass": g["R3"], "value": "monthly " + ", ".join(f"{m} {v:.2f}" for m, v in r["monthly"].items())},
+        "R4": {"pass": g["R4"], "value": f"{res['share_of_misses_by_cancellation_or_diversion']:.1%} of misses after a cancellation or diversion"},
+        "R5": {"pass": g["R5"], "value": f"long gaps {r['long_gaps']:.3f}, short gaps {r['short_gaps']:.3f}"},
+    }
+
+
 def render(status: dict) -> str:
     """SCOREBOARD.md from the status file: one row per pre-registered prediction."""
     icon = {"pending": "pending", "pass": "**passed**", "fail": "**failed**"}
@@ -104,7 +116,8 @@ def apply(status: dict, grades: dict) -> dict:
 
 def main() -> None:
     status = load()
-    for name, grader in (("holdout_v3_next.json", grade_v3), ("holdout_v4_next.json", grade_v4), ("v5_holdout.json", grade_v5)):
+    for name, grader in (("holdout_v3_next.json", grade_v3), ("holdout_v4_next.json", grade_v4), ("v5_holdout.json", grade_v5),
+                         ("v5_1_holdout.json", grade_v5_1)):
         path = ROOT / "results" / name
         if path.exists():
             apply(status, grader(json.loads(path.read_text(encoding="utf-8"))))

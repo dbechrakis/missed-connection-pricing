@@ -34,7 +34,7 @@ Should we sell protection against missed connections, at what price, and where s
 
 ## Self-transfers: tested, and not yet priced right
 
-Separate tickets are where an agency's customers have no airline protection at all. A pre-registered test on 3.2 million cross-airline connections in January to August 2026 found that a table built on 2024 and 2025 paid out **16% more** than it charged for (a 75% loss ratio), outside the band it was judged by. Risk is steep in the gap: a median price of $85 at 90 minutes against $19 over all gaps. Do not sell it at these prices. It needs a recalibrated level, tested on months after August 2026, and the real minimum self-transfer time, which moves the result as much as the model does.
+Separate tickets are where an agency's customers have no airline protection at all. A pre-registered test on 3.2 million cross-airline connections in January to August 2026 found that a table built on 2024 and 2025 paid out **16% more** than it charged for (a 75% loss ratio), outside the band it was judged by. Risk is steep in the gap: a median price of $85 at 90 minutes against $19 over all gaps. Do not sell it at these prices. A pre-registered repair (refit on the newest published months, with a level correction chosen by rule) is frozen and will be read on September to November 2026, but on development data no level correction closed the gap, because claims data arrive about two months late and the level keeps rising. The likely repair is a loading on the price, plus the real minimum self-transfer time, which moves the result as much as the model does.
 
 ## Next step
 

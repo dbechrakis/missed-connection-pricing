@@ -724,3 +724,23 @@ Run once with the frozen table (hash above), `results/v5_holdout.json`. Nothing 
 **What the cover would cost** (development months, July to December 2025, so the holdout is read once): median price $85 at 90 to 104 minutes (19% of the two-ticket fare), $34 at 120 to 134, $19 over all gaps, against a median payout of $226. The 10% cap cuts off the shortest self-transfers, from 76% (ORD) to 83% (CLT) of pairings offered.
 
 **What would fix S1, and why it is not done here.** A recalibrated level (a rolling level shift, as v2 used) is the obvious repair, but choosing it on these months would grade its own homework. It needs a new pre-registration and data after August 2026.
+
+### 6C. v5.1: refitted on published months, with a level rule chosen in advance (10 November 2026, before September to November exists)
+
+Pre-registered in `PREREGISTRATION_V5_1_LEVEL.md` (commit `46055a6`, pushed before the selection ran, while every BTS file for September to November 2026 returned not found). Code: `src/mcp/v5_1.py`, tests: `tests/test_v5_1.py`.
+
+**Selection** (walk-forward over July 2025 to August 2026, each month priced by a table fitted on months up to m − 5 and each candidate's level, `results/v5_1_selection.json`):
+
+| Candidate | Pooled log loss | Realized ÷ target (reported, not used) |
+| --- | --- | --- |
+| `none` | 0.25804 | 1.159 |
+| `last12` | 0.25800 | 1.137 |
+| `last6` | 0.25815 | 1.122 |
+| `season` | 0.25800 | 1.155 |
+| `last12_by_gap` | 0.25807 | 1.137 |
+
+`season` has the lowest log loss, but `none` is within the 0.0002 tie band (0.00004 behind) and ties go to the simpler candidate, so the rule chose **`none`**: refit on every published month, no level factor.
+
+**What the selection already says, before the test.** No candidate fixes the under-pricing on the development months: all of them pay out 1.12 to 1.16 times what they charge. With a five-month publication lag a level learned from the past is always behind a level that keeps rising, and refitting on more recent months closes little of the gap. Expectation R1 is therefore likely to fail. It stays as written. If it fails, the next repair is a loading on the price, as v4 did for the gap cover, which this document does not test.
+
+**Frozen prices** (`models/v5_1_prices.json`, three monthly tables fitted through April, May and June 2026, level 1): SHA-256 `ac3b9e0ca54454821e972233fe1d8f511160c5a90c82b08fff69dde6201dac19`.

@@ -2,7 +2,7 @@
 
 Each prediction was written, hashed and tagged **before** its data existed, so each is judged by the rule it was written with. Nothing here is edited by hand once a result is in: `python -m mcp.grade` grades from the result files with thresholds copied from the documents (`src/mcp/grade.py`), except E1 to E6 and A1 to A3, which their documents say are graded by hand.
 
-**5 of 24 graded.** v5 (S1 to S5) was read on 9 November 2026. The other rows are read when November 2026 is published (probably early February 2027), decided before any of that data exists.
+**5 of 29 graded.** v5 (S1 to S5) was read on 9 November 2026. The other rows, including v5.1 (R1 to R5), are read when November 2026 is published (probably early February 2027), decided before any of that data exists.
 
 | # | Prediction | Document (tag) | Status | Result |
 | --- | --- | --- | --- | --- |
@@ -30,6 +30,11 @@ Each prediction was written, hashed and tagged **before** its data existed, so e
 | S3 | At every hub the 90 to 104 minute miss rate is above the 165 to 179 minute rate | [prereg-v5-self-transfer](PREREGISTRATION_V5_SELF_TRANSFER.md) | **passed** | miss rate 90 to 104 min against 165 to 179 min: ATL 26.2%/6.4%, ORD 27.2%/8.1%, DFW 25.3%/6.6%, DEN 24.8%/5.0%, CLT 23.6%/5.6% |
 | S4 | The standard deviation of the eight monthly ratios is 0.08 to 0.35 | [prereg-v5-self-transfer](PREREGISTRATION_V5_SELF_TRANSFER.md) | **passed** | monthly sd 0.17 |
 | S5 | Pairings offered within the 10% cap run worse than all pairings | [prereg-v5-self-transfer](PREREGISTRATION_V5_SELF_TRANSFER.md) | **passed** | within the 10% cap 1.175, all 1.159 |
+| R1 | v5.1 self-transfer cover priced within 0.85 to 1.15 of its payout on September to November 2026 | [prereg-v5-1-level](PREREGISTRATION_V5_1_LEVEL.md) | pending |  |
+| R2 | v5.1 is closer to 1 than the frozen v5 table on the same pairings | [prereg-v5-1-level](PREREGISTRATION_V5_1_LEVEL.md) | pending |  |
+| R3 | No month above 1.54 (a 100% loss ratio) | [prereg-v5-1-level](PREREGISTRATION_V5_1_LEVEL.md) | pending |  |
+| R4 | Inbound cancellations and diversions are 20% to 50% of misses | [prereg-v5-1-level](PREREGISTRATION_V5_1_LEVEL.md) | pending |  |
+| R5 | Long gaps (150 to 300 minutes) within 0.15 of short gaps (90 to 149) | [prereg-v5-1-level](PREREGISTRATION_V5_1_LEVEL.md) | pending |  |
 
 **How the read happens.** A weekly scheduled job on the author's machine checks that BTS has published September, October and November 2026, and only then runs the four tests once, in the pre-registered order, grades them with the rules above and commits the results to a local branch. It never pushes, never changes a model or a threshold, and never runs twice. The author reviews and publishes. v3 and v4 are judged on these three months only. For E1 to E6 and A1 to A3, `PREREGISTRATION_2026H2.md` allows one final read with December once it is published. It was decided before any of the data existed that this read will be run, once, and reported next to the first (`VALIDATION.md` 5M).
 

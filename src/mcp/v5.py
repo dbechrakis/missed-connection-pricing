@@ -341,12 +341,15 @@ def main(argv=None) -> None:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("step", choices=["fares", "build", "select", "fit", "holdout"])
     p.add_argument("--t", type=int, default=T_MIN)
-    p.add_argument("--sealed", action="store_true", help="build: January to August 2026, counts only")
+    p.add_argument("--sealed", action="store_true", help="build: counts only, never an outcome rate (default window January to August 2026)")
+    p.add_argument("--start", default=None, help="build: first month, YYYY-MM (overrides the default window)")
+    p.add_argument("--end", default=None, help="build: last month, YYYY-MM")
     a = p.parse_args(argv)
     if a.step == "fares":
         print(f"{fares():,} nonstop markets")
     elif a.step == "build":
-        build(a.t, *(WINDOWS["SEALED"] if a.sealed else WINDOWS["FINAL"]), sealed=a.sealed)
+        start, end = WINDOWS["SEALED"] if a.sealed else WINDOWS["FINAL"]
+        build(a.t, a.start or start, a.end or end, sealed=a.sealed)
     elif a.step == "select":
         print(json.dumps(select(a.t), indent=1))
     elif a.step == "fit":

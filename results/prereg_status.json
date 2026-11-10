@@ -1,5 +1,5 @@
 {
- "when": "v5 (S1 to S5) was read on 9 November 2026. The other rows are read when November 2026 is published (probably early February 2027), decided before any of that data exists.",
+ "when": "v5 (S1 to S5) was read on 9 November 2026. The other rows, including v5.1 (R1 to R5), are read when November 2026 is published (probably early February 2027), decided before any of that data exists.",
  "expectations": [
   {
    "id": "E1",
@@ -192,6 +192,46 @@
    "tag": "prereg-v5-self-transfer",
    "status": "pass",
    "result": "within the 10% cap 1.175, all 1.159"
+  },
+  {
+   "id": "R1",
+   "claim": "v5.1 self-transfer cover priced within 0.85 to 1.15 of its payout on September to November 2026",
+   "document": "PREREGISTRATION_V5_1_LEVEL.md",
+   "tag": "prereg-v5-1-level",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "R2",
+   "claim": "v5.1 is closer to 1 than the frozen v5 table on the same pairings",
+   "document": "PREREGISTRATION_V5_1_LEVEL.md",
+   "tag": "prereg-v5-1-level",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "R3",
+   "claim": "No month above 1.54 (a 100% loss ratio)",
+   "document": "PREREGISTRATION_V5_1_LEVEL.md",
+   "tag": "prereg-v5-1-level",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "R4",
+   "claim": "Inbound cancellations and diversions are 20% to 50% of misses",
+   "document": "PREREGISTRATION_V5_1_LEVEL.md",
+   "tag": "prereg-v5-1-level",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "R5",
+   "claim": "Long gaps (150 to 300 minutes) within 0.15 of short gaps (90 to 149)",
+   "document": "PREREGISTRATION_V5_1_LEVEL.md",
+   "tag": "prereg-v5-1-level",
+   "status": "pending",
+   "result": null
   }
  ]
 }
