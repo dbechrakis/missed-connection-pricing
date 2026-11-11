@@ -1,5 +1,5 @@
 {
- "when": "v5 (S1 to S5) was read on 9 November 2026. The other rows, including v5.1 (R1 to R5), are read when November 2026 is published (probably early February 2027), decided before any of that data exists.",
+ "when": "v5 (S1 to S5) was read on 9 November 2026. The rows read when November 2026 is published (probably early February 2027) include v5.1 (R1 to R5). v5.2 (W1 to W5) is read when February 2027 is published (probably early May 2027). Every date was decided before the data exists.",
  "expectations": [
   {
    "id": "E1",
@@ -230,6 +230,46 @@
    "claim": "Long gaps (150 to 300 minutes) within 0.15 of short gaps (90 to 149)",
    "document": "PREREGISTRATION_V5_1_LEVEL.md",
    "tag": "prereg-v5-1-level",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "W1",
+   "claim": "v5.2 loaded self-transfer cover within 0.85 to 1.15 of its payout on December 2026 to February 2027",
+   "document": "PREREGISTRATION_V5_2_LOADING.md",
+   "tag": "prereg-v5-2-loading",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "W2",
+   "claim": "The loading is closer to 1 than the same table unloaded",
+   "document": "PREREGISTRATION_V5_2_LOADING.md",
+   "tag": "prereg-v5-2-loading",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "W3",
+   "claim": "No month above 1.54 loaded (a 100% loss ratio)",
+   "document": "PREREGISTRATION_V5_2_LOADING.md",
+   "tag": "prereg-v5-2-loading",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "W4",
+   "claim": "65% to 85% of pairings fit the 10% cap at the loaded price, every month",
+   "document": "PREREGISTRATION_V5_2_LOADING.md",
+   "tag": "prereg-v5-2-loading",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "W5",
+   "claim": "Inbound cancellations and diversions are 20% to 50% of misses",
+   "document": "PREREGISTRATION_V5_2_LOADING.md",
+   "tag": "prereg-v5-2-loading",
    "status": "pending",
    "result": null
   }
