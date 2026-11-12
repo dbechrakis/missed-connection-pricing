@@ -1,0 +1,385 @@
+{
+ "status": "development orientation on the 26 out-of-sample months of the gap cover, not a test",
+ "lag_months": 2,
+ "min_history": 6,
+ "candidates": [
+  "none",
+  "last12",
+  "cred",
+  "local",
+  "local_season"
+ ],
+ "level": 0.9,
+ "self_transfer": "not run: the committed results hold no monthly series for the self-transfer walk-forward. It needs the pairings (WP3) and is graded as B8",
+ "season_note": "local_season needs 48 known months, so every month here falls back to local",
+ "all_overnight_risk": {
+  "months": 26,
+  "first": "2024-07",
+  "last": "2026-08",
+  "hubs": [
+   "ATL",
+   "CLT",
+   "DEN",
+   "DFW",
+   "ORD"
+  ],
+  "pooled_series": {
+   "none": {
+    "n": 19,
+    "crps": 0.1252745692003843,
+    "log_score": -0.06180979012201102,
+    "mae_log": 0.16871593145569658,
+    "bias_log": 0.07087479983117095,
+    "coverage": 0.8947368421052632,
+    "nominal": 0.9,
+    "mean_width_log": 0.7966725466831578,
+    "unadjusted": 1.0892668832814123,
+    "repriced": 1.0575781175816674,
+    "months": 19,
+    "conformal": {
+     "n": 12,
+     "coverage": 1.0,
+     "mean_width_log": 0.8656573848183872
+    },
+    "used": [
+     "none"
+    ]
+   },
+   "last12": {
+    "n": 19,
+    "crps": 0.14511823620095243,
+    "log_score": 0.07302861292121081,
+    "mae_log": 0.21310962438765876,
+    "bias_log": 0.06725731475965781,
+    "coverage": 0.8947368421052632,
+    "nominal": 0.9,
+    "mean_width_log": 0.8287099947839115,
+    "unadjusted": 1.0892668832814123,
+    "repriced": 1.0467010846798588,
+    "months": 19,
+    "conformal": {
+     "n": 12,
+     "coverage": 1.0,
+     "mean_width_log": 0.9852832766269813
+    },
+    "used": [
+     "last12"
+    ]
+   },
+   "local": {
+    "n": 19,
+    "crps": 0.14291405002829927,
+    "log_score": 0.07950270145317268,
+    "mae_log": 0.2012598810032607,
+    "bias_log": 0.03741157901148338,
+    "coverage": 0.8947368421052632,
+    "nominal": 0.9,
+    "mean_width_log": 0.8687320783874842,
+    "unadjusted": 1.0892668832814123,
+    "repriced": 0.9990208169048117,
+    "months": 19,
+    "conformal": {
+     "n": 12,
+     "coverage": 0.8333333333333334,
+     "mean_width_log": 1.1102654740695346
+    },
+    "used": [
+     "local"
+    ]
+   },
+   "local_season": {
+    "n": 19,
+    "crps": 0.14291405002829927,
+    "log_score": 0.07950270145317268,
+    "mae_log": 0.2012598810032607,
+    "bias_log": 0.03741157901148338,
+    "coverage": 0.8947368421052632,
+    "nominal": 0.9,
+    "mean_width_log": 0.8687320783874842,
+    "unadjusted": 1.0892668832814123,
+    "repriced": 0.9990208169048117,
+    "months": 19,
+    "conformal": {
+     "n": 12,
+     "coverage": 0.8333333333333334,
+     "mean_width_log": 1.1102654740695346
+    },
+    "used": [
+     "local"
+    ]
+   }
+  },
+  "hub_panel": {
+   "none": {
+    "n": 95,
+    "crps": 0.15978007113074827,
+    "log_score": 0.17458026291070844,
+    "mae_log": 0.22463983298984566,
+    "bias_log": 0.05309976462594335,
+    "coverage": 0.9052631578947369,
+    "nominal": 0.9,
+    "mean_width_log": 0.9864253916879415,
+    "unadjusted": 1.0892668832814125,
+    "repriced": 1.040628037610887,
+    "months": 95,
+    "used": [
+     "none"
+    ]
+   },
+   "last12": {
+    "n": 95,
+    "crps": 0.17408531448107428,
+    "log_score": 0.2535902270097526,
+    "mae_log": 0.2408087800162791,
+    "bias_log": 0.05955983249691496,
+    "coverage": 0.8736842105263158,
+    "nominal": 0.9,
+    "mean_width_log": 0.9884101285506235,
+    "unadjusted": 1.0892668832814125,
+    "repriced": 1.0400555342959878,
+    "months": 95,
+    "used": [
+     "last12"
+    ]
+   },
+   "cred": {
+    "n": 95,
+    "crps": 0.17153325177714188,
+    "log_score": 0.22876537837586305,
+    "mae_log": 0.24564058477458672,
+    "bias_log": 0.05955983249691496,
+    "coverage": 0.8842105263157894,
+    "nominal": 0.9,
+    "mean_width_log": 0.9643568766534202,
+    "unadjusted": 1.0892668832814125,
+    "repriced": 1.0446536791665542,
+    "months": 95,
+    "used": [
+     "cred"
+    ],
+    "credibility_mean": 0.21152253278606375
+   },
+   "local": {
+    "n": 95,
+    "crps": 0.19312025247561496,
+    "log_score": 0.3672893887836799,
+    "mae_log": 0.2706392250677256,
+    "bias_log": 0.040822107503608616,
+    "coverage": 0.9157894736842105,
+    "nominal": 0.9,
+    "mean_width_log": 1.1596116643926795,
+    "unadjusted": 1.0892668832814125,
+    "repriced": 0.9762626464027345,
+    "months": 95,
+    "used": [
+     "local"
+    ]
+   },
+   "local_season": {
+    "n": 95,
+    "crps": 0.19312025247561496,
+    "log_score": 0.3672893887836799,
+    "mae_log": 0.2706392250677256,
+    "bias_log": 0.040822107503608616,
+    "coverage": 0.9157894736842105,
+    "nominal": 0.9,
+    "mean_width_log": 1.1596116643926795,
+    "unadjusted": 1.0892668832814125,
+    "repriced": 0.9762626464027345,
+    "months": 95,
+    "used": [
+     "local"
+    ]
+   }
+  },
+  "best_by_crps": {
+   "pooled": "none",
+   "hub_panel": "none"
+  }
+ },
+ "sold_within_cap": {
+  "months": 26,
+  "first": "2024-07",
+  "last": "2026-08",
+  "hubs": [
+   "ATL",
+   "CLT",
+   "DEN",
+   "DFW",
+   "ORD"
+  ],
+  "pooled_series": {
+   "none": {
+    "n": 19,
+    "crps": 0.2124987817060528,
+    "log_score": 0.4307567724075852,
+    "mae_log": 0.3205072235108005,
+    "bias_log": 0.13276538185476577,
+    "coverage": 1.0,
+    "nominal": 0.9,
+    "mean_width_log": 1.3142235812777994,
+    "unadjusted": 1.200022848525449,
+    "repriced": 1.1074101487488106,
+    "months": 19,
+    "conformal": {
+     "n": 12,
+     "coverage": 1.0,
+     "mean_width_log": 1.2324033469361881
+    },
+    "used": [
+     "none"
+    ]
+   },
+   "last12": {
+    "n": 19,
+    "crps": 0.2227329010853732,
+    "log_score": 0.4701070685828687,
+    "mae_log": 0.33828518442035954,
+    "bias_log": 0.07507120909353349,
+    "coverage": 1.0,
+    "nominal": 0.9,
+    "mean_width_log": 1.3831883461856151,
+    "unadjusted": 1.200022848525449,
+    "repriced": 1.0353653954561575,
+    "months": 19,
+    "conformal": {
+     "n": 12,
+     "coverage": 0.9166666666666666,
+     "mean_width_log": 1.256951738716577
+    },
+    "used": [
+     "last12"
+    ]
+   },
+   "local": {
+    "n": 19,
+    "crps": 0.27687424179844483,
+    "log_score": 0.7331183656820217,
+    "mae_log": 0.40861282292219936,
+    "bias_log": 0.030687851233368358,
+    "coverage": 0.8947368421052632,
+    "nominal": 0.9,
+    "mean_width_log": 1.6652954292788986,
+    "unadjusted": 1.200022848525449,
+    "repriced": 0.9090304250717159,
+    "months": 19,
+    "conformal": {
+     "n": 12,
+     "coverage": 0.8333333333333334,
+     "mean_width_log": 1.7873922163630998
+    },
+    "used": [
+     "local"
+    ]
+   },
+   "local_season": {
+    "n": 19,
+    "crps": 0.27687424179844483,
+    "log_score": 0.7331183656820217,
+    "mae_log": 0.40861282292219936,
+    "bias_log": 0.030687851233368358,
+    "coverage": 0.8947368421052632,
+    "nominal": 0.9,
+    "mean_width_log": 1.6652954292788986,
+    "unadjusted": 1.200022848525449,
+    "repriced": 0.9090304250717159,
+    "months": 19,
+    "conformal": {
+     "n": 12,
+     "coverage": 0.8333333333333334,
+     "mean_width_log": 1.7873922163630998
+    },
+    "used": [
+     "local"
+    ]
+   }
+  },
+  "hub_panel": {
+   "none": {
+    "n": 95,
+    "crps": 0.27281502613882286,
+    "log_score": 0.7109942966313967,
+    "mae_log": 0.39482417606249776,
+    "bias_log": 0.08961568598841979,
+    "coverage": 0.9157894736842105,
+    "nominal": 0.9,
+    "mean_width_log": 1.73235920031386,
+    "unadjusted": 1.2000228485254487,
+    "repriced": 1.0387385072756663,
+    "months": 95,
+    "used": [
+     "none"
+    ]
+   },
+   "last12": {
+    "n": 95,
+    "crps": 0.2992775141529346,
+    "log_score": 0.8350587934947314,
+    "mae_log": 0.42240729435779745,
+    "bias_log": 0.09103495274607498,
+    "coverage": 0.8631578947368421,
+    "nominal": 0.9,
+    "mean_width_log": 1.7469305754792204,
+    "unadjusted": 1.2000228485254487,
+    "repriced": 1.0186966515288012,
+    "months": 95,
+    "used": [
+     "last12"
+    ]
+   },
+   "cred": {
+    "n": 95,
+    "crps": 0.2843474841518784,
+    "log_score": 0.7212939603716181,
+    "mae_log": 0.42071184519324045,
+    "bias_log": 0.09103495274607501,
+    "coverage": 0.9157894736842105,
+    "nominal": 0.9,
+    "mean_width_log": 1.7051707221526495,
+    "unadjusted": 1.2000228485254487,
+    "repriced": 1.0495511417307295,
+    "months": 95,
+    "used": [
+     "cred"
+    ],
+    "credibility_mean": 0.023299148447031317
+   },
+   "local": {
+    "n": 95,
+    "crps": 0.36724004202824373,
+    "log_score": 1.0279928471912723,
+    "mae_log": 0.5246171822691793,
+    "bias_log": 0.03146154779393147,
+    "coverage": 0.8947368421052632,
+    "nominal": 0.9,
+    "mean_width_log": 2.1908693612321977,
+    "unadjusted": 1.2000228485254487,
+    "repriced": 0.8245921244127731,
+    "months": 95,
+    "used": [
+     "local"
+    ]
+   },
+   "local_season": {
+    "n": 95,
+    "crps": 0.36724004202824373,
+    "log_score": 1.0279928471912723,
+    "mae_log": 0.5246171822691793,
+    "bias_log": 0.03146154779393147,
+    "coverage": 0.8947368421052632,
+    "nominal": 0.9,
+    "mean_width_log": 2.1908693612321977,
+    "unadjusted": 1.2000228485254487,
+    "repriced": 0.8245921244127731,
+    "months": 95,
+    "used": [
+     "local"
+    ]
+   }
+  },
+  "best_by_crps": {
+   "pooled": "none",
+   "hub_panel": "none"
+  }
+ }
+}

@@ -754,3 +754,65 @@ Pre-registered in `PREREGISTRATION_V5_2_LOADING.md` (commit `6444e22`, pushed wh
 - **The read:** December 2026 to February 2027, once, when February 2027 is published in both BTS files (probably early May 2027). Expectations W1 to W5 are on the scoreboard. Winter is the hard season: last December ran 1.34 unloaded on the same walk-forward.
 
 **Tags for v5 to v5.2.** The session that wrote these pre-registrations could push branches but not tags. `.github/workflows/preregistration-tags.yml` creates `prereg-v5-self-transfer`, `prereg-v5-1-level` and `prereg-v5-2-loading` with the repository's token, each at the commit that added its document (`48b2dd2`, `46055a6`, `6444e22`), and only after checking that the commit adds that file. The tags are created after the fact. What dates each document is the push of its commit to GitHub, before the data existed, which the branch's push history records.
+
+
+## Part 7: Season 2
+
+Written from 12 November 2026. The plan is `docs/season2-plan.md`. Earlier parts are not edited. Nothing in this part reads, builds or scores any BTS month from September 2026 on, and nothing here changes a frozen file or a pre-registered test.
+
+### 7A. A model of the claims level, and what 26 months can say about it (development data, July 2024 to August 2026)
+
+Code: `src/mcp/level.py` and `src/mcp/risk.py`. Tests: `tests/test_level.py` and `tests/test_risk.py`. Results: `results/level_dev.json`.
+
+**The idea.** Every repair so far (a recalibration, a level shift, the loading of 1.16) treated the ratio of realized to expected claims as a constant to be estimated late. Here the monthly log ratio is a series with a level that may move, and each candidate forecasts a month from the months that would be known when it is priced, which is every month up to two months earlier for the gap cover (`lag` 2) and five for self-transfers (`lag` 5, as v5.1). Each forecast is a normal distribution for the log ratio, so it can be scored as a distribution and its intervals can be checked. The candidates were fixed before the run and none was added or dropped after it:
+
+| Candidate | What it does |
+| --- | --- |
+| `none` | Level 1. What v3 and v5.1 use. Its spread is the mean squared log ratio of the known months |
+| `last12` | The mean of the last 12 known months |
+| `cred` | Buhlmann-Straub credibility across the five hubs: each hub's recent mean shrunk toward the all-hub recent mean |
+| `local` | A local-level state-space model (random walk plus noise), Kalman filter, forecast `lag` months ahead, one variance ratio chosen by maximum likelihood on known months only |
+| `local_season` | `local` plus a month-of-year effect shrunk toward zero, used only once 48 months are known and otherwise equal to `local` |
+
+**One departure from the plan, recorded here.** The plan describes `cred` as a shrinkage of the recent mean toward a hub's own long-run mean. With 26 months that needs variance components that cannot be estimated, so `cred` shrinks toward the all-hub mean instead, which is the classical Buhlmann-Straub form and needs only the five hubs. The time-series version of the idea is the `local` model.
+
+**The run.** The 26 out-of-sample months of the gap cover from `results/v3_rolling_weeks.csv`, at the weekly file's own monthly sums, as all overnight-risk connections and as sold within the 5% cap. A forecast needs six known months, so 19 months are forecast (February 2025 to August 2026), 95 hub-months in the panel. CRPS is in log-ratio units, lower is better. Coverage is the share of months inside the 90% interval. "Repriced" is the pooled realized/expected ratio had the expected claims been multiplied by the forecast level, over the same months, where 1 is on target.
+
+| View and series | Candidate | CRPS | Coverage | Unadjusted | Repriced |
+| --- | --- | --- | --- | --- | --- |
+| All, pooled | `none` | 0.125 | 0.89 | 1.089 | 1.058 |
+| All, pooled | `last12` | 0.145 | 0.89 | 1.089 | 1.047 |
+| All, pooled | `local` | 0.143 | 0.89 | 1.089 | 0.999 |
+| All, hub panel | `none` | 0.160 | 0.91 | 1.089 | 1.041 |
+| All, hub panel | `last12` | 0.174 | 0.87 | 1.089 | 1.040 |
+| All, hub panel | `cred` | 0.172 | 0.88 | 1.089 | 1.045 |
+| All, hub panel | `local` | 0.193 | 0.92 | 1.089 | 0.976 |
+| Sold, pooled | `none` | 0.212 | 1.00 | 1.200 | 1.107 |
+| Sold, pooled | `last12` | 0.223 | 1.00 | 1.200 | 1.035 |
+| Sold, pooled | `local` | 0.277 | 0.89 | 1.200 | 0.909 |
+| Sold, hub panel | `none` | 0.273 | 0.92 | 1.200 | 1.039 |
+| Sold, hub panel | `last12` | 0.299 | 0.86 | 1.200 | 1.019 |
+| Sold, hub panel | `cred` | 0.284 | 0.92 | 1.200 | 1.050 |
+| Sold, hub panel | `local` | 0.367 | 0.89 | 1.200 | 0.825 |
+
+`local_season` equals `local` in every month and is not listed again, because no month has 48 known months.
+
+**What it says.**
+
+- **No candidate beats `none` on CRPS, in any of the four views.** The monthly ratio has a standard deviation of 0.24 around its level, which is larger than the movement of the level that a model could learn from 19 forecast months. A model that follows the level also follows the noise, and pays for it: `local` is closest to 1 on the repriced ratio (0.999 pooled, all connections) and still scores worse than `none` on CRPS (0.143 against 0.125). Being closer to 1 on one pooled number is not evidence of a better forecast.
+- **The hubs are not distinguishable from one another beyond noise.** The credibility factor averaged 0.21 for all connections and 0.02 as sold. At 0.02 each hub is pooled almost entirely with the other four, so `cred` becomes the all-hub mean, which is why it sits next to `last12`.
+- **The intervals are about right.** Coverage runs from 0.86 to 1.00 against a nominal 0.90 over 19 or 95 forecasts, which is inside what that many forecasts allow. A pooled interval that never misses (1.00 as sold for `none` and `last12`) is a sign the intervals are wide, not that they are good.
+- **The repriced ratio for `none` is not 1.0 because the forecast carries its variance.** The forecast level is the mean of a lognormal, so a noisy series loads the price by about half its variance even when the log level is 0.
+
+**What this does not show.** Nineteen forecast months cannot separate a moving level from noise, and cannot run the seasonal candidate at all. That is the reason for WP3, which adds six years the project has never loaded. The result here is a baseline to beat and not a verdict on any candidate. It also says what the backcast must show to justify season 2's central claim: that following the level beats not following it, on months this analysis has not seen.
+
+**Not done in this section, and why.**
+
+- *The self-transfer series.* The committed results hold the pooled walk-forward ratio for v5.1 (1.159) and the eight spent months of v5's holdout, but no monthly series for the fourteen development months. It needs the pairings and is graded as expectation B8 of the backcast. The code already takes `lag` 5.
+- *The sample check.* The plan asks that a 20% uniform hash sample of pairings reproduce the published pooled ratios (1.04 all, 1.15 as sold) within 0.02. The stored rows are a 10% sample, so the check needs a new build from the BTS files and belongs at the start of WP3, before any 2018 to 2023 month is read.
+
+**Reproducing.**
+
+```bash
+cd src && python -m mcp.level dev     # about a second, reads results/v3_rolling_weeks.csv, writes results/level_dev.json
+```
