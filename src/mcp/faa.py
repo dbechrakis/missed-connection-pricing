@@ -182,6 +182,49 @@ def programs(start: str = "2018-01", end: str = "2026-08") -> list[dict]:
     return out
 
 
+def send_time(text: str) -> datetime:
+    """'07/18/19 23:50' (UTC, as the list page prints it) to an aware datetime."""
+    return datetime.strptime(text.strip(), "%m/%d/%y %H:%M").replace(tzinfo=timezone.utc)
+
+
+def active_intervals(advisories: list[dict], hubs=HUBS) -> dict[str, list[tuple[datetime, datetime]]]:
+    """Per hub, the merged intervals during which a ground stop or ground delay program written by the FAA was in effect.
+
+    Proposals and stops that apply to one airline's flights are left out. A cancellation advisory ends any earlier
+    program of the same kind at that hub that was still running when it was sent. A program that was revised to end earlier
+    keeps its original end (revisions are not followed), so intervals can only be too long, never too short."""
+    out = {}
+    for hub in hubs:
+        mine = [a for a in advisories if a.get("element") == hub]
+        spans = [[datetime.fromisoformat(a["period"][0]), datetime.fromisoformat(a["period"][1]), a["kind"]]
+                 for a in mine if a.get("period") and not a["cnx"] and not a["proposed"] and not a["carrier_specific"]]
+        for c in (a for a in mine if a["cnx"] and not a["proposed"] and not a["carrier_specific"]):
+            t = send_time(c["send"])
+            for sp in spans:
+                if sp[2] == c["kind"] and sp[0] <= t < sp[1]:
+                    sp[1] = t
+        merged = []
+        for start, end, _ in sorted(spans):
+            if merged and start <= merged[-1][1]:
+                merged[-1][1] = max(merged[-1][1], end)
+            else:
+                merged.append([start, end])
+        out[hub] = [(a, b) for a, b in merged]
+    return out
+
+
+def covered(intervals: list[tuple[datetime, datetime]], times) -> "np.ndarray":
+    """True for each time (an aware datetime or numpy datetime64) that falls inside one of the merged intervals."""
+    import numpy as np
+    t = np.asarray(times, dtype="datetime64[s]").astype("int64")
+    if not intervals:
+        return np.zeros(len(t), bool)
+    starts = np.array([a.astimezone(timezone.utc).replace(tzinfo=None) for a, _ in intervals], dtype="datetime64[s]").astype("int64")
+    ends = np.array([b.astimezone(timezone.utc).replace(tzinfo=None) for _, b in intervals], dtype="datetime64[s]").astype("int64")
+    i = np.searchsorted(starts, t, side="right") - 1
+    return (i >= 0) & (t < ends[np.clip(i, 0, None)])
+
+
 def gate(n: int = 100, seed: int = 0) -> None:
     """The hand check of the plan: n random cached advisories, parsed fields next to the lines they came from."""
     allp = programs()
