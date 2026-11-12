@@ -40,3 +40,22 @@ jobs:
           Follow the procedure of each pre-registration exactly, with no retuning. The first read runs when September to November are all published; the December read is described in VALIDATION.md 5M. Nothing else may score these months first, the monthly job included. Report every pre-registered number, pass or fail."
             fi
           done
+
+      - name: Open an issue for each newly published month of the v6 forward test (March to August 2027)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          # PREREGISTRATION_V6_FORWARD.md: spring 2027 is read when May is published, summer 2027 when August is. The gap cover reads the
+          # Marketing Carrier file only. One issue per month, so that nothing is run on fewer months than the window and nothing is skipped.
+          for m in 3 4 5 6 7 8; do
+            mkt="https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2027_${m}.zip"
+            c_mkt=$(curl -sI -o /dev/null -w '%{http_code}' --max-time 60 "$mkt" || echo 000)
+            title="BTS published 2027-$(printf %02d $m): the v6 forward test"
+            echo "2027-$m: Marketing Carrier HTTP $c_mkt"
+            if [ "$c_mkt" = "200" ] && [ -z "$(gh issue list -R "$REPO" --state all --search "\"$title\" in:title" --json number -q '.[].number')" ]; then
+              gh issue create -R "$REPO" --title "$title" --body "BTS on-time data for 2027-$(printf %02d $m) is available (Marketing Carrier file): $mkt
+
+          PREREGISTRATION_V6_FORWARD.md reads spring 2027 (March to May) once May is published, and summer 2027 (June to August) once August is. Ingest the months, then run \`MCP_VARIANT=v3 python -m mcp.v6 run <window>\` and \`MCP_VARIANT=v3 python -m mcp.v6 read <window>\` once, with no retuning. Nothing else may score these months first. Report every pre-registered number, pass or fail."
+            fi
+          done

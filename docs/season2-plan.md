@@ -12,11 +12,12 @@ Written as the work went, so a reader can see where the executed work differs fr
 | WP1 | Done, `VALIDATION.md` 7A | `cred` shrinks toward the all-hub mean instead of a hub's own long-run mean (the latter needs variance components 26 months cannot give). The self-transfer orientation and the sample check were left for the data |
 | WP2 | Done. `PREREGISTRATION_V6_BACKCAST.md`, its addendum, `PREREGISTRATION_V6_CODING.md`, `PREREGISTRATION_V6_FORECAST.md` | The addendum replaces `local_season` by `local` in B6 and B7: 44 observed months can never reach the 48 `local_season` needs, so those two could not have been graded. Found before any outcome existed. B10 uses windows 12 months apart because no two valid windows are 24 months apart |
 | WP3 | Done | New variant `hist` (all products suffixed `_hist`). GSA rates for fiscal years 2018 to 2023 come from the GSA master files (`mcp.gsa_hist`), because the rate pages and the API carry nothing before fiscal year 2024. DB1B 2017 to 2022 prices the months of the next year. The on-time ingest of 2018 to 2023 (counts only) began before the sample check finished, which section 7 of the backcast pre-registration did not allow. It passed at the first fraction, so nothing depended on it (`results/sample_check.json`) |
-| WP4 | Running | Arms A and B, the self-transfer arm, then the single read |
-| WP5 | Code done (`mcp.capital`) | The numbers wait for the 2019 to 2026 weekly series |
-| WP6 | Code done, data collected | FAA advisories are fetched by four parallel workers at one request a second each, not one worker. The parse gate (100 sampled advisories checked against the pages) passed on the fourth sample, after the first three found an unmapped condition class and flaws in the checker itself |
-| WP7 | Pre-registered, read once | Snowfall and weather code at lead 7 exist in the archive only from 12 December 2024, earlier values are missing values. A noise floor for kappa (two fits of the same information) is reported next to it |
-| WP8, WP9 | Not started | They need the results above |
+| WP4 | Done, `VALIDATION.md` 7B | Read once on 12 November 2026: B1, B2 and B7 passed, B3 to B6 and B8 failed. B10 uses windows 12 months apart |
+| WP5 | Done, `VALIDATION.md` 7C | Development evidence on 306 weeks. The annual capital term is small and probably understated |
+| WP6 | Done, `VALIDATION.md` 7D and 7E. C1 failed, C2 is not graded | FAA advisories are fetched by four parallel workers at one request a second each, not one worker. The parse gate (100 sampled advisories checked against the pages) passed on the fourth sample, after the first three found an unmapped condition class and flaws in the checker itself |
+| WP7 | Done, `VALIDATION.md` 7F. F1 and F2 passed, F2 by one week | Snowfall and weather code at lead 7 exist in the archive only from 12 December 2024, earlier values are missing values. A noise floor for kappa (two fits of the same information) is reported next to it |
+| WP8 | Done, `PREREGISTRATION_V6_FORWARD.md` | v6 is the v3 procedure with frozen month multipliers (found after the backcast, `VALIDATION.md` 7G), not a level model and not a loading. The plan's WP8 assumed `local_season` or `none` plus a loading, which the backcast did not support |
+| WP9 | Done except the independent review | README round four, the memo's second edition, the decision log, the demo's risk section, the profile. The sceptical review by a fresh read-only session is not done and is the owner's call |
 
 ## 1. Where the project stands, and what it has not answered
 

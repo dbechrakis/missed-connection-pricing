@@ -28,7 +28,7 @@ The code is written for Python 3.12 and also passes on 3.13. `pytest.ini` puts `
 
 | Path | What it holds |
 | --- | --- |
-| `src/mcp/` | One module per step. v1 and v2: `ingest`, `connections`, `features`, `model`, `calibration`, `pricing`, `backtest`, `holdout`, `v2`, `monitor`. v3 and v4, the gap cover: `variant`, `causes`, `costs`, `v3`, `v3_audit`, `v3_rolling`, `v3_loading`, `holdout_v3`, `holdout_v4`. v5, self-transfers: `v5`, `v5_1`, `v5_2`. Serving: `service`, `service_gap`, `api`, `score`, `demo`. Grading: `grade`. Season 2: `level`, `risk` |
+| `src/mcp/` | One module per step. v1 and v2: `ingest`, `connections`, `features`, `model`, `calibration`, `pricing`, `backtest`, `holdout`, `v2`, `monitor`. v3 and v4, the gap cover: `variant`, `causes`, `costs`, `v3`, `v3_audit`, `v3_rolling`, `v3_loading`, `holdout_v3`, `holdout_v4`. v5, self-transfers: `v5`, `v5_1`, `v5_2`. Serving: `service`, `service_gap`, `api`, `score`, `demo`. Grading: `grade`. Season 2: `level`, `risk`, `capital`, `backcast`, `backcast_st`, `coding_audit`, `faa`, `forecast`, `trigger`, `v6`, `gsa_hist`, `demo_risk` |
 | `tests/` | Hand-built tables with known answers, leakage guards, and checks that documents match `results/` |
 | `results/` | Every number quoted anywhere, as JSON or CSV produced by the code |
 | `models/` | Frozen artefacts, with hashes recorded in `VALIDATION.md` and the pre-registrations |
@@ -39,4 +39,4 @@ The code is written for Python 3.12 and also passes on 3.13. `pytest.ini` puts `
 
 ## Where the plan stands
 
-Season 2 work packages are WP0 to WP9 in `docs/season2-plan.md`. Record progress in `VALIDATION.md` Part 7, one lettered section per package (7A for WP1, and so on). Stop and report to the owner, without trying alternatives, when a gate in the plan's section 6 is hit.
+Season 2 work packages are WP0 to WP9 in `docs/season2-plan.md`, whose section 0 says what is done and where it departed from the plan. Data for 2017 to 2023 lives under the variant `MCP_VARIANT=hist` (see `src/mcp/variant.py`), never in the v1 or v3 directories. `requirements-hist.txt` is for `mcp.gsa_hist` only. The forward test of March to August 2027 is `mcp.v6` and `PREREGISTRATION_V6_FORWARD.md`. Record progress in `VALIDATION.md` Part 7, one lettered section per package (7A for WP1, and so on). Stop and report to the owner, without trying alternatives, when a gate in the plan's section 6 is hit.
