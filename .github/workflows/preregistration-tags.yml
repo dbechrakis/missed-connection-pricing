@@ -32,4 +32,6 @@ jobs:
           prereg-v5-self-transfer 48b2dd20fd939fda6aac3b75a91323f0b7abffcb PREREGISTRATION_V5_SELF_TRANSFER.md
           prereg-v5-1-level 46055a6e0707e07b4993bea96bd5280a68b4d684 PREREGISTRATION_V5_1_LEVEL.md
           prereg-v5-2-loading 6444e22886cad2927f53894fff54ab40aef96fe6 PREREGISTRATION_V5_2_LOADING.md
+          prereg-v6-backcast aadad1452587fdb3364915e5fbabb3b5c66e7abb PREREGISTRATION_V6_BACKCAST.md
+          prereg-v6-coding aadad1452587fdb3364915e5fbabb3b5c66e7abb PREREGISTRATION_V6_CODING.md
           EOF
