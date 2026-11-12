@@ -368,6 +368,22 @@
    "tag": "prereg-v6-coding",
    "status": "pending",
    "result": null
+  },
+  {
+   "id": "F1",
+   "claim": "The forecast gain is larger at lead 1 than at lead 7, and under 1% at lead 7",
+   "document": "PREREGISTRATION_V6_FORECAST.md",
+   "tag": "prereg-v6-forecast",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "F2",
+   "claim": "The sales rule lowers the weeks above a 100% loss ratio as sold (graded only if the gate passes)",
+   "document": "PREREGISTRATION_V6_FORECAST.md",
+   "tag": "prereg-v6-forecast",
+   "status": "pending",
+   "result": null
   }
  ]
 }

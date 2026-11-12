@@ -162,6 +162,18 @@ def grade_coding(res: dict) -> dict:
     return out
 
 
+def grade_forecast(res: dict) -> dict:
+    """F1 and F2 from results/forecast.json (written by mcp.forecast), thresholds as in PREREGISTRATION_V6_FORECAST.md.
+    F2 is graded only if the gate passed (a gain of 1% or more at some lead)."""
+    g = res["gain_pct"]
+    out = {"F1": {"pass": g["1"] > g["7"] and g["7"] < 1.0, "value": f"gain at lead 1 {g['1']:.2f}%, at lead 7 {g['7']:.2f}%"}}
+    if res["gate_passed"]:
+        w = res["rule"]["s20_theta1"]
+        out["F2"] = {"pass": w["weeks_above_100_with_rule"] < w["weeks_above_100_without_rule"],
+                     "value": f"weeks above 100% as sold: {w['weeks_above_100_with_rule']} with the rule, {w['weeks_above_100_without_rule']} without"}
+    return out
+
+
 def render(status: dict) -> str:
     """SCOREBOARD.md from the status file: one row per pre-registered prediction."""
     icon = {"pending": "pending", "pass": "**passed**", "fail": "**failed**"}
@@ -169,7 +181,7 @@ def render(status: dict) -> str:
     done = sum(1 for e in status["expectations"] if e["status"] != "pending")
     return f"""# Scoreboard: every pre-registered prediction and how it turned out
 
-Each prediction was written, hashed and tagged **before** its data existed, so each is judged by the rule it was written with. Nothing here is edited by hand once a result is in: `python -m mcp.grade` grades from the result files with thresholds copied from the documents (`src/mcp/grade.py`), except E1 to E6, A1 to A3, B9 and B10, which their documents say are graded by hand.
+Each prediction was written, hashed and tagged **before** its data existed, so each is judged by the rule it was written with. Nothing here is edited by hand once a result is in: `python -m mcp.grade` grades from the result files with thresholds copied from the documents (`src/mcp/grade.py`), except E1 to E6, A1 to A3, B9, B10 and the sizes of F3, which their documents say are graded by hand.
 
 **{done} of {len(status['expectations'])} graded.** {status['when']}
 
@@ -199,7 +211,7 @@ def main() -> None:
     status = load()
     for name, grader in (("holdout_v3_next.json", grade_v3), ("holdout_v4_next.json", grade_v4), ("v5_holdout.json", grade_v5),
                          ("v5_1_holdout.json", grade_v5_1),
-                         ("v5_2_holdout.json", grade_v5_2), ("backcast.json", grade_backcast), ("coding_audit.json", grade_coding)):
+                         ("v5_2_holdout.json", grade_v5_2), ("backcast.json", grade_backcast), ("coding_audit.json", grade_coding), ("forecast.json", grade_forecast)):
         path = ROOT / "results" / name
         if path.exists():
             apply(status, grader(json.loads(path.read_text(encoding="utf-8"))))

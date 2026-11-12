@@ -52,8 +52,8 @@ def test_every_prediction_in_the_nine_documents_is_on_the_scoreboard_and_only_v5
         assert re.search(rf"^\| {e['id']} \|", text, flags=re.M), (e["id"], e["document"])
     in_docs = set()
     for doc in {e["document"] for e in on_board.values()}:
-        in_docs |= set(re.findall(r"^\| ([EAVLSRWBC]\d+) \|", (ROOT / doc).read_text(encoding="utf-8"), flags=re.M))
-    assert in_docs == set(on_board) and len(on_board) == 46
+        in_docs |= set(re.findall(r"^\| ([EAVLSRWBCF]\d+) \|", (ROOT / doc).read_text(encoding="utf-8"), flags=re.M))
+    assert in_docs == set(on_board) and len(on_board) == 48
     assert all(e["status"] == "pending" and e["result"] is None for k, e in on_board.items() if not k.startswith("S"))
     v5 = grade.grade_v5(json.loads((ROOT / "results" / "v5_holdout.json").read_text(encoding="utf-8")))
     assert all(on_board[k]["status"] == ("pass" if g["pass"] else "fail") and on_board[k]["result"] == g["value"] for k, g in v5.items())
@@ -141,3 +141,18 @@ def test_the_addendum_reason_is_arithmetic_that_can_be_checked():
     rows = {e["id"]: e for e in status["expectations"]}
     assert rows["B6"]["document"] == rows["B7"]["document"] == "PREREGISTRATION_V6_BACKCAST_ADDENDUM.md"
     assert "local_season" not in grade.grade_backcast.__doc__.split("B6 and B7")[0].split("level.")[1]
+
+
+def test_the_forecast_expectations_are_graded_by_the_rules_the_document_states():
+    base = {"gain_pct": {"1": 3.0, "2": 2.0, "3": 1.5, "5": 0.8, "7": 0.4}, "gate_passed": True,
+            "rule": {"s20_theta1": {"weeks_above_100_with_rule": 9, "weeks_above_100_without_rule": 14}}}
+    g = grade.grade_forecast(base)
+    assert g["F1"]["pass"] and g["F2"]["pass"]
+    assert not grade.grade_forecast({**base, "gain_pct": {**base["gain_pct"], "7": 1.2}})["F1"]["pass"]
+    assert not grade.grade_forecast({**base, "gain_pct": {**base["gain_pct"], "1": 0.3}})["F1"]["pass"]
+    assert not grade.grade_forecast({**base, "rule": {"s20_theta1": {"weeks_above_100_with_rule": 14, "weeks_above_100_without_rule": 14}}})["F2"]["pass"]
+    null = grade.grade_forecast({**base, "gate_passed": False})
+    assert "F2" not in null and "F1" in null
+    text = (ROOT / "PREREGISTRATION_V6_FORECAST.md").read_text(encoding="utf-8")
+    for needle in ("1 February 2024", "1 September 2025 to 31 August 2026", "1.5 times", "10%, 20%, 30%", "under 1% at every lead", "lead 3"):
+        assert needle in text, needle

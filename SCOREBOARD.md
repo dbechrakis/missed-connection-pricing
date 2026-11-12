@@ -1,8 +1,8 @@
 # Scoreboard: every pre-registered prediction and how it turned out
 
-Each prediction was written, hashed and tagged **before** its data existed, so each is judged by the rule it was written with. Nothing here is edited by hand once a result is in: `python -m mcp.grade` grades from the result files with thresholds copied from the documents (`src/mcp/grade.py`), except E1 to E6, A1 to A3, B9 and B10, which their documents say are graded by hand.
+Each prediction was written, hashed and tagged **before** its data existed, so each is judged by the rule it was written with. Nothing here is edited by hand once a result is in: `python -m mcp.grade` grades from the result files with thresholds copied from the documents (`src/mcp/grade.py`), except E1 to E6, A1 to A3, B9, B10 and the sizes of F3, which their documents say are graded by hand.
 
-**5 of 46 graded.** v5 (S1 to S5) was read on 9 November 2026. The rows read when November 2026 is published (probably early February 2027) include v5.1 (R1 to R5). v5.2 (W1 to W5) is read when February 2027 is published (probably early May 2027). Every date was decided before the data exists. The backcast (B1 to B10) and the coding audit (C1, C2) are read once, after the 2018 to 2023 months are ingested, and are pending until then.
+**5 of 48 graded.** v5 (S1 to S5) was read on 9 November 2026. The rows read when November 2026 is published (probably early February 2027) include v5.1 (R1 to R5). v5.2 (W1 to W5) is read when February 2027 is published (probably early May 2027). Every date was decided before the data exists. The backcast (B1 to B10) and the coding audit (C1, C2) are read once, after the 2018 to 2023 months are ingested, and are pending until then.
 
 | # | Prediction | Document (tag) | Status | Result |
 | --- | --- | --- | --- | --- |
@@ -52,6 +52,8 @@ Each prediction was written, hashed and tagged **before** its data existed, so e
 | B10 | Largest earlier 24-month change in the 12-month level, reported next to 2024 to 2026, no prediction | [prereg-v6-backcast](PREREGISTRATION_V6_BACKCAST.md) | pending |  |
 | C1 | The placebo break (September 2019) shows a change within ± 3 points for both outcomes | [prereg-v6-coding](PREREGISTRATION_V6_CODING.md) | pending |  |
 | C2 | No fall of 3 points or more in the carrier-coded share after the break | [prereg-v6-coding](PREREGISTRATION_V6_CODING.md) | pending |  |
+| F1 | The forecast gain is larger at lead 1 than at lead 7, and under 1% at lead 7 | [prereg-v6-forecast](PREREGISTRATION_V6_FORECAST.md) | pending |  |
+| F2 | The sales rule lowers the weeks above a 100% loss ratio as sold (graded only if the gate passes) | [prereg-v6-forecast](PREREGISTRATION_V6_FORECAST.md) | pending |  |
 
 **How the read happens.** A weekly scheduled job on the author's machine checks that BTS has published September, October and November 2026, and only then runs the four tests once, in the pre-registered order, grades them with the rules above and commits the results to a local branch. It never pushes, never changes a model or a threshold, and never runs twice. The author reviews and publishes. v3 and v4 are judged on these three months only. For E1 to E6 and A1 to A3, `PREREGISTRATION_2026H2.md` allows one final read with December once it is published. It was decided before any of the data existed that this read will be run, once, and reported next to the first (`VALIDATION.md` 5M).
 
