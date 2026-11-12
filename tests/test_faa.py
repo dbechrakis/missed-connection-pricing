@@ -86,3 +86,12 @@ def test_every_stated_impacting_condition_class_is_mapped():
     assert faa.cause_class("WEATHER / THUNDERSTORMS") == "weather" and faa.cause_class("VOLUME / MULTI-TAXI") == "volume"
     assert faa.cause_class("RWY-TAXI / CONSTRUCTION") == "runway_equipment" and faa.cause_class("OTHER / OTHER") == "other"
     assert faa.cause_class(None) == "none" and faa.cause_class("") == "none" and faa.cause_class("SPACE / LAUNCH") == "unknown"
+
+
+def test_a_period_may_start_in_the_month_before_the_advisory_and_a_day_that_does_not_exist_is_not_chosen():
+    s = faa._utc("06012019", "31/2330Z")                        # issued on 1 June, the stop began on 31 May (June has no 31st)
+    assert (s.month, s.day) == (5, 31)
+    e = faa._utc("06012019", "01/0100Z", ref=s)
+    assert (e.month, e.day, e.hour) == (6, 1, 1)
+    assert faa._utc("07182019", "18/2159Z").day == 18 and faa._utc("12312022", "01/0100Z", ref=faa._utc("12312022", "31/2330Z")).year == 2023
+    assert faa._utc("03012020", "29/2200Z").month == 2           # 29 February 2020 exists in a leap year

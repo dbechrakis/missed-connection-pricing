@@ -2,6 +2,22 @@
 
 Plan written 12 November 2026 against `dbechrakis/missed-connection-pricing` at commit `1e56cf7`. It is a handoff: each work package (WP) is sized for one working session of an executing model and states what done means. Nothing in the repository was changed while writing it.
 
+## 0. Status and departures from this plan (updated 12 November 2026)
+
+Written as the work went, so a reader can see where the executed work differs from the plan above. The plan text is otherwise unchanged.
+
+| Package | State | Departures, and why |
+| --- | --- | --- |
+| WP0 | Done | None |
+| WP1 | Done, `VALIDATION.md` 7A | `cred` shrinks toward the all-hub mean instead of a hub's own long-run mean (the latter needs variance components 26 months cannot give). The self-transfer orientation and the sample check were left for the data |
+| WP2 | Done. `PREREGISTRATION_V6_BACKCAST.md`, its addendum, `PREREGISTRATION_V6_CODING.md`, `PREREGISTRATION_V6_FORECAST.md` | The addendum replaces `local_season` by `local` in B6 and B7: 44 observed months can never reach the 48 `local_season` needs, so those two could not have been graded. Found before any outcome existed. B10 uses windows 12 months apart because no two valid windows are 24 months apart |
+| WP3 | Done | New variant `hist` (all products suffixed `_hist`). GSA rates for fiscal years 2018 to 2023 come from the GSA master files (`mcp.gsa_hist`), because the rate pages and the API carry nothing before fiscal year 2024. DB1B 2017 to 2022 prices the months of the next year. The on-time ingest of 2018 to 2023 (counts only) began before the sample check finished, which section 7 of the backcast pre-registration did not allow. It passed at the first fraction, so nothing depended on it (`results/sample_check.json`) |
+| WP4 | Running | Arms A and B, the self-transfer arm, then the single read |
+| WP5 | Code done (`mcp.capital`) | The numbers wait for the 2019 to 2026 weekly series |
+| WP6 | Code done, data collected | FAA advisories are fetched by four parallel workers at one request a second each, not one worker. The parse gate (100 sampled advisories checked against the pages) passed on the fourth sample, after the first three found an unmapped condition class and flaws in the checker itself |
+| WP7 | Pre-registered, read once | Snowfall and weather code at lead 7 exist in the archive only from 12 December 2024, earlier values are missing values. A noise floor for kappa (two fits of the same information) is reported next to it |
+| WP8, WP9 | Not started | They need the results above |
+
 ## 1. Where the project stands, and what it has not answered
 
 Season 1 answered "is the price right on average?" and reported honestly that the answer is "nearly, and not as sold". Reading every result together, four findings keep recurring and none of them is a modelling problem any more:

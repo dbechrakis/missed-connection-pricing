@@ -75,13 +75,29 @@ def wanted(row: dict, hubs=HUBS) -> str | None:
 
 
 def _utc(mdy: str, dayhhmm: str, ref: datetime | None = None) -> datetime:
-    """'18/2159Z' with the advisory's month and year, moving to the next month when the day number goes backwards."""
-    month, year = int(mdy[:2]), int(mdy[4:])
+    """'18/2159Z' to a UTC datetime. The advisory's own date (mmddyyyy) places the day: the start is the month, among the
+    previous, same and next, in which that day exists and falls closest to the issue date (a stop issued early on the 1st can
+    start on the 31st of the month before). With `ref` (the start) the end is the first time at or after `ref` with that day
+    number."""
+    month, year, issue_day = int(mdy[:2]), int(mdy[4:]), int(mdy[2:4])
     day, hh, mm = int(dayhhmm[:2]), int(dayhhmm[3:5]), int(dayhhmm[5:7])
-    base = datetime(year, month, 1, tzinfo=timezone.utc)
-    if ref is not None and day < ref.day:
-        base = (base.replace(day=28) + timedelta(days=4)).replace(day=1)
-    return base.replace(day=day, hour=hh, minute=mm)
+    issue = datetime(year, month, issue_day, tzinfo=timezone.utc)
+
+    def at(y: int, m: int):
+        try:
+            return datetime(y, m, day, hh, mm, tzinfo=timezone.utc)
+        except ValueError:
+            return None
+
+    cands = []
+    for dm in (-1, 0, 1):
+        n = year * 12 + month - 1 + dm
+        c = at(n // 12, n % 12 + 1)
+        if c is not None and (ref is None or c >= ref):
+            cands.append(c)
+    if not cands:
+        raise ValueError(f"no valid date for {dayhhmm} near {mdy}")
+    return min(cands, key=lambda c: abs((c - issue).total_seconds())) if ref is None else min(cands)
 
 
 def cause_class(impacting: str | None) -> str:
