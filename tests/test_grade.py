@@ -44,6 +44,9 @@ def test_v4_graders_use_the_thresholds_of_the_preregistration():
     assert grade.grade_v4(v4_result(weeks=1))["L4"]["pass"] and not grade.grade_v4(v4_result(weeks=2))["L4"]["pass"]
 
 
+GRADED_SEASON2 = {"C1", "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8"}      # read once, 12 November 2026
+
+
 def test_every_prediction_in_the_nine_documents_is_on_the_scoreboard_and_only_v5_and_the_forecast_test_have_been_read():
     status = json.loads((ROOT / "results" / "prereg_status.json").read_text(encoding="utf-8"))
     on_board = {e["id"]: e for e in status["expectations"]}
@@ -54,13 +57,16 @@ def test_every_prediction_in_the_nine_documents_is_on_the_scoreboard_and_only_v5
     for doc in {e["document"] for e in on_board.values()}:
         in_docs |= set(re.findall(r"^\| ([EAVLSRWBCF]\d+) \|", (ROOT / doc).read_text(encoding="utf-8"), flags=re.M))
     assert in_docs == set(on_board) and len(on_board) == 48
-    assert all(e["status"] == "pending" and e["result"] is None for k, e in on_board.items() if not k.startswith(("S", "F")) and k != "C1")
+    assert all(e["status"] == "pending" and e["result"] is None for k, e in on_board.items() if not (k.startswith(("S", "F")) or k in GRADED_SEASON2))
     v5 = grade.grade_v5(json.loads((ROOT / "results" / "v5_holdout.json").read_text(encoding="utf-8")))
     assert all(on_board[k]["status"] == ("pass" if g["pass"] else "fail") and on_board[k]["result"] == g["value"] for k, g in v5.items())
     fc = grade.grade_forecast(json.loads((ROOT / "results" / "forecast.json").read_text(encoding="utf-8")))
     assert all(on_board[k]["status"] == ("pass" if g["pass"] else "fail") and on_board[k]["result"] == g["value"] for k, g in fc.items())
     ca = grade.grade_coding(json.loads((ROOT / "results" / "coding_audit.json").read_text(encoding="utf-8")))
     assert set(ca) == {"C1"} and on_board["C1"]["status"] == "fail" and on_board["C2"]["status"] == "pending"
+    bc = grade.grade_backcast(json.loads((ROOT / "results" / "backcast.json").read_text(encoding="utf-8")))
+    assert set(bc) == {f"B{i}" for i in range(1, 9)} and all(on_board[k]["status"] == ("pass" if g["pass"] else "fail") and on_board[k]["result"] == g["value"] for k, g in bc.items())
+    assert on_board["B9"]["status"] == on_board["B10"]["status"] == "pending"
     assert (ROOT / "SCOREBOARD.md").read_text(encoding="utf-8") == grade.render(status)
 
 
