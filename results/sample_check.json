@@ -1,0 +1,19 @@
+{
+ "fraction": 0.2,
+ "tolerance": 0.02,
+ "months": 26,
+ "published": {
+  "all_overnight_risk": 1.044695443588726,
+  "sold_within_cap": 1.1511811527010112
+ },
+ "rebuilt": {
+  "all_overnight_risk": 1.0470205209099146,
+  "sold_within_cap": 1.138440465089293
+ },
+ "difference": {
+  "all_overnight_risk": 0.0023250773211886955,
+  "sold_within_cap": -0.012740687611718204
+ },
+ "passed": true,
+ "status": "sample check on the 26 development months of 2024 to 2026, before any 2018 to 2023 outcome was read"
+}
