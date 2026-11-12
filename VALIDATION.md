@@ -853,3 +853,36 @@ The noise floor is the spread between two fits of the same booking-time informat
 - **The rule costs sales.** Between 1% and 9% of sold weight, rising with the late share and the selection.
 
 **What this does not show.** How travellers really choose, how many book late, whether a rule like this is practical to run (it needs a forecast feed and a decision per connection), and anything about demand. The grid is a range, not an estimate.
+
+
+### 7E. Did airlines change how they code delays? The coding audit (read once, 12 November 2026)
+
+Pre-registered in `PREREGISTRATION_V6_CODING.md` (tag `prereg-v6-coding`) before any cause code from before 2024 was loaded. Code: `src/mcp/coding_audit.py`, tests: `tests/test_coding_audit.py`, result: `results/coding_audit.json`. Outcomes are shares of carrier-coded events by airline and month at the five hubs, January 2018 to August 2026, outside the pandemic months. Y1 is the share of cancellations coded to the carrier among those coded carrier, weather or national air system. Y2 is the share of the delay minutes of flights that arrived three hours or more late that BTS codes to carrier delay. The model is a weighted regression on airline effects, month-of-year effects, the share of the airline's flights in the denominator that were at the hub under adverse weather (ASOS), the share under an FAA ground stop or ground delay program (`mcp.faa`, which passed its parse gate), and a post-break indicator for 1 September 2022. Intervals resample calendar quarters (2,000 draws).
+
+The committing airlines with enough volume at these hubs are American, Delta, United and Southwest (Alaska, JetBlue, Allegiant and Hawaiian fly too few cancelled or late flights there). The comparison, Frontier, is one airline. The placebo has three (American, Delta, United), because Southwest has too little volume in 2018 to 2019. Effects are in percentage points of the carrier-coded share. A negative effect is a fall.
+
+| Estimate | Outcome | Effect | 95% interval | Airline-months |
+| --- | --- | --- | --- | --- |
+| Placebo, break 1 September 2019 | Y1 | +3.4 | −4.8 to +10.5 | 62 |
+| Placebo, break 1 September 2019 | Y2 | +2.7 | +0.7 to +4.7 | 78 |
+| Break 1 September 2022 | Y1 | −7.9 | −13.5 to −3.0 | 261 |
+| Break 1 September 2022 | Y2 | −2.6 | −4.4 to −0.8 | 285 |
+| Break 1 June 2022 | Y1 | −7.3 | −13.1 to −2.4 | 261 |
+| Break 1 June 2022 | Y2 | −1.8 | −3.6 to +0.2 | 285 |
+| Break 1 January 2023 | Y1 | −7.9 | −13.1 to −2.7 | 261 |
+| Break 1 January 2023 | Y2 | −3.1 | −4.8 to −1.2 | 285 |
+| Committing airlines against Frontier | Y1 | −23.1 | −28.6 to −17.6 | 281 |
+| Committing airlines against Frontier | Y2 | −14.2 | −16.2 to −12.2 | 304 |
+
+By airline, break 1 September 2022, Y1 and Y2: American −14.9 and −5.0, Delta +4.5 and +5.9, United +0.4 and −3.8, Southwest −11.4 and −4.8.
+
+**C1 failed, so C2 is not graded.** The pre-registered placebo rule is that a break on 1 September 2019, three years before the dashboard, must show a change within ±3 points for both outcomes. It showed +3.4 for Y1 and +2.7 for Y2. Y1 is outside the band, and the rule says the design then finds changes that are not there, and that nothing below is read as an effect. C2 (no fall of 3 points or more) stays pending on the scoreboard. A strict reading of the placebo interval says otherwise for Y1 (−4.8 to +10.5 includes zero), but the rule was written on the point estimate and is applied as written.
+
+**What can and cannot be said.**
+
+- **The data do not show that airlines moved their coding, and they do not show that they did not.** The post-break estimates are negative, and their intervals exclude zero in five of the six rows for the three break dates. The Y1 estimates (7 to 8 points) are well above the 3-point materiality threshold, and the Y2 estimates (2 to 3 points) sit around it. But the same design returns a placebo of the same sign and of comparable size, Y2's placebo interval excludes zero, and the three airlines' own estimates disagree (American and Southwest fall, Delta rises, United is flat on Y1).
+- **The comparison with Frontier is not usable.** Frontier's carrier-coded share moved the other way by a large amount, so the difference is −23 and −14 points. With one comparison airline, and one that is not like the others in network, this says more about Frontier than about the committing airlines.
+- **The conversion the pre-registration fixed**, for reference and not as a finding: a fall of 3 points in the carrier-coded share raises gap-cover claims by 4.1%. The point estimates of the primary break would correspond to 11.0% (Y1) and 3.6% (Y2), under the strict reading of who is in the gap.
+- **What it means for the cover.** The risk the README names, that airlines code toward weather once a carrier code costs them a hotel, is neither confirmed nor ruled out. A launched cover would still need its own check of the coding against a second source, which the trigger of 7D is a first step toward.
+
+**Limits.** Four airlines at five hubs, 261 to 304 airline-months. The weather covariate is each flight's own hub hour, not the pre-registered "flight-hours" taken literally. Whether a given hub hour was stormy is a coarse stand-in for what the airline faced. The FAA programs are the ones the FAA's database lists, and revised programs keep their first end time. BTS coding of late-arriving aircraft, which does not say why an aircraft was late, is outside Y2's carrier share and is not examined.

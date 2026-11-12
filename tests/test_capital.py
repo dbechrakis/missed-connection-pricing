@@ -58,3 +58,35 @@ def test_no_premium_balances_an_impossible_book():
     expected = np.full(156, 1000.0)
     with pytest.raises(ValueError):
         K.solve(expected * 1e6, expected, WEEKS, n_sim=20, hi=2.0)
+
+
+def _weeks_frame(n=156, seed=3):
+    import pandas as pd
+    rng = np.random.default_rng(seed)
+    rows = []
+    for i, w in enumerate(WEEKS[:n]):
+        for hub in ("ATL", "ORD", "DEN"):
+            for sold in (False, True):
+                e = 1000.0 * (1 + 0.2 * sold)
+                rows.append({"week": str(w), "hub": hub, "sold": sold, "expected": e, "claims": e * float(np.exp(rng.normal(0.0, 0.3)))})
+    return pd.DataFrame(rows)
+
+
+def test_the_weekly_record_pools_hubs_and_the_run_returns_the_grid_the_documents_quote(monkeypatch):
+    monkeypatch.setattr(K, "EXPENSES", (0.25,))
+    monkeypatch.setattr(K, "ATTACHMENTS", (None, 1.0))
+    monkeypatch.setattr(K, "COCS", (0.10,))
+    w = _weeks_frame()
+    rec = K.weekly_record(w, sold=True)
+    assert len(rec["week"]) == 156 and rec["expected"][0] == pytest.approx(3 * 1200.0)
+    r = K.run(w, 10.0, n_sim=40)
+    for view in ("all_overnight_risk", "sold_within_cap"):
+        v = r[view]
+        assert set(v["grid"]) == {"expense25_attachnone_coc10", "expense25_attach100_coc10"} and v["weeks"] == 156
+        assert 0 < v["diversification"]["ratio"] < 1 and v["annual_loss_ratio_at_current_price"]["var95_mean"] > v["annual_loss_ratio_at_current_price"]["mean"]
+
+
+def test_economics_raises_premium_and_leaves_claims():
+    e = K.economics(0.75, 10.0)
+    assert e["loading_1.00"]["expense10"] == pytest.approx(10 - 7.5 - 1.0)
+    assert e["loading_1.16"]["expense25"] == pytest.approx(11.6 - 7.5 - 0.25 * 11.6)

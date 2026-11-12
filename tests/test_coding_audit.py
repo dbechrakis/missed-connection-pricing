@@ -144,3 +144,26 @@ def test_run_on_planted_panels_gives_the_contract_the_grader_reads():
     assert set(res["primary"]) == {"Y1", "Y2"} and "effect" in res["placebo"]["Y1"]
     g = grade.grade_coding(res)
     assert g["C1"]["pass"] and not g["C2"]["pass"]                      # no placebo effect; the planted fall is a real one
+
+
+def test_part_7e_quotes_the_numbers_in_the_results_file():
+    import json
+    d = json.loads((ROOT / "results" / "coding_audit.json").read_text(encoding="utf-8"))
+    text = (ROOT / "VALIDATION.md").read_text(encoding="utf-8")
+    part = text[text.index("### 7E."):]
+    sign = lambda x: f"{x:+.1f}".replace("-", "−")
+    for label, block in (("Placebo, break 1 September 2019", d["placebo"]), ("Break 1 September 2022", d["primary"]),
+                         ("Break 1 June 2022", d["sensitivity_breaks"]["2022-06"]), ("Break 1 January 2023", d["sensitivity_breaks"]["2023-01"]),
+                         ("Committing airlines against Frontier", d["difference_in_differences"])):
+        for y in ("Y1", "Y2"):
+            row = [l for l in part.splitlines() if l.startswith(f"| {label} | {y} |")][0]
+            cells = [c.strip() for c in row.strip("|").split("|")]
+            e, (lo, hi) = block[y]["effect"], block[y]["ci"]
+            assert cells[2] == sign(e) and cells[3] == f"{sign(lo)} to {sign(hi)}" and cells[4] == str(block[y]["airline_months"]), row
+    for a, name in (("AA", "American"), ("DL", "Delta"), ("UA", "United"), ("WN", "Southwest")):
+        assert f"{name} {sign(d['per_airline'][a]['Y1']['effect'])} and {sign(d['per_airline'][a]['Y2']['effect'])}".replace("+", "+").replace("−", "−") in part.replace("+", "+")
+    from mcp import grade
+    g = grade.grade_coding(d)
+    assert not g["C1"]["pass"] and "C2" not in g                           # the placebo failed, so the effect is not graded
+    m = d["materiality"]["claims_increase_at_estimate"]
+    assert f"{100 * m['Y1']:.1f}% (Y1) and {100 * m['Y2']:.1f}% (Y2)" in part

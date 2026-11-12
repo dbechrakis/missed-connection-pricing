@@ -358,8 +358,8 @@
    "claim": "The placebo break (September 2019) shows a change within ± 3 points for both outcomes",
    "document": "PREREGISTRATION_V6_CODING.md",
    "tag": "prereg-v6-coding",
-   "status": "pending",
-   "result": null
+   "status": "fail",
+   "result": "placebo effects Y1 +3.4, Y2 +2.7 points against ± 3"
   },
   {
    "id": "C2",

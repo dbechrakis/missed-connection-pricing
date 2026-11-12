@@ -2,7 +2,7 @@
 
 Each prediction was written, hashed and tagged **before** its data existed, so each is judged by the rule it was written with. Nothing here is edited by hand once a result is in: `python -m mcp.grade` grades from the result files with thresholds copied from the documents (`src/mcp/grade.py`), except E1 to E6, A1 to A3, B9, B10 and the sizes of F3, which their documents say are graded by hand.
 
-**7 of 48 graded.** v5 (S1 to S5) was read on 9 November 2026. The rows read when November 2026 is published (probably early February 2027) include v5.1 (R1 to R5). v5.2 (W1 to W5) is read when February 2027 is published (probably early May 2027). Every date was decided before the data exists. The backcast (B1 to B10) and the coding audit (C1, C2) are read once, after the 2018 to 2023 months are ingested, and are pending until then.
+**8 of 48 graded.** v5 (S1 to S5) was read on 9 November 2026. The rows read when November 2026 is published (probably early February 2027) include v5.1 (R1 to R5). v5.2 (W1 to W5) is read when February 2027 is published (probably early May 2027). Every date was decided before the data exists. The backcast (B1 to B10) and the coding audit (C1, C2) are read once, after the 2018 to 2023 months are ingested, and are pending until then.
 
 | # | Prediction | Document (tag) | Status | Result |
 | --- | --- | --- | --- | --- |
@@ -50,7 +50,7 @@ Each prediction was written, hashed and tagged **before** its data existed, so e
 | B8 | The refitted loading brings the self-transfer ratio closer to 1 | [prereg-v6-backcast](PREREGISTRATION_V6_BACKCAST.md) | pending |  |
 | B9 | Arm A (all earlier months) against arm B (trailing 24): reported either way, no prediction | [prereg-v6-backcast](PREREGISTRATION_V6_BACKCAST.md) | pending |  |
 | B10 | Largest earlier 24-month change in the 12-month level, reported next to 2024 to 2026, no prediction | [prereg-v6-backcast](PREREGISTRATION_V6_BACKCAST.md) | pending |  |
-| C1 | The placebo break (September 2019) shows a change within ± 3 points for both outcomes | [prereg-v6-coding](PREREGISTRATION_V6_CODING.md) | pending |  |
+| C1 | The placebo break (September 2019) shows a change within ± 3 points for both outcomes | [prereg-v6-coding](PREREGISTRATION_V6_CODING.md) | **failed** | placebo effects Y1 +3.4, Y2 +2.7 points against ± 3 |
 | C2 | No fall of 3 points or more in the carrier-coded share after the break | [prereg-v6-coding](PREREGISTRATION_V6_CODING.md) | pending |  |
 | F1 | The forecast gain is larger at lead 1 than at lead 7, and under 1% at lead 7 | [prereg-v6-forecast](PREREGISTRATION_V6_FORECAST.md) | **passed** | gain at lead 1 1.05%, at lead 7 0.06% |
 | F2 | The sales rule lowers the weeks above a 100% loss ratio as sold (graded only if the gate passes) | [prereg-v6-forecast](PREREGISTRATION_V6_FORECAST.md) | **passed** | weeks above 100% as sold: 14 with the rule, 15 without |

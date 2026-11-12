@@ -54,11 +54,13 @@ def test_every_prediction_in_the_nine_documents_is_on_the_scoreboard_and_only_v5
     for doc in {e["document"] for e in on_board.values()}:
         in_docs |= set(re.findall(r"^\| ([EAVLSRWBCF]\d+) \|", (ROOT / doc).read_text(encoding="utf-8"), flags=re.M))
     assert in_docs == set(on_board) and len(on_board) == 48
-    assert all(e["status"] == "pending" and e["result"] is None for k, e in on_board.items() if not k.startswith(("S", "F")))
+    assert all(e["status"] == "pending" and e["result"] is None for k, e in on_board.items() if not k.startswith(("S", "F")) and k != "C1")
     v5 = grade.grade_v5(json.loads((ROOT / "results" / "v5_holdout.json").read_text(encoding="utf-8")))
     assert all(on_board[k]["status"] == ("pass" if g["pass"] else "fail") and on_board[k]["result"] == g["value"] for k, g in v5.items())
     fc = grade.grade_forecast(json.loads((ROOT / "results" / "forecast.json").read_text(encoding="utf-8")))
     assert all(on_board[k]["status"] == ("pass" if g["pass"] else "fail") and on_board[k]["result"] == g["value"] for k, g in fc.items())
+    ca = grade.grade_coding(json.loads((ROOT / "results" / "coding_audit.json").read_text(encoding="utf-8")))
+    assert set(ca) == {"C1"} and on_board["C1"]["status"] == "fail" and on_board["C2"]["status"] == "pending"
     assert (ROOT / "SCOREBOARD.md").read_text(encoding="utf-8") == grade.render(status)
 
 
