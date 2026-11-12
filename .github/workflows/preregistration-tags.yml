@@ -1,0 +1,35 @@
+name: Tag the pre-registrations
+
+# Each pre-registration was pushed before its data existed. A tag marks the exact commit that added it, so anyone can
+# check the document against the commit's push time. The session that wrote v5 to v5.2 could push branches but not
+# tags, so this job creates them with the repository's own token. It is safe to run again: an existing tag is left
+# alone, and a tag is only created if its commit really adds the named document.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Create the missing tags
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          while read -r tag sha doc; do
+            if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then echo "$tag exists, left alone"; continue; fi
+            git cat-file -e "$sha^{commit}" || { echo "$sha not found"; exit 1; }
+            git diff-tree --no-commit-id --name-status -r "$sha" | grep -qx "A	$doc" || { echo "$sha does not add $doc"; exit 1; }
+            git tag -a "$tag" "$sha" -m "$doc, as pushed before its data existed"
+            git push origin "refs/tags/$tag"
+            echo "tagged $tag at $sha"
+          done <<'EOF'
+          prereg-v5-self-transfer 48b2dd20fd939fda6aac3b75a91323f0b7abffcb PREREGISTRATION_V5_SELF_TRANSFER.md
+          prereg-v5-1-level 46055a6e0707e07b4993bea96bd5280a68b4d684 PREREGISTRATION_V5_1_LEVEL.md
+          prereg-v5-2-loading 6444e22886cad2927f53894fff54ab40aef96fe6 PREREGISTRATION_V5_2_LOADING.md
+          EOF
