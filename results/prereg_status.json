@@ -1,5 +1,5 @@
 {
- "when": "v5 (S1 to S5) was read on 9 November 2026. The rows read when November 2026 is published (probably early February 2027) include v5.1 (R1 to R5). v5.2 (W1 to W5) is read when February 2027 is published (probably early May 2027). Every date was decided before the data exists.",
+ "when": "v5 (S1 to S5) was read on 9 November 2026. The rows read when November 2026 is published (probably early February 2027) include v5.1 (R1 to R5). v5.2 (W1 to W5) is read when February 2027 is published (probably early May 2027). Every date was decided before the data exists. The backcast (B1 to B10) and the coding audit (C1, C2) are read once, after the 2018 to 2023 months are ingested, and are pending until then.",
  "expectations": [
   {
    "id": "E1",
@@ -270,6 +270,102 @@
    "claim": "Inbound cancellations and diversions are 20% to 50% of misses",
    "document": "PREREGISTRATION_V5_2_LOADING.md",
    "tag": "prereg-v5-2-loading",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "B1",
+   "claim": "Gap cover priced within 1 ± 2σ/√n_eff of expected claims on 2019 to 2023, outside the pandemic (σ = 0.241, ρ = 0.70)",
+   "document": "PREREGISTRATION_V6_BACKCAST.md",
+   "tag": "prereg-v6-backcast",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "B2",
+   "claim": "Monthly spread of the realized ratio between 0.19 and 0.33",
+   "document": "PREREGISTRATION_V6_BACKCAST.md",
+   "tag": "prereg-v6-backcast",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "B3",
+   "claim": "Connections within the 5% cap run worse than all overnight-risk connections",
+   "document": "PREREGISTRATION_V6_BACKCAST.md",
+   "tag": "prereg-v6-backcast",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "B4",
+   "claim": "9% to 44% of months have a sold loss ratio above 100%",
+   "document": "PREREGISTRATION_V6_BACKCAST.md",
+   "tag": "prereg-v6-backcast",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "B5",
+   "claim": "The refitted loading lowers the pooled sold loss ratio by at least 3.0 points",
+   "document": "PREREGISTRATION_V6_BACKCAST.md",
+   "tag": "prereg-v6-backcast",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "B6",
+   "claim": "local_season has lower CRPS than none and than last12 where it is active",
+   "document": "PREREGISTRATION_V6_BACKCAST.md",
+   "tag": "prereg-v6-backcast",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "B7",
+   "claim": "The 90% intervals of local_season cover within the central 95% binomial range",
+   "document": "PREREGISTRATION_V6_BACKCAST.md",
+   "tag": "prereg-v6-backcast",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "B8",
+   "claim": "The refitted loading brings the self-transfer ratio closer to 1",
+   "document": "PREREGISTRATION_V6_BACKCAST.md",
+   "tag": "prereg-v6-backcast",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "B9",
+   "claim": "Arm A (all earlier months) against arm B (trailing 24): reported either way, no prediction",
+   "document": "PREREGISTRATION_V6_BACKCAST.md",
+   "tag": "prereg-v6-backcast",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "B10",
+   "claim": "Largest earlier 24-month change in the 12-month level, reported next to 2024 to 2026, no prediction",
+   "document": "PREREGISTRATION_V6_BACKCAST.md",
+   "tag": "prereg-v6-backcast",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "C1",
+   "claim": "The placebo break (September 2019) shows a change within ± 3 points for both outcomes",
+   "document": "PREREGISTRATION_V6_CODING.md",
+   "tag": "prereg-v6-coding",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "C2",
+   "claim": "No fall of 3 points or more in the carrier-coded share after the break",
+   "document": "PREREGISTRATION_V6_CODING.md",
+   "tag": "prereg-v6-coding",
    "status": "pending",
    "result": null
   }

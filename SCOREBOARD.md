@@ -1,8 +1,8 @@
 # Scoreboard: every pre-registered prediction and how it turned out
 
-Each prediction was written, hashed and tagged **before** its data existed, so each is judged by the rule it was written with. Nothing here is edited by hand once a result is in: `python -m mcp.grade` grades from the result files with thresholds copied from the documents (`src/mcp/grade.py`), except E1 to E6 and A1 to A3, which their documents say are graded by hand.
+Each prediction was written, hashed and tagged **before** its data existed, so each is judged by the rule it was written with. Nothing here is edited by hand once a result is in: `python -m mcp.grade` grades from the result files with thresholds copied from the documents (`src/mcp/grade.py`), except E1 to E6, A1 to A3, B9 and B10, which their documents say are graded by hand.
 
-**5 of 34 graded.** v5 (S1 to S5) was read on 9 November 2026. The rows read when November 2026 is published (probably early February 2027) include v5.1 (R1 to R5). v5.2 (W1 to W5) is read when February 2027 is published (probably early May 2027). Every date was decided before the data exists.
+**5 of 46 graded.** v5 (S1 to S5) was read on 9 November 2026. The rows read when November 2026 is published (probably early February 2027) include v5.1 (R1 to R5). v5.2 (W1 to W5) is read when February 2027 is published (probably early May 2027). Every date was decided before the data exists. The backcast (B1 to B10) and the coding audit (C1, C2) are read once, after the 2018 to 2023 months are ingested, and are pending until then.
 
 | # | Prediction | Document (tag) | Status | Result |
 | --- | --- | --- | --- | --- |
@@ -40,6 +40,18 @@ Each prediction was written, hashed and tagged **before** its data existed, so e
 | W3 | No month above 1.54 loaded (a 100% loss ratio) | [prereg-v5-2-loading](PREREGISTRATION_V5_2_LOADING.md) | pending |  |
 | W4 | 65% to 85% of pairings fit the 10% cap at the loaded price, every month | [prereg-v5-2-loading](PREREGISTRATION_V5_2_LOADING.md) | pending |  |
 | W5 | Inbound cancellations and diversions are 20% to 50% of misses | [prereg-v5-2-loading](PREREGISTRATION_V5_2_LOADING.md) | pending |  |
+| B1 | Gap cover priced within 1 ± 2σ/√n_eff of expected claims on 2019 to 2023, outside the pandemic (σ = 0.241, ρ = 0.70) | [prereg-v6-backcast](PREREGISTRATION_V6_BACKCAST.md) | pending |  |
+| B2 | Monthly spread of the realized ratio between 0.19 and 0.33 | [prereg-v6-backcast](PREREGISTRATION_V6_BACKCAST.md) | pending |  |
+| B3 | Connections within the 5% cap run worse than all overnight-risk connections | [prereg-v6-backcast](PREREGISTRATION_V6_BACKCAST.md) | pending |  |
+| B4 | 9% to 44% of months have a sold loss ratio above 100% | [prereg-v6-backcast](PREREGISTRATION_V6_BACKCAST.md) | pending |  |
+| B5 | The refitted loading lowers the pooled sold loss ratio by at least 3.0 points | [prereg-v6-backcast](PREREGISTRATION_V6_BACKCAST.md) | pending |  |
+| B6 | local_season has lower CRPS than none and than last12 where it is active | [prereg-v6-backcast](PREREGISTRATION_V6_BACKCAST.md) | pending |  |
+| B7 | The 90% intervals of local_season cover within the central 95% binomial range | [prereg-v6-backcast](PREREGISTRATION_V6_BACKCAST.md) | pending |  |
+| B8 | The refitted loading brings the self-transfer ratio closer to 1 | [prereg-v6-backcast](PREREGISTRATION_V6_BACKCAST.md) | pending |  |
+| B9 | Arm A (all earlier months) against arm B (trailing 24): reported either way, no prediction | [prereg-v6-backcast](PREREGISTRATION_V6_BACKCAST.md) | pending |  |
+| B10 | Largest earlier 24-month change in the 12-month level, reported next to 2024 to 2026, no prediction | [prereg-v6-backcast](PREREGISTRATION_V6_BACKCAST.md) | pending |  |
+| C1 | The placebo break (September 2019) shows a change within ± 3 points for both outcomes | [prereg-v6-coding](PREREGISTRATION_V6_CODING.md) | pending |  |
+| C2 | No fall of 3 points or more in the carrier-coded share after the break | [prereg-v6-coding](PREREGISTRATION_V6_CODING.md) | pending |  |
 
 **How the read happens.** A weekly scheduled job on the author's machine checks that BTS has published September, October and November 2026, and only then runs the four tests once, in the pre-registered order, grades them with the rules above and commits the results to a local branch. It never pushes, never changes a model or a threshold, and never runs twice. The author reviews and publishes. v3 and v4 are judged on these three months only. For E1 to E6 and A1 to A3, `PREREGISTRATION_2026H2.md` allows one final read with December once it is published. It was decided before any of the data existed that this read will be run, once, and reported next to the first (`VALIDATION.md` 5M).
 
