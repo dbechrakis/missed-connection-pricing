@@ -970,3 +970,26 @@ Code: `src/mcp/capital.py` and `src/mcp/risk.py`, tests: `tests/test_capital.py`
 **Margin per policy.** At the sold book's realized loss ratio of 65.8% and the average premium of $10.01 a policy (`VALIDATION.md` 5J), a 1.00 loading leaves $0.92 a policy after claims at a 25% expense share and **−$0.08** at 35%. A 1.16 loading leaves $2.12 at 25% and $0.96 at 35%. This holds the claims fixed when the price rises, which flatters it (fewer connections would pass the cap).
 
 **What this does not do.** It does not say what the cover costs to run, what a reinsurer would quote, or what a traveller would pay.
+
+
+### 7D. A trigger that can settle the same night, and how far it sits from the one the cover was priced on (development data and the backcast years)
+
+Code: `src/mcp/trigger.py`, tests: `tests/test_trigger.py`, results: `results/trigger.json`. The two triggers were fixed in the module's docstring before either was scored. **T1** pays when the connection is missed overnight and an FAA ground stop or ground delay program (not a proposal, not one airline's own stop, `mcp.faa`) was in effect at the hub at some moment between three hours before the inbound flight's scheduled arrival and its actual arrival (three hours after the schedule for a cancelled or diverted inbound flight). **T2** is T1 or adverse hub weather in the same window (ASOS thunder, snow, freezing weather, visibility under one mile, wind of 25 knots or a gust of 35). Both pay the hub's GSA night, weighted by the route weight. They are compared with what the cover was priced on: the BTS-coded gap payout, where the inbound delay is not coded to the airline.
+
+| Period | Trigger | Share of the BTS-coded gap payouts it also pays | Share of its payouts that BTS codes to the airline | Its payouts over the gap payouts | Correlation of monthly payouts with the gap's |
+| --- | --- | --- | --- | --- | --- |
+| 2024 to August 2026 (32 months) | T1 | 29.2% | 11.4% | 0.33 | 0.89 |
+| 2024 to August 2026 (32 months) | T2 | 36.5% | 13.6% | 0.42 | 0.95 |
+| 2019 to 2023, outside the pandemic (44 months) | T1 | 25.6% | 11.2% | 0.29 | 0.78 |
+| 2019 to 2023, outside the pandemic (44 months) | T2 | 34.4% | 14.2% | 0.40 | 0.88 |
+
+The BTS-coded gap is 80.3% of the payouts on missed overnight connections in 2024 to 2026 and 78.3% in 2019 to 2023. The share of all missed-overnight payouts that T1 pays is 26.4% and 22.6%, and T2's is 33.9% and 31.3%.
+
+**What it says.**
+
+- **A trigger of this kind is a narrower cover, not the same one paid earlier.** It pays a quarter to a third of the payouts the BTS-coded cover pays (0.29 to 0.42 of the dollars). Most of the gap, misses after late-arriving aircraft, air-traffic delay with no ground stop and delays at hubs with no flagged weather, would pay nothing. A traveller whose connection was missed for those reasons receives nothing at all, which is the basis risk.
+- **It is closely tied to the same months.** Monthly payouts of the trigger and of the BTS-coded cover move together (0.78 to 0.95), so a trigger priced on the model, with a margin that carries the same weather, would carry about the same monthly shape.
+- **It pays the airline's own delays much less than the BTS code would.** Only 11% to 14% of what the triggers pay is coded to the airline, against 20% to 22% of missed-overnight payouts overall. An FAA program is an independent record of a system-wide problem, which is exactly what an airline cannot write. That is the useful property for the coding risk of 7E: a same-night trigger cannot be moved by coding.
+- **The two periods agree.** The coverage and leakage figures are within a few points between 2019 to 2023 and 2024 to 2026, so the relation did not change with the airlines' commitments in September 2022.
+
+**What stays outside.** A same-night settlement needs the inbound flight's actual arrival that night, which a flight-status feed has and BTS, published two months late, does not. The FAA database keeps a program's first end time when it was revised, so intervals can be too long, and a weather flag at the airport is a coarse stand-in for what stopped a flight. A trigger that pays less is also a different product to price and to sell, and its price and its demand are untested.

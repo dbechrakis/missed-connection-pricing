@@ -74,3 +74,24 @@ def test_the_definitions_are_the_ones_the_module_states():
     text = open(T.__file__, encoding="utf-8").read()
     assert "fixed here, before any is scored" in text and "2026-09" not in text
     assert T.pandemic_free(pd.DataFrame({"ym": ["2020-02", "2020-03", "2021-06", "2021-07"]}))["ym"].tolist() == ["2020-02", "2021-07"]
+
+
+def test_part_7d_quotes_the_numbers_in_the_results_file():
+    import json
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    d = json.loads((root / "results" / "trigger.json").read_text(encoding="utf-8"))
+    text = (root / "VALIDATION.md").read_text(encoding="utf-8")
+    part = text[text.index("### 7D."):]
+    labels = {"development_2024_2026": "2024 to August 2026 (32 months)", "backcast_2019_2023": "2019 to 2023, outside the pandemic (44 months)"}
+    for key, label in labels.items():
+        assert d[key]["months"] == int(label.split("(")[1].split()[0])
+        for t in ("T1", "T2"):
+            row = [l for l in part.splitlines() if l.startswith(f"| {label} | {t} |")][0]
+            cells = [c.strip() for c in row.strip("|").split("|")]
+            x = d[key][t]
+            assert cells[2:] == [f"{100 * x['coverage']:.1f}%", f"{100 * x['leakage']:.1f}%", f"{x['ratio']:.2f}", f"{x['monthly_correlation']:.2f}"], row
+    dev, bc = d["development_2024_2026"], d["backcast_2019_2023"]
+    assert f"{100 * dev['gap_share_of_missed_overnight']:.1f}%" in part and f"{100 * bc['gap_share_of_missed_overnight']:.1f}%" in part
+    assert f"{100 * dev['T1']['share_of_missed_overnight_paid']:.1f}% and {100 * bc['T1']['share_of_missed_overnight_paid']:.1f}%" in part
+    assert f"{100 * dev['T2']['share_of_missed_overnight_paid']:.1f}% and {100 * bc['T2']['share_of_missed_overnight_paid']:.1f}%" in part
