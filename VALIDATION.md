@@ -993,3 +993,26 @@ The BTS-coded gap is 80.3% of the payouts on missed overnight connections in 202
 - **The two periods agree.** The coverage and leakage figures are within a few points between 2019 to 2023 and 2024 to 2026, so the relation did not change with the airlines' commitments in September 2022.
 
 **What stays outside.** A same-night settlement needs the inbound flight's actual arrival that night, which a flight-status feed has and BTS, published two months late, does not. The FAA database keeps a program's first end time when it was revised, so intervals can be too long, and a weather flag at the airport is a coarse stand-in for what stopped a flight. A trigger that pays less is also a different product to price and to sell, and its price and its demand are untested.
+
+
+### 7G. A calendar pattern in the claims level (exploratory, on the 70 months already seen)
+
+Written after the backcast was read, so **none of this is a test**. Code: `src/mcp/v6.py` (`season_report`), tests: `tests/test_v6.py`, results: `results/v6_season_dev.json`. The monthly ratio of realized to expected claims (all overnight-risk connections) for the 70 observed months of 2019 to 2023 (outside the pandemic) and July 2024 to August 2026, from `results/risk_weeks_2019_2026.csv`, averaged by calendar month. The log ratio is the quantity the level models of 7A and 7B tried to follow over time. By calendar month it is far steadier than over time.
+
+| Month | Jan | Feb | Mar | Apr | May | Jun | Jul | Aug | Sep | Oct | Nov | Dec |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Mean log ratio | −0.03 | −0.05 | −0.07 | +0.02 | +0.05 | +0.30 | +0.28 | +0.19 | −0.22 | −0.33 | −0.37 | −0.19 |
+| Observed months | 6 | 6 | 5 | 5 | 5 | 5 | 7 | 7 | 6 | 6 | 6 | 6 |
+
+Predicting each year's months from a season fitted on the other six or seven years (leave one year out) gives a mean absolute error of the monthly log ratio of **0.125** with the season (deviations shrunk by n ÷ (n + 1)), against **0.206** with no adjustment (level 1) and 0.210 with a constant level fitted on the other years. The error falls by about 40%, and shrinking harder only makes it worse (0.129 at κ = 2, 0.140 at κ = 4). The residual spread is 0.1585 and its lag-1 autocorrelation 0.423.
+
+**Summer, by year.** Realized over expected on all connections for June to August, and the sold loss ratio at the existing price: 2019 1.36 and 105%, 2022 1.19 and 72%, 2023 1.32 and 85%, 2025 1.42 and 106%, 2026 1.30 and 95%. In every one of the five summers the cover ran above its expected claims by 19% to 42%, and in two of them above a 100% loss ratio as sold.
+
+**What it suggests.**
+
+- **The model's missing month feature costs a third of the claims in summer and gives a third back in autumn.** The cover is under-priced in June to August and over-priced in September to December, and the average over the year hides both. The project had dropped a month term in 2025 because one year of data memorised that year's events (decision log, step 5). With seven years of each month the pattern is no longer one year's events.
+- **It explains what the level models could not.** A level that moves over time cannot beat a constant level, but a level that depends on the calendar does. The seasonal candidate of 7A could not run on 26 months and the backcast could not test it on 44, which is why this had to be found on the whole record.
+- **It re-reads two earlier findings.** The "calm season" warning of `PREREGISTRATION_2026H2_V4.md` (September to November are the easiest months) is this pattern, and the 2024 to 2026 sold results, which were worst in July and August, were summers.
+- **It is a prediction, and the project's way of testing a prediction is the one it already has.** The multipliers are frozen in `models/v6_season.json` and tested forward in `PREREGISTRATION_V6_FORWARD.md` on March to August 2027, with one prediction about the sealed autumn of 2026.
+
+**Limits.** Seven years of a pattern in months that are also the weather of those years. The multipliers are in-sample for the record they were fitted on. A seasonal price raises summer prices by up to 27% and lowers autumn prices, which changes what can be offered within the cap and has no demand evidence behind it. The record joins two different fit windows.

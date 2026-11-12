@@ -1,5 +1,5 @@
 {
- "when": "v5 (S1 to S5) was read on 9 November 2026. The rows read when November 2026 is published (probably early February 2027) include v5.1 (R1 to R5). v5.2 (W1 to W5) is read when February 2027 is published (probably early May 2027). Every date was decided before the data exists. The backcast (B1 to B10) and the coding audit (C1, C2) are read once, after the 2018 to 2023 months are ingested, and are pending until then.",
+ "when": "v5 (S1 to S5) was read on 9 November 2026. The rows read when November 2026 is published (probably early February 2027) include v5.1 (R1 to R5). v5.2 (W1 to W5) is read when February 2027 is published (probably early May 2027). Every date was decided before the data exists. The backcast (B1 to B10) and the coding audit (C1, C2) are read once, after the 2018 to 2023 months are ingested, and are pending until then. The seasonal price (G1 to G4, H1 to H4) is read when May 2027 and August 2027 are published (probably August and November 2027). Q1 is graded from the same file as V1 to V6.",
  "expectations": [
   {
    "id": "E1",
@@ -384,6 +384,78 @@
    "tag": "prereg-v6-forecast",
    "status": "pass",
    "result": "weeks above 100% as sold: 14 with the rule, 15 without"
+  },
+  {
+   "id": "G1",
+   "claim": "Spring 2027: the seasonal price calibrates, within 1 ± 0.287",
+   "document": "PREREGISTRATION_V6_FORWARD.md",
+   "tag": "prereg-v6-forward",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "G2",
+   "claim": "Spring 2027: the season beats a constant level on absolute log error",
+   "document": "PREREGISTRATION_V6_FORWARD.md",
+   "tag": "prereg-v6-forward",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "G3",
+   "claim": "Spring 2027: no month above a 100% loss ratio as sold at the seasonal price",
+   "document": "PREREGISTRATION_V6_FORWARD.md",
+   "tag": "prereg-v6-forward",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "G4",
+   "claim": "Spring 2027: 20% to 55% of connections priced within the cap in every month",
+   "document": "PREREGISTRATION_V6_FORWARD.md",
+   "tag": "prereg-v6-forward",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "H1",
+   "claim": "Summer 2027: the seasonal price calibrates, within 1 ± 0.287",
+   "document": "PREREGISTRATION_V6_FORWARD.md",
+   "tag": "prereg-v6-forward",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "H2",
+   "claim": "Summer 2027: the season beats a constant level on absolute log error",
+   "document": "PREREGISTRATION_V6_FORWARD.md",
+   "tag": "prereg-v6-forward",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "H3",
+   "claim": "Summer 2027: no month above a 100% loss ratio as sold at the seasonal price",
+   "document": "PREREGISTRATION_V6_FORWARD.md",
+   "tag": "prereg-v6-forward",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "H4",
+   "claim": "Summer 2027: 20% to 55% of connections priced within the cap in every month",
+   "document": "PREREGISTRATION_V6_FORWARD.md",
+   "tag": "prereg-v6-forward",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "Q1",
+   "claim": "The v3 model runs 0.546 to 0.987 on September to November 2026 (the seasonal prediction)",
+   "document": "PREREGISTRATION_V6_FORWARD.md",
+   "tag": "prereg-v6-forward",
+   "status": "pending",
+   "result": null
   }
  ]
 }

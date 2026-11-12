@@ -100,6 +100,8 @@ B2_BAND = (0.19, 0.33)           # 95% chi-square interval for an sd of 0.241 fr
 B4_BAND = (0.09, 0.44)           # exact 95% interval for 6 of 26 months above a 100% loss ratio
 B5_POINTS = 0.03
 C_POINTS = 3.0
+SHARE_FORWARD = (0.20, 0.55)
+SIGMA_FORWARD, RHO_FORWARD = 0.1585, 0.423   # the leave-one-year-out residual spread and its lag-1 autocorrelation (models/v6_season.json)
 
 
 def binomial_central_range(n: int, p: float = 0.90, tail: float = 0.025) -> tuple[int, int]:
@@ -174,6 +176,31 @@ def grade_forecast(res: dict) -> dict:
     return out
 
 
+def grade_forward(res: dict, window: str) -> dict:
+    """G1 to G4 (spring 2027) or H1 to H4 (summer 2027) from results/v6_forward_<window>.json (written by mcp.v6 read), as in
+    PREREGISTRATION_V6_FORWARD.md. `window` is 'spring2027' or 'summer2027'."""
+    g = "G" if window == "spring2027" else "H"
+    hw, r = res["band_half_width"], res["pooled_adjusted_ratio"]
+    months = res["months"]
+    lr = {k: v["sold_loss_ratio"] for k, v in months.items()}
+    lo, hi = res["share_sold_range"]
+    return {
+        f"{g}1": {"pass": abs(r - 1) <= hw, "value": f"{r:.3f} against 1 ± {hw:.3f}"},
+        f"{g}2": {"pass": res["mae_season"] < res["mae_none"], "value": f"mean absolute log error {res['mae_season']:.3f} with the multipliers, {res['mae_none']:.3f} without"},
+        f"{g}3": {"pass": all(v is not None and v <= 1.0 for v in lr.values()), "value": "sold loss ratio by month " + ", ".join(f"{k} {v:.0%}" for k, v in lr.items())},
+        f"{g}4": {"pass": SHARE_FORWARD[0] <= lo and hi <= SHARE_FORWARD[1], "value": f"share sold {lo:.1%} to {hi:.1%} against {SHARE_FORWARD[0]:.0%} to {SHARE_FORWARD[1]:.0%}"},
+    }
+
+
+def grade_autumn(res: dict) -> dict:
+    """Q1 from results/holdout_v3_next.json: the v3 ratio on September to November 2026 against the seasonal prediction."""
+    season = json.loads((ROOT / "models" / "v6_season.json").read_text(encoding="utf-8"))["multiplier"]
+    mean = (season["09"] + season["10"] + season["11"]) / 3
+    hw = 2 * SIGMA_FORWARD / math.sqrt(3 * (1 - RHO_FORWARD) / (1 + RHO_FORWARD))
+    ratio = res["results"]["primary"]["overall"]["ratio"]
+    return {"Q1": {"pass": mean * (1 - hw) <= ratio <= mean * (1 + hw), "value": f"{ratio:.3f} against {mean * (1 - hw):.3f} to {mean * (1 + hw):.3f}"}}
+
+
 def render(status: dict) -> str:
     """SCOREBOARD.md from the status file: one row per pre-registered prediction."""
     icon = {"pending": "pending", "pass": "**passed**", "fail": "**failed**"}
@@ -211,10 +238,14 @@ def main() -> None:
     status = load()
     for name, grader in (("holdout_v3_next.json", grade_v3), ("holdout_v4_next.json", grade_v4), ("v5_holdout.json", grade_v5),
                          ("v5_1_holdout.json", grade_v5_1),
-                         ("v5_2_holdout.json", grade_v5_2), ("backcast.json", grade_backcast), ("coding_audit.json", grade_coding), ("forecast.json", grade_forecast)):
+                         ("v5_2_holdout.json", grade_v5_2), ("backcast.json", grade_backcast), ("coding_audit.json", grade_coding), ("forecast.json", grade_forecast), ("holdout_v3_next.json", grade_autumn)):
         path = ROOT / "results" / name
         if path.exists():
             apply(status, grader(json.loads(path.read_text(encoding="utf-8"))))
+    for window in ("spring2027", "summer2027"):
+        path = ROOT / "results" / f"v6_forward_{window}.json"
+        if path.exists():
+            apply(status, grade_forward(json.loads(path.read_text(encoding="utf-8")), window))
     STATUS.write_text(json.dumps(status, indent=1, ensure_ascii=False) + chr(10), encoding="utf-8", newline=chr(10))
     SCOREBOARD.write_text(render(status), encoding="utf-8", newline=chr(10))
     print(render(status).split("| # |")[0].strip().splitlines()[-1])

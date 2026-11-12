@@ -2,7 +2,7 @@
 
 Each prediction was written, hashed and tagged **before** its data existed, so each is judged by the rule it was written with. Nothing here is edited by hand once a result is in: `python -m mcp.grade` grades from the result files with thresholds copied from the documents (`src/mcp/grade.py`), except E1 to E6, A1 to A3, B9, B10 and the sizes of F3, which their documents say are graded by hand.
 
-**16 of 48 graded.** v5 (S1 to S5) was read on 9 November 2026. The rows read when November 2026 is published (probably early February 2027) include v5.1 (R1 to R5). v5.2 (W1 to W5) is read when February 2027 is published (probably early May 2027). Every date was decided before the data exists. The backcast (B1 to B10) and the coding audit (C1, C2) are read once, after the 2018 to 2023 months are ingested, and are pending until then.
+**16 of 57 graded.** v5 (S1 to S5) was read on 9 November 2026. The rows read when November 2026 is published (probably early February 2027) include v5.1 (R1 to R5). v5.2 (W1 to W5) is read when February 2027 is published (probably early May 2027). Every date was decided before the data exists. The backcast (B1 to B10) and the coding audit (C1, C2) are read once, after the 2018 to 2023 months are ingested, and are pending until then. The seasonal price (G1 to G4, H1 to H4) is read when May 2027 and August 2027 are published (probably August and November 2027). Q1 is graded from the same file as V1 to V6.
 
 | # | Prediction | Document (tag) | Status | Result |
 | --- | --- | --- | --- | --- |
@@ -54,6 +54,15 @@ Each prediction was written, hashed and tagged **before** its data existed, so e
 | C2 | No fall of 3 points or more in the carrier-coded share after the break | [prereg-v6-coding](PREREGISTRATION_V6_CODING.md) | pending |  |
 | F1 | The forecast gain is larger at lead 1 than at lead 7, and under 1% at lead 7 | [prereg-v6-forecast](PREREGISTRATION_V6_FORECAST.md) | **passed** | gain at lead 1 1.05%, at lead 7 0.06% |
 | F2 | The sales rule lowers the weeks above a 100% loss ratio as sold (graded only if the gate passes) | [prereg-v6-forecast](PREREGISTRATION_V6_FORECAST.md) | **passed** | weeks above 100% as sold: 14 with the rule, 15 without |
+| G1 | Spring 2027: the seasonal price calibrates, within 1 ± 0.287 | [prereg-v6-forward](PREREGISTRATION_V6_FORWARD.md) | pending |  |
+| G2 | Spring 2027: the season beats a constant level on absolute log error | [prereg-v6-forward](PREREGISTRATION_V6_FORWARD.md) | pending |  |
+| G3 | Spring 2027: no month above a 100% loss ratio as sold at the seasonal price | [prereg-v6-forward](PREREGISTRATION_V6_FORWARD.md) | pending |  |
+| G4 | Spring 2027: 20% to 55% of connections priced within the cap in every month | [prereg-v6-forward](PREREGISTRATION_V6_FORWARD.md) | pending |  |
+| H1 | Summer 2027: the seasonal price calibrates, within 1 ± 0.287 | [prereg-v6-forward](PREREGISTRATION_V6_FORWARD.md) | pending |  |
+| H2 | Summer 2027: the season beats a constant level on absolute log error | [prereg-v6-forward](PREREGISTRATION_V6_FORWARD.md) | pending |  |
+| H3 | Summer 2027: no month above a 100% loss ratio as sold at the seasonal price | [prereg-v6-forward](PREREGISTRATION_V6_FORWARD.md) | pending |  |
+| H4 | Summer 2027: 20% to 55% of connections priced within the cap in every month | [prereg-v6-forward](PREREGISTRATION_V6_FORWARD.md) | pending |  |
+| Q1 | The v3 model runs 0.546 to 0.987 on September to November 2026 (the seasonal prediction) | [prereg-v6-forward](PREREGISTRATION_V6_FORWARD.md) | pending |  |
 
 **How the read happens.** A weekly scheduled job on the author's machine checks that BTS has published September, October and November 2026, and only then runs the four tests once, in the pre-registered order, grades them with the rules above and commits the results to a local branch. It never pushes, never changes a model or a threshold, and never runs twice. The author reviews and publishes. v3 and v4 are judged on these three months only. For E1 to E6 and A1 to A3, `PREREGISTRATION_2026H2.md` allows one final read with December once it is published. It was decided before any of the data existed that this read will be run, once, and reported next to the first (`VALIDATION.md` 5M).
 
