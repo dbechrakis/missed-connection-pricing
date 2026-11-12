@@ -1,0 +1,4 @@
+# Only for mcp.gsa_hist, which reads the GSA per-diem master files of fiscal years 2018 to 2023 (.xls and .xlsx).
+# Not needed by the tests or the rest of the pipeline. requirements.lock is untouched.
+openpyxl>=3.1
+xlrd>=2.0

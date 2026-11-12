@@ -1,0 +1,22 @@
+{
+ "source": "https://www.gsa.gov/system/files/FY2020_PerDiemMasterRatesFile.xls",
+ "retrieved": "2026-11-12",
+ "mie": 76.0,
+ "county": "Denver / Adams / Arapahoe / Jefferson",
+ "city": "Denver / Aurora",
+ "standard_rate": false,
+ "lodging": {
+  "10": 195.0,
+  "11": 151.0,
+  "12": 151.0,
+  "1": 162.0,
+  "2": 162.0,
+  "3": 162.0,
+  "4": 195.0,
+  "5": 195.0,
+  "6": 195.0,
+  "7": 195.0,
+  "8": 195.0,
+  "9": 195.0
+ }
+}

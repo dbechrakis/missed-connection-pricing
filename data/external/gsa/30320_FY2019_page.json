@@ -1,0 +1,22 @@
+{
+ "source": "https://www.gsa.gov/system/files/FY2019_PerDiemRatesMasterFile_0.xls",
+ "retrieved": "2026-11-12",
+ "mie": 66.0,
+ "county": "Fulton / Dekalb",
+ "city": "Atlanta",
+ "standard_rate": false,
+ "lodging": {
+  "10": 159.0,
+  "11": 152.0,
+  "12": 152.0,
+  "1": 152.0,
+  "2": 152.0,
+  "3": 152.0,
+  "4": 152.0,
+  "5": 152.0,
+  "6": 152.0,
+  "7": 152.0,
+  "8": 152.0,
+  "9": 159.0
+ }
+}

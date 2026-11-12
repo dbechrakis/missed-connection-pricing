@@ -28,7 +28,7 @@ from mcp.model import EPS, _codes
 from mcp.monitor import load_state
 from mcp.split import where
 from mcp.v3 import BUNDLE, LAG, STATE, WTP_CAPS, claim_cost, frame_sql, gsa_table, month_file, price
-from mcp.variant import MARKETING
+from mcp.variant import MARKETING, VARIANT
 
 RESULTS = ROOT / "results" / "holdout_v3_next.json"
 HUBS = ("ATL", "CLT", "DEN", "DFW", "ORD")
@@ -63,7 +63,7 @@ def summarise(df: pd.DataFrame, arm: str) -> dict:
 
 
 def run(months=(9, 10, 11, 12), year: int = 2026, predicate: str | None = None) -> dict:
-    assert MARKETING, "run with MCP_VARIANT=v3"
+    assert VARIANT == "v3", "run with MCP_VARIANT=v3"
     bundle, table = joblib.load(BUNDLE), gsa_table()
     policies = arms(bundle)
     con = duckdb.connect()

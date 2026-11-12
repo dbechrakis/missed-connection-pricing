@@ -1,0 +1,22 @@
+{
+ "source": "https://www.gsa.gov/system/files/FY2019_PerDiemRatesMasterFile_0.xls",
+ "retrieved": "2026-11-12",
+ "mie": 56.0,
+ "county": "Mecklenburg",
+ "city": "Charlotte",
+ "standard_rate": false,
+ "lodging": {
+  "1": 130.0,
+  "2": 130.0,
+  "3": 130.0,
+  "4": 130.0,
+  "5": 130.0,
+  "6": 130.0,
+  "7": 130.0,
+  "8": 130.0,
+  "9": 130.0,
+  "10": 130.0,
+  "11": 130.0,
+  "12": 130.0
+ }
+}

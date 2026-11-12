@@ -1,0 +1,22 @@
+{
+ "source": "https://www.gsa.gov/system/files/FY2018_PerDiemRatesMasterFile.xls",
+ "retrieved": "2026-11-12",
+ "mie": 64.0,
+ "county": "Dallas",
+ "city": "Dallas",
+ "standard_rate": false,
+ "lodging": {
+  "10": 142.0,
+  "11": 142.0,
+  "12": 142.0,
+  "1": 155.0,
+  "2": 155.0,
+  "3": 155.0,
+  "4": 155.0,
+  "5": 155.0,
+  "6": 155.0,
+  "7": 142.0,
+  "8": 142.0,
+  "9": 142.0
+ }
+}

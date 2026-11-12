@@ -34,4 +34,5 @@ jobs:
           prereg-v5-2-loading 6444e22886cad2927f53894fff54ab40aef96fe6 PREREGISTRATION_V5_2_LOADING.md
           prereg-v6-backcast aadad1452587fdb3364915e5fbabb3b5c66e7abb PREREGISTRATION_V6_BACKCAST.md
           prereg-v6-coding aadad1452587fdb3364915e5fbabb3b5c66e7abb PREREGISTRATION_V6_CODING.md
+          prereg-v6-backcast-addendum 4e3552c8f259898f4cd80dd6caedc3833f4af471 PREREGISTRATION_V6_BACKCAST_ADDENDUM.md
           EOF
