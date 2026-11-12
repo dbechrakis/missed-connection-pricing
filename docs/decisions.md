@@ -248,3 +248,20 @@ One line per decision: what, why, and what it costs. Raw material for `method.md
 | Pre-registered before building any cross-airline pairing, with a holdout read once | Every earlier analysis used same-network pairings, so this population was unseen | The design (90-minute minimum, unweighted pairings) is a judgement fixed in advance |
 | A shrunk cell table, not a gradient-boosted model | v1 found booking-time models only 1% to 2% better than a hub × connection-time table | It cannot follow a level that moves, which is what failed |
 | Reported S1's failure as the headline and did not refit | Refitting on the holdout would grade its own homework | The repair needs new data after August 2026 |
+
+## Season 2 (12 November 2026)
+
+| Decision | Why | Cost / caveat |
+| --- | --- | --- |
+| Load 2018 to 2023 as a separate variant (`hist`) with its own file suffix | Several modules scan a whole directory, so mixing old months into the existing files would stop the published numbers reproducing | Two sets of data on disk, and a guard test that only the backcast modules name the historical files |
+| Pre-register the backcast, the coding audit and the forecast test before the data was on disk, and write the grading rules as code | The project's credibility is what was fixed before the result | The bands are formulas of development numbers and some are wide on purpose |
+| Amend B6 and B7 with an addendum before any outcome existed | `local_season` needs 48 observed months and the series has 44, so the two expectations could not have been graded | An addendum is weaker than getting it right the first time. Recorded as a mistake |
+| Report the failures as the headline | Five of eight backcast expectations failed, and the failures changed the story (the sold loss ratio, the loading) | The README's four-line decision now carries a qualifier |
+| Treat the pandemic months as missing and report them separately | Schedules collapsed, one month ran 5.1 times expected, and no model should be fitted to that | 16 of 60 months are out of every headline |
+| GSA rates for 2018 to 2023 from the master files | The rate pages and the API return nothing for those years | One more parser (`mcp.gsa_hist`), checked against the 2024 pages |
+| FAA advisories fetched by four workers, one request a second each | One worker would have taken about 20 hours | Four requests a second in all, to a public site |
+| The FAA parse gate was passed on the fourth sample, after three samples found an unmapped class and flaws in the checker | The checker was wrong before the parser was | Said in the gate file |
+| Found the calendar pattern after the backcast, froze the multipliers and pre-registered a forward test | A pattern found on seen data is a hypothesis, and the clean test is months that do not exist yet | The multipliers are in-sample for the record, and the forward test needs until November 2027 |
+| Did not add a level model to v6 | The pre-registered rule: B6 failed, so no level model | The seasonal price is a calendar effect, not a level that moves |
+| Did not add the 1.16 loading to v6 | It did not reach its line in the backcast and hurt the self-transfer cover | The 2024 to 2026 under-pricing is carried by the season and the longer history, if they are right |
+

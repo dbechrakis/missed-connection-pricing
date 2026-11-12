@@ -1,6 +1,6 @@
 # Decision memo: missed-connection protection
 
-**To:** Head of ancillaries, generic online travel agency · **From:** Dimitris Bechrakis · **Date:** 8 November 2026
+**To:** Head of ancillaries, generic online travel agency · **From:** Dimitris Bechrakis · **Date:** 8 November 2026 (second edition below, 12 November 2026)
 **Evidence:** public US data only (BTS, DB1B, GSA). Full method and validation: [`VALIDATION.md`](../VALIDATION.md).
 
 ## The decision
@@ -13,6 +13,18 @@ Should we sell protection against missed connections, at what price, and where s
 2. **If we sell, price per connection, never one flat price.** Prices fixed before the test ran a **60.5%** loss ratio against a 65% target, on 37.1 million connections the model had never seen (January to August 2026). One flat price was fine only if buyers ignore risk (68.2%). If the riskiest connections buy more, it runs **117%**: we would pay out more than we collect.
 3. **Refuse where the price would be too large a share of the fare.** Tight connections cost about eight times as much to protect. At a 5% price cap, Denver, Charlotte, Dallas and Chicago cannot price most connections under 75 to 105 minutes. There we should warn the traveller or show a longer connection instead of selling.
 4. **The product worth building is the gap cover.** It pays the official hotel-and-meals rate for the hub and month, only when the night is not the airline's fault (weather, air traffic control). That gap is **40.6% to 72.5%** of missed connections, and 80.5% of the overnight ones under the strict reading. The average price is about **$35** per connection at overnight risk. **39%** of those connections can be priced within 5% of the fare.
+
+## Second edition, 12 November 2026: what eight years changed
+
+Six earlier years were loaded and tested under pre-registrations written first ([`VALIDATION.md`](../VALIDATION.md) Part 7). The recommendation above stands. Five things moved.
+
+1. **The price was about right over the longer record, and the 1.16 loading is not a requirement.** On 306 weeks the existing price needs 1.00 to 1.03 times itself at a 35% expense share, which is what the 65% target leaves. The 2019 to 2023 backcast ran **0.96** of expected claims, and the sold cover ran **60.6%** against 65%, with 1 month of 44 above a 100% loss ratio. The 75% of 2024 to 2026 was a young model's year or a hard period, and the evidence now favours a model with a long history.
+2. **Price by season.** Claims run 27% above the model's expected claims in June and July and 28% below them in November, on average over the record. The five summers all ran 19% to 42% above expected, two of them above a 100% loss ratio as sold. A seasonal multiplier (1.27 in June and July, 0.72 in November) is frozen and tested on March to August 2027. It is the one repair that follows from the data. It would also raise summer prices by up to 27%, which the 5% cap will feel, and has no demand evidence.
+3. **The weeks are the risk, not the year.** 17% of weeks as sold ran above 100%, the worst at 248%. The annual capital term is 0.3% to 2.5% of premium and probably understated, because the bootstrap cannot carry a level across years. A weekly stop-loss at 100% costs 5.1% of premium as sold. Set an exposure cap per hub-week as before, and ask a reinsurer with `results/risk_weeks_2019_2026.csv`. Five hubs share part of their weather, so spreading volume helps a little (a five-hub week varies 0.67 times as much as one hub).
+4. **A trigger that settles tonight is a narrower cover.** FAA ground stops and hub weather pay a quarter to two fifths of what the BTS-coded gap pays and rarely pay the airline's own delays. Whether airlines moved their delay coding after the hotel commitments is **not settled** (the placebo failed), so a launched cover still needs its own check against a second source.
+5. **Stop selling on a bad forecast, if late buyers choose by it.** A forecast as issued one to three days ahead adds about 1% to 1.6% to the log loss and nothing at a week. If 20% of buyers book in the last three days and favour the connections the forecast likes least, the sold loss ratio is about 80%. A rule that stops selling where the forecast says the risk is 1.5 times the price brings it back to about 72%, at the cost of 6% of sales. It barely moves the count of bad weeks.
+
+**Revised next step.** The experiment is unchanged, with three additions. Price the gap cover by season, with an exposure cap per hub-week and the stop-selling rule if a forecast feed is available. Do not launch the blanket cover. Read the seasonal price on March to August 2027.
 
 ## What it costs us if we are wrong
 

@@ -264,8 +264,8 @@ def test_readme_limits_table_has_every_limit_with_a_status_and_the_counts_are_ri
     rows = re.findall(r"^\| (\d+) \| (.+?) \| \*\*(Closed|Reduced|Open)\*\* \|", sec, flags=re.M)
     assert [int(r[0]) for r in rows] == list(range(1, 15))
     counts = {s: sum(1 for r in rows if r[2] == s) for s in ("Closed", "Reduced", "Open")}
-    assert counts == {"Closed": 5, "Reduced": 7, "Open": 2}
-    assert "**5 are closed**" in sec and "**7 are reduced**" in sec and "**2 are open**" in sec and "Of the 14 limits" in sec
+    assert counts == {"Closed": 5, "Reduced": 8, "Open": 1}
+    assert "**5 are closed**" in sec and "**8 are reduced**" in sec and "**1 is open**" in sec and "Of the 14 limits" in sec
     assert "agency-inputs.md" in sec
 
 
