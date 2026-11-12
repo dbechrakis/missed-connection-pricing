@@ -249,3 +249,44 @@ def test_part_7a_quotes_the_numbers_in_the_results_file():
         for series in ("pooled_series", "hub_panel"):
             best = min(d[view][series], key=lambda k: d[view][series][k]["crps"])
             assert best == "none", (view, series)                    # the first reading in 7A
+
+
+# ---- months that were not observed ---------------------------------------------------------------------------
+
+def test_a_missing_month_is_skipped_and_the_rest_is_seen_in_order():
+    rng = np.random.default_rng(12)
+    z = rng.normal(0.1, 0.2, 40)
+    z[12:20] = np.nan                                                # eight months not observed
+    mo = months(40)
+    wf = L.walk_forward(z, mo, lag=2, method="local")
+    t = 33
+    known = [s for s in range(t - 1) if np.isfinite(z[s])]
+    mu, var, used = L.forecast(z[known], "local", 2, L.month_of_year(mo)[known], int(L.month_of_year(mo)[t]))
+    assert wf["mu"][t] == mu and wf["var"][t] == var
+    first = int(np.argmax(~np.isnan(wf["mu"])))
+    assert first == 7                                                # six observed months, then two months of lag
+
+
+@pytest.mark.parametrize("method", ["none", "last12", "local"])
+def test_missing_months_do_not_open_a_look_ahead(method):
+    rng = np.random.default_rng(13)
+    z = rng.normal(0.1, 0.2, 50)
+    z[15:22] = np.nan
+    base = L.walk_forward(z, months(50), 2, method)
+    z2 = z.copy()
+    z2[30:] += 5.0
+    alt = L.walk_forward(z2, months(50), 2, method)
+    assert np.array_equal(base["mu"][:32], alt["mu"][:32], equal_nan=True)
+
+
+def test_scores_and_the_repriced_ratio_ignore_missing_outcomes():
+    z = np.array([0.0, np.nan, 0.2, 0.3])
+    mu = np.array([0.0, 0.1, 0.2, 0.3])
+    var = np.full(4, 0.01)
+    assert L.score(z, mu, var)["n"] == 3
+    r = L.repriced_ratio(np.array([100.0, np.nan, 120.0]), np.array([100.0, 100.0, 100.0]), np.array([0.0, 0.0, 0.0]), np.zeros(3))
+    assert r["months"] == 2 and r["unadjusted"] == pytest.approx(1.1)
+    panel = np.random.default_rng(14).normal(0.1, 0.2, (30, 5))
+    panel[10:14, 2] = np.nan
+    wp = L.walk_forward_panel(panel, months(30), 2, "cred")
+    assert np.isfinite(wp["mu"][20]).all() and np.isnan(wp["mu"][:7]).all()

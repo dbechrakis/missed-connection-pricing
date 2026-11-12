@@ -152,17 +152,19 @@ def month_of_year(months) -> np.ndarray:
 
 
 def walk_forward(z, months, lag: int, method: str, min_history: int = MIN_HISTORY) -> dict:
-    """For each month t, the forecast made from months s <= t - lag only. Months with too little history are NaN."""
+    """For each month t, the forecast made from months s <= t - lag only. Months with too little history are NaN.
+    A NaN in z is a month that was not observed (for example a pandemic month): it is skipped, the observed months are
+    seen in order as a series without the gap, and the lag is still counted in calendar months."""
     z = np.asarray(z, float)
     T = len(z)
     moy = month_of_year(months)
     mu, var = np.full(T, np.nan), np.full(T, np.nan)
     used = [None] * T
     for t in range(T):
-        n_known = t - lag + 1
-        if n_known < max(min_history, MIN_HISTORY):
+        known = [s for s in range(t - lag + 1) if np.isfinite(z[s])]
+        if len(known) < max(min_history, MIN_HISTORY):
             continue
-        mu[t], var[t], used[t] = forecast(z[:n_known], method, lag, moy[:n_known], int(moy[t]))
+        mu[t], var[t], used[t] = forecast(z[known], method, lag, moy[known], int(moy[t]))
     return {"mu": mu, "var": var, "used": used}
 
 
@@ -190,12 +192,12 @@ def walk_forward_panel(Z, months, lag: int, method: str, min_history: int = MIN_
                 "used": [[r["used"][t] for r in runs] for t in range(T)]}
     mu, var = np.full((T, H), np.nan), np.full((T, H), np.nan)
     z_cred = np.full(T, np.nan)
+    complete = np.isfinite(Z).all(axis=1)                    # a month missing for any hub is missing for the panel
     for t in range(T):
-        n_known = t - lag + 1
-        if n_known < max(min_history, MIN_HISTORY):
+        known = [s for s in range(t - lag + 1) if complete[s]]
+        if len(known) < max(min_history, MIN_HISTORY):
             continue
-        window = Z[max(0, n_known - RECENT):n_known]
-        mu[t], var[t], z_cred[t], _ = credibility_panel(window)
+        mu[t], var[t], z_cred[t], _ = credibility_panel(Z[known[-RECENT:]])
     return {"mu": mu, "var": var, "credibility": z_cred, "used": [["cred"] * H if not np.isnan(z_cred[t]) else [None] * H for t in range(T)]}
 
 
@@ -204,7 +206,7 @@ def walk_forward_panel(Z, months, lag: int, method: str, min_history: int = MIN_
 def score(z, mu, var, level: float = LEVEL) -> dict:
     """Scores over the months that have a forecast. CRPS and log score are in log-ratio units, lower is better."""
     z, mu, var = (np.asarray(a, float).ravel() for a in (z, mu, var))
-    ok = ~np.isnan(mu)
+    ok = ~np.isnan(mu) & ~np.isnan(z)
     sd = np.sqrt(var[ok])
     lo, hi = normal_interval(mu[ok], sd, level)
     return {"n": int(ok.sum()), "crps": float(crps_normal(z[ok], mu[ok], sd).mean()), "log_score": float(log_score_normal(z[ok], mu[ok], sd).mean()),
@@ -216,7 +218,7 @@ def repriced_ratio(claims, expected, mu, var) -> dict:
     """What the realized/expected ratio would have been had the expected claims been multiplied by the forecast level
     exp(mu + var / 2), the mean of the lognormal. Over months that have a forecast. 1.0 would be exactly on target."""
     claims, expected, mu, var = (np.asarray(a, float).ravel() for a in (claims, expected, mu, var))
-    ok = ~np.isnan(mu)
+    ok = ~np.isnan(mu) & ~np.isnan(claims) & ~np.isnan(expected)
     unadjusted = claims[ok].sum() / expected[ok].sum()
     adjusted = claims[ok].sum() / (expected[ok] * np.exp(mu[ok] + var[ok] / 2)).sum()
     return {"unadjusted": float(unadjusted), "repriced": float(adjusted), "months": int(ok.sum())}
@@ -229,7 +231,7 @@ def conformal_coverage(z, mu, lag: int, level: float = LEVEL, min_errors: int = 
     z, mu = np.asarray(z, float), np.asarray(mu, float)
     hits, widths = [], []
     for t in range(len(z)):
-        if np.isnan(mu[t]):
+        if np.isnan(mu[t]) or np.isnan(z[t]):
             continue
         s = np.arange(0, t - lag + 1)
         err = np.abs(z[s] - mu[s])
