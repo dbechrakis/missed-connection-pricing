@@ -80,3 +80,9 @@ def test_intervals_merge_overlaps_drop_proposals_and_airline_stops_and_stop_at_a
 
 def test_send_time_is_read_as_utc():
     assert faa.send_time("07/18/19 23:50").isoformat() == "2019-07-18T23:50:00+00:00"
+
+
+def test_every_stated_impacting_condition_class_is_mapped():
+    assert faa.cause_class("WEATHER / THUNDERSTORMS") == "weather" and faa.cause_class("VOLUME / MULTI-TAXI") == "volume"
+    assert faa.cause_class("RWY-TAXI / CONSTRUCTION") == "runway_equipment" and faa.cause_class("OTHER / OTHER") == "other"
+    assert faa.cause_class(None) == "none" and faa.cause_class("") == "none" and faa.cause_class("SPACE / LAUNCH") == "unknown"

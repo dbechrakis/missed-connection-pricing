@@ -34,7 +34,7 @@ LIST_URL = "https://www.fly.faa.gov/adv/adv_list"
 DETAIL_URL = "https://www.fly.faa.gov/adv/adv_otherdis?adv_date={mdy}&advn={advn}"
 WAIT = 1.0
 KINDS = (("GROUND STOP", "gs"), ("GROUND DELAY PROGRAM", "gdp"))
-CAUSES = {"WEATHER": "weather", "VOLUME": "volume", "RUNWAY": "runway_equipment", "EQUIPMENT": "runway_equipment",
+CAUSES = {"WEATHER": "weather", "VOLUME": "volume", "RUNWAY": "runway_equipment", "RWY-TAXI": "runway_equipment", "EQUIPMENT": "runway_equipment",
           "STAFFING": "staffing", "OTHER": "other"}
 PERIOD_KEYS = ("GROUND STOP PERIOD", "CUMULATIVE PROGRAM PERIOD", "GDP CNX PERIOD", "GROUND STOP CNX PERIOD", "GS CNX PERIOD", "ARRIVALS ESTIMATED FOR")
 UA = {"User-Agent": "research-script (public data, one request a second)"}
@@ -84,6 +84,12 @@ def _utc(mdy: str, dayhhmm: str, ref: datetime | None = None) -> datetime:
     return base.replace(day=day, hour=hh, minute=mm)
 
 
+def cause_class(impacting: str | None) -> str:
+    """The class of the stated impacting condition ('WEATHER / THUNDERSTORMS' is weather); 'none' when none is stated."""
+    cond = (impacting or "").split("/")[0].strip().upper()
+    return CAUSES.get(cond, "unknown" if cond else "none")
+
+
 def parse_detail(page: str, mdy: str, title: str) -> dict:
     """The labelled fields of one advisory. Returns the program period (UTC) when the advisory carries one."""
     i = page.find("ADVZY")
@@ -95,8 +101,7 @@ def parse_detail(page: str, mdy: str, title: str) -> dict:
         if m:
             fields.setdefault(m.group(1).strip(), m.group(2).strip())
     out = {"title": title, "element": fields.get("CTL ELEMENT"), "impacting": fields.get("IMPACTING CONDITION"), "period": None}
-    cond = (fields.get("IMPACTING CONDITION") or "").split("/")[0].strip().upper()
-    out["cause"] = CAUSES.get(cond, "unknown" if cond else "none")
+    out["cause"] = cause_class(fields.get("IMPACTING CONDITION"))
     for key in PERIOD_KEYS:
         v = fields.get(key)
         m = re.match(r"(\d{2}/\d{4}Z)\s*-\s*(\d{2}/\d{4}Z)", v or "")
@@ -178,7 +183,9 @@ def programs(start: str = "2018-01", end: str = "2026-08") -> list[dict]:
     for y, m in months(start, end):
         p = month_path(y, m)
         if p.exists():
-            out.extend(json.loads(p.read_text(encoding="utf-8"))["advisories"])
+            for a in json.loads(p.read_text(encoding="utf-8"))["advisories"]:
+                a["cause"] = cause_class(a.get("impacting"))             # the stored text is the record; the class follows the current mapping
+                out.append(a)
     return out
 
 
@@ -233,8 +240,11 @@ def gate(n: int = 100, seed: int = 0) -> None:
         page = _get(DETAIL_URL.format(mdy=datetime.fromisoformat(a["day"]).strftime("%m%d%Y"), advn=a["advn"]))
         time.sleep(WAIT)
         raw = htmllib.unescape(re.sub(r"<[^>]+>", "\n", page))
-        raw = [l.strip() for l in raw.splitlines() if re.match(r"\s*(CTL ELEMENT|IMPACTING CONDITION|GROUND STOP PERIOD|CUMULATIVE PROGRAM PERIOD|GDP CNX PERIOD|ADVZY)", l)]
-        print(a["day"], a["advn"], a["kind"], "| parsed:", a["element"], a["cause"], a["period"], "| raw:", " ; ".join(raw)[:230])
+        raw_all = raw
+        raw = [l.strip() for l in raw.splitlines() if re.match(r"\s*(CTL ELEMENT|IMPACTING CONDITION|GROUND STOP PERIOD|CUMULATIVE PROGRAM PERIOD|GDP CNX PERIOD|GS CNX PERIOD|GROUND STOP CNX PERIOD)", l)]
+        found = re.findall(r"\d\d/\d{4}Z\s*-\s*\d\d/\d{4}Z", re.sub(r"\s+", " ", raw_all))            # every period written anywhere in the advisory
+        raw.append("PERIODS_ANYWHERE: " + (" | ".join(found) if found else "none"))
+        print(a["day"], a["advn"], a["kind"], "| parsed:", a["element"], a["cause"], a["period"], "| raw:", " ; ".join(raw))
 
 
 if __name__ == "__main__":
