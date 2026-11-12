@@ -74,7 +74,7 @@ def backcast_result(**over):
          "gap": {"pooled_ratio_all": 1.05, "monthly_ratio_all": {f"m{i}": 1.0 + (0.2 if i % 2 else -0.2) for i in range(44)}, "pooled_ratio_sold": 1.15,
                  "monthly_sold_loss_ratio": {f"m{i}": (1.1 if i < 8 else 0.7) for i in range(44)},
                  "sold_loss_ratio_unloaded": 0.77, "sold_loss_ratio_loaded": 0.70},
-         "level": {"months_active": 23, "crps": {"none": 0.20, "last12": 0.19, "local_season": 0.15}, "interval_hits": 21},
+         "level": {"months_scored": 37, "crps": {"none": 0.20, "last12": 0.19, "local": 0.15}, "interval_hits": 33},
          "self_transfer": {"ratio_unloaded": 1.20, "ratio_loaded": 1.03}}
     for k, v in over.items():
         r[k].update(v) if isinstance(v, dict) else r.update({k: v})
@@ -98,7 +98,7 @@ def test_the_backcast_bands_are_the_ones_the_document_states_and_derive_from_the
 
 def test_binomial_range_and_the_chi_square_and_clopper_pearson_bands_match_scipy():
     from scipy import stats
-    for n in (23, 44, 48):
+    for n in (23, 37, 44, 48):
         assert grade.binomial_central_range(n) == (int(stats.binom.ppf(0.025, n, 0.9)), int(stats.binom.ppf(0.975, n, 0.9)))
     assert round(0.241 * (25 / stats.chi2.ppf(0.975, 25)) ** 0.5, 2) == grade.B2_BAND[0]
     assert round(0.241 * (25 / stats.chi2.ppf(0.025, 25)) ** 0.5, 2) == grade.B2_BAND[1]
@@ -114,8 +114,9 @@ def test_each_backcast_expectation_passes_and_fails_on_its_own_rule():
     assert not bad(gap={"pooled_ratio_sold": 1.0})["B3"]["pass"]
     assert not bad(gap={"monthly_sold_loss_ratio": {f"m{i}": 0.7 for i in range(44)}})["B4"]["pass"]       # none above 100%: below 9%
     assert not bad(gap={"sold_loss_ratio_loaded": 0.75})["B5"]["pass"] and bad(gap={"sold_loss_ratio_loaded": 0.74})["B5"]["pass"]
-    assert not bad(level={"crps": {"none": 0.10, "last12": 0.19, "local_season": 0.15}})["B6"]["pass"]
-    assert not bad(level={"interval_hits": 17})["B7"]["pass"] and bad(level={"interval_hits": 18})["B7"]["pass"]       # the range for 23 months is 18 to 23
+    assert not bad(level={"crps": {"none": 0.10, "last12": 0.19, "local": 0.15}})["B6"]["pass"]
+    lo, hi = grade.binomial_central_range(37)
+    assert not bad(level={"interval_hits": lo - 1})["B7"]["pass"] and bad(level={"interval_hits": lo})["B7"]["pass"] and not bad(level={"interval_hits": hi + 1 if hi < 37 else -1})["B7"]["pass"]
     assert not bad(self_transfer={"ratio_loaded": 1.30})["B8"]["pass"]
 
 
@@ -126,3 +127,17 @@ def test_the_coding_audit_does_not_grade_the_effect_when_the_placebo_fails():
     assert not grade.grade_coding({**ok, "primary": {"Y1": {"effect": -3.5}, "Y2": {"effect": 0.5}}})["C2"]["pass"]
     broken = grade.grade_coding({**ok, "placebo": {"Y1": {"effect": 4.0}, "Y2": {"effect": 0.0}}})
     assert not broken["C1"]["pass"] and "C2" not in broken
+
+
+def test_the_addendum_reason_is_arithmetic_that_can_be_checked():
+    """48 known months can never be reached: 60 scored months less the 16 pandemic months leaves 44."""
+    from datetime import date
+    months = [(y, m) for y in range(2019, 2024) for m in range(1, 13)]
+    pandemic = [(y, m) for y, m in months if date(2020, 3, 1) <= date(y, m, 1) <= date(2021, 6, 1)]
+    assert len(months) == 60 and len(pandemic) == 16 and len(months) - len(pandemic) == 44 < 48
+    text = (ROOT / "PREREGISTRATION_V6_BACKCAST_ADDENDUM.md").read_text(encoding="utf-8")
+    assert "**44** observed months" in text and "16 of 60" in text
+    status = json.loads((ROOT / "results" / "prereg_status.json").read_text(encoding="utf-8"))
+    rows = {e["id"]: e for e in status["expectations"]}
+    assert rows["B6"]["document"] == rows["B7"]["document"] == "PREREGISTRATION_V6_BACKCAST_ADDENDUM.md"
+    assert "local_season" not in grade.grade_backcast.__doc__.split("B6 and B7")[0].split("level.")[1]

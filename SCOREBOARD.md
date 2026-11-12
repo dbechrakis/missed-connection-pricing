@@ -45,8 +45,8 @@ Each prediction was written, hashed and tagged **before** its data existed, so e
 | B3 | Connections within the 5% cap run worse than all overnight-risk connections | [prereg-v6-backcast](PREREGISTRATION_V6_BACKCAST.md) | pending |  |
 | B4 | 9% to 44% of months have a sold loss ratio above 100% | [prereg-v6-backcast](PREREGISTRATION_V6_BACKCAST.md) | pending |  |
 | B5 | The refitted loading lowers the pooled sold loss ratio by at least 3.0 points | [prereg-v6-backcast](PREREGISTRATION_V6_BACKCAST.md) | pending |  |
-| B6 | local_season has lower CRPS than none and than last12 where it is active | [prereg-v6-backcast](PREREGISTRATION_V6_BACKCAST.md) | pending |  |
-| B7 | The 90% intervals of local_season cover within the central 95% binomial range | [prereg-v6-backcast](PREREGISTRATION_V6_BACKCAST.md) | pending |  |
+| B6 | local has lower CRPS than none and than last12 over the months with a forecast (replaces local_season, see the addendum) | [prereg-v6-backcast-addendum](PREREGISTRATION_V6_BACKCAST_ADDENDUM.md) | pending |  |
+| B7 | The 90% intervals of local cover within the central 95% binomial range (replaces local_season, see the addendum) | [prereg-v6-backcast-addendum](PREREGISTRATION_V6_BACKCAST_ADDENDUM.md) | pending |  |
 | B8 | The refitted loading brings the self-transfer ratio closer to 1 | [prereg-v6-backcast](PREREGISTRATION_V6_BACKCAST.md) | pending |  |
 | B9 | Arm A (all earlier months) against arm B (trailing 24): reported either way, no prediction | [prereg-v6-backcast](PREREGISTRATION_V6_BACKCAST.md) | pending |  |
 | B10 | Largest earlier 24-month change in the 12-month level, reported next to 2024 to 2026, no prediction | [prereg-v6-backcast](PREREGISTRATION_V6_BACKCAST.md) | pending |  |

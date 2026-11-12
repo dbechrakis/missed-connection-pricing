@@ -315,17 +315,17 @@
   },
   {
    "id": "B6",
-   "claim": "local_season has lower CRPS than none and than last12 where it is active",
-   "document": "PREREGISTRATION_V6_BACKCAST.md",
-   "tag": "prereg-v6-backcast",
+   "claim": "local has lower CRPS than none and than last12 over the months with a forecast (replaces local_season, see the addendum)",
+   "document": "PREREGISTRATION_V6_BACKCAST_ADDENDUM.md",
+   "tag": "prereg-v6-backcast-addendum",
    "status": "pending",
    "result": null
   },
   {
    "id": "B7",
-   "claim": "The 90% intervals of local_season cover within the central 95% binomial range",
-   "document": "PREREGISTRATION_V6_BACKCAST.md",
-   "tag": "prereg-v6-backcast",
+   "claim": "The 90% intervals of local cover within the central 95% binomial range (replaces local_season, see the addendum)",
+   "document": "PREREGISTRATION_V6_BACKCAST_ADDENDUM.md",
+   "tag": "prereg-v6-backcast-addendum",
    "status": "pending",
    "result": null
   },

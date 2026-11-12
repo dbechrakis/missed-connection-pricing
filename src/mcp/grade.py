@@ -124,8 +124,8 @@ def grade_backcast(res: dict) -> dict:
     B9 and B10 are reported without a prediction and stay pending. Months are the scored months outside the pandemic.
 
     Expected keys: n_months; gap.{pooled_ratio_all, monthly_ratio_all, pooled_ratio_sold, monthly_sold_loss_ratio,
-    sold_loss_ratio_unloaded, sold_loss_ratio_loaded}; level.{months_active, crps.{none,last12,local_season}, interval_hits};
-    self_transfer.{ratio_unloaded, ratio_loaded}."""
+    sold_loss_ratio_unloaded, sold_loss_ratio_loaded}; level.{months_scored, crps.{none,last12,local}, interval_hits};
+    self_transfer.{ratio_unloaded, ratio_loaded}. B6 and B7 are on the `local` level model (PREREGISTRATION_V6_BACKCAST_ADDENDUM.md)."""
     g, lv, st = res["gap"], res["level"], res["self_transfer"]
     n = res["n_months"]
     band = b1_band(n)
@@ -134,7 +134,7 @@ def grade_backcast(res: dict) -> dict:
     sd = math.sqrt(sum((r - mean) ** 2 for r in ratios) / (len(ratios) - 1))
     lrs = list(g["monthly_sold_loss_ratio"].values())
     above = sum(1 for x in lrs if x > 1.0) / len(lrs)
-    lo, hi = binomial_central_range(lv["months_active"])
+    lo, hi = binomial_central_range(lv["months_scored"])
     c = lv["crps"]
     gain = g["sold_loss_ratio_unloaded"] - g["sold_loss_ratio_loaded"]
     return {
@@ -143,9 +143,9 @@ def grade_backcast(res: dict) -> dict:
         "B3": {"pass": g["pooled_ratio_sold"] > g["pooled_ratio_all"], "value": f"within the cap {g['pooled_ratio_sold']:.3f}, all {g['pooled_ratio_all']:.3f}"},
         "B4": {"pass": B4_BAND[0] <= above <= B4_BAND[1], "value": f"{above:.1%} of months above a 100% loss ratio as sold, against {B4_BAND[0]:.0%} to {B4_BAND[1]:.0%}"},
         "B5": {"pass": gain >= B5_POINTS, "value": f"loading lowers the sold loss ratio by {gain * 100:.1f} points ({g['sold_loss_ratio_unloaded']:.1%} to {g['sold_loss_ratio_loaded']:.1%})"},
-        "B6": {"pass": c["local_season"] < c["none"] and c["local_season"] < c["last12"],
-               "value": f"CRPS local_season {c['local_season']:.3f}, none {c['none']:.3f}, last12 {c['last12']:.3f} over {lv['months_active']} months"},
-        "B7": {"pass": lo <= lv["interval_hits"] <= hi, "value": f"{lv['interval_hits']} of {lv['months_active']} months inside the 90% interval, range {lo} to {hi}"},
+        "B6": {"pass": c["local"] < c["none"] and c["local"] < c["last12"],
+               "value": f"CRPS local {c['local']:.3f}, none {c['none']:.3f}, last12 {c['last12']:.3f} over {lv['months_scored']} months"},
+        "B7": {"pass": lo <= lv["interval_hits"] <= hi, "value": f"{lv['interval_hits']} of {lv['months_scored']} months inside the 90% interval, range {lo} to {hi}"},
         "B8": {"pass": abs(st["ratio_loaded"] - 1) < abs(st["ratio_unloaded"] - 1), "value": f"loaded {st['ratio_loaded']:.3f}, unloaded {st['ratio_unloaded']:.3f}"},
     }
 
