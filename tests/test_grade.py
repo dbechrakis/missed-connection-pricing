@@ -44,7 +44,7 @@ def test_v4_graders_use_the_thresholds_of_the_preregistration():
     assert grade.grade_v4(v4_result(weeks=1))["L4"]["pass"] and not grade.grade_v4(v4_result(weeks=2))["L4"]["pass"]
 
 
-def test_every_prediction_in_the_nine_documents_is_on_the_scoreboard_and_only_v5_has_been_read():
+def test_every_prediction_in_the_nine_documents_is_on_the_scoreboard_and_only_v5_and_the_forecast_test_have_been_read():
     status = json.loads((ROOT / "results" / "prereg_status.json").read_text(encoding="utf-8"))
     on_board = {e["id"]: e for e in status["expectations"]}
     for e in on_board.values():
@@ -54,9 +54,11 @@ def test_every_prediction_in_the_nine_documents_is_on_the_scoreboard_and_only_v5
     for doc in {e["document"] for e in on_board.values()}:
         in_docs |= set(re.findall(r"^\| ([EAVLSRWBCF]\d+) \|", (ROOT / doc).read_text(encoding="utf-8"), flags=re.M))
     assert in_docs == set(on_board) and len(on_board) == 48
-    assert all(e["status"] == "pending" and e["result"] is None for k, e in on_board.items() if not k.startswith("S"))
+    assert all(e["status"] == "pending" and e["result"] is None for k, e in on_board.items() if not k.startswith(("S", "F")))
     v5 = grade.grade_v5(json.loads((ROOT / "results" / "v5_holdout.json").read_text(encoding="utf-8")))
     assert all(on_board[k]["status"] == ("pass" if g["pass"] else "fail") and on_board[k]["result"] == g["value"] for k, g in v5.items())
+    fc = grade.grade_forecast(json.loads((ROOT / "results" / "forecast.json").read_text(encoding="utf-8")))
+    assert all(on_board[k]["status"] == ("pass" if g["pass"] else "fail") and on_board[k]["result"] == g["value"] for k, g in fc.items())
     assert (ROOT / "SCOREBOARD.md").read_text(encoding="utf-8") == grade.render(status)
 
 

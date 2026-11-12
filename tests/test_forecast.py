@@ -111,3 +111,25 @@ def test_the_windows_and_the_rule_are_the_ones_the_pre_registration_states():
     for hub, (lat, lon) in FC.HUB_XY.items():
         assert f"{lat}" in text and f"{abs(lon)}" in text, hub
     assert "2026-09" not in Path(FC.__file__).read_text(encoding="utf-8").replace("2026-09-01", "")
+
+
+def test_part_7f_quotes_the_numbers_in_the_results_file():
+    import json
+    d = json.loads((ROOT / "results" / "forecast.json").read_text(encoding="utf-8"))
+    text = (ROOT / "VALIDATION.md").read_text(encoding="utf-8")
+    part = text[text.index("### 7F."):]
+    for lead in ("1", "2", "3", "5", "7"):
+        lo, hi = d["gain_ci"][lead]
+        row = [l for l in part.splitlines() if l.startswith(f"| {lead} |")][0]
+        cells = [c.strip() for c in row.strip("|").split("|")]
+        assert cells[1] == f"{d['gain_pct'][lead]:.2f}%" and cells[2] == f"{lo:.2f}% to {hi:.2f}%".replace("-", "−"), row
+        assert cells[3] == f"{d['kappa'][lead]:.3f}" and cells[4] == f"{d['kappa_net_of_noise'][lead]:.3f}" and cells[5] == f"{d['exposure_theta1'][lead]:.2f}", row
+    assert f"{d['kappa_noise_floor']:.3f}" in part and d["gate_passed"]
+    for key, label in (("s10_theta0", "10%, 0"), ("s10_theta1", "10%, 1"), ("s20_theta0", "20%, 0"), ("s20_theta1", "20%, 1"), ("s30_theta0", "30%, 0"), ("s30_theta1", "30%, 1")):
+        r = d["rule"][key]
+        row = [l for l in part.splitlines() if l.startswith(f"| {label} |")][0]
+        cells = [c.strip() for c in row.strip("|").split("|")]
+        assert cells[1] == f"{r['without_rule']['loss_ratio']:.1%}" and cells[2] == f"{r['with_rule']['loss_ratio']:.1%}" and cells[3] == f"{r['share_of_sales_lost']:.1%}", row
+        assert cells[4] == f"{r['without_rule']['weeks_above_100']} and {r['with_rule']['weeks_above_100']}", row
+    a = d["rule"]["s20_theta1"]
+    assert a["weeks_above_100_with_rule"] == 14 and a["weeks_above_100_without_rule"] == 15 and a["with_rule"]["weeks"] == 53

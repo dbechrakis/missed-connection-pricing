@@ -144,7 +144,8 @@ def test_the_loading_is_the_pooled_ratio_of_scored_months_at_least_five_months_b
 # ---- only these modules may name the historical files ---------------------------------------------------------------
 
 def test_only_the_backcast_modules_name_the_historical_data():
-    allowed = {"backcast.py", "backcast_st.py", "variant.py", "ingest.py", "costs.py", "features.py", "connections.py", "gsa_hist.py", "faa.py", "grade.py"}
+    allowed = {"backcast.py", "backcast_st.py", "variant.py", "ingest.py", "costs.py", "features.py", "connections.py", "gsa_hist.py", "faa.py", "grade.py",
+               "coding_audit.py", "trigger.py"}       # the coding audit has its own pre-registration; the trigger reads the backcast years only after the backcast was read
     for f in (ROOT / "src" / "mcp").glob("*.py"):
         text = f.read_text(encoding="utf-8")
         if f.name in allowed:

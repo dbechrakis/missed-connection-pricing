@@ -816,3 +816,40 @@ Code: `src/mcp/level.py` and `src/mcp/risk.py`. Tests: `tests/test_level.py` and
 ```bash
 cd src && python -m mcp.level dev     # about a second, reads results/v3_rolling_weeks.csv, writes results/level_dev.json
 ```
+
+
+### 7F. What a late buyer can know: forecasts as issued and a stop-selling rule (read once, 12 November 2026)
+
+Pre-registered in `PREREGISTRATION_V6_FORECAST.md` (tag `prereg-v6-forecast`) before any forecast was joined to a connection. Code: `src/mcp/forecast.py`, tests: `tests/test_forecast.py`, result: `results/forecast.json`. The booking-time model and a forecast model for each lead were fitted on February 2024 to August 2025 and scored once on September 2025 to August 2026 (12 months, a 10% hash sample of overnight-risk connections, the gap label). The forecasts are the Open-Meteo Previous Runs values, hourly at each hub, as the forecast issued 1, 2, 3, 5 and 7 days earlier said them. A dry run on months of the fit window (not the test window) found one thing before the read: snowfall and weather code at lead 7 exist in the archive only from 12 December 2024, so earlier values are missing values, which the gradient-boosting model reads as such.
+
+| Lead (days) | Gain in log loss over the booking-time price | 95% interval (months resampled) | Spread of log(p forecast ÷ p booking) | Net of the noise floor | Exposure at θ = 1 |
+| --- | --- | --- | --- | --- | --- |
+| 1 | 1.05% | 0.62% to 1.57% | 0.302 | 0.259 | 1.10 |
+| 2 | 1.59% | 1.25% to 1.91% | 0.357 | 0.321 | 1.14 |
+| 3 | 1.13% | 0.71% to 1.55% | 0.373 | 0.338 | 1.15 |
+| 5 | 0.56% | 0.20% to 0.93% | 0.310 | 0.267 | 1.10 |
+| 7 | 0.06% | −0.39% to 0.54% | 0.279 | 0.231 | 1.08 |
+
+The noise floor is the spread between two fits of the same booking-time information with different seeds, 0.156 (reported next to the pre-registered measure, which does not remove it). The exposure column is exp(θκ²) with the spread as measured, not net.
+
+**Gate and expectations.** The gain is at least 1% at leads 1, 2 and 3, so the gate passes and the rule was evaluated. **F1 passed**: the gain at lead 1 (1.05%) is larger than at lead 7 (0.06%), and the gain at lead 7 is under 1%. It is not monotone: lead 2 is better than lead 1. **F2 passed, by one week**: at s = 20% and θ = 1 the number of weeks above a 100% loss ratio as sold is 14 with the rule and 15 without, out of 53.
+
+**The sales rule (stop selling where the forecast-informed risk at lead 3 is more than 1.5 times the priced risk).** Sold loss ratio, with and without the rule, by the share s of buyers who book within three days and the strength θ with which they pick connections by the forecast. The target is 65%.
+
+| s, θ | Without the rule | With the rule | Share of sales lost | Weeks above 100% (of 53), without and with |
+| --- | --- | --- | --- | --- |
+| 10%, 0 | 72.7% | 71.7% | 1.2% | 13 and 13 |
+| 10%, 1 | 76.4% | 72.2% | 2.8% | 14 and 14 |
+| 20%, 0 | 72.7% | 70.8% | 2.4% | 13 and 13 |
+| 20%, 1 | 80.1% | 71.7% | 5.6% | 15 and 14 |
+| 30%, 0 | 72.7% | 69.9% | 3.7% | 13 and 12 |
+| 30%, 1 | 83.8% | 71.2% | 8.5% | 16 and 14 |
+
+**What it says.**
+
+- **A forecast helps a little, and mostly one to three days out.** The gain is about one percent of the log loss, which is the same order as everything else this project could add at booking time (`VALIDATION.md` Part 4). It fades to nothing at a week. An archive built by a vendor is not proof that a traveller saw the same numbers, and this one is the vendor's, not a government source.
+- **The exposure it opens is real and modest.** A buyer who picks by the forecast with θ = 1 and books late raises the sold loss ratio from 72.7% to 76% to 84%, depending on how many buy late. Those are the figures the hidden-information simulation of 4C only gave as a formula. They rest on an assumed share of late buyers, which public data cannot give.
+- **The rule recovers the average and does very little for the bad weeks.** It brings the loss ratio back to about 71% to 72% where late buyers select. The count of weeks above 100% moves by zero to two weeks. Weather moves whole weeks and the rule removes only the connections whose forecast was clearly worse than the price. F2 was passed by a single week and should not be read as more than that.
+- **The rule costs sales.** Between 1% and 9% of sold weight, rising with the late share and the selection.
+
+**What this does not show.** How travellers really choose, how many book late, whether a rule like this is practical to run (it needs a forecast feed and a decision per connection), and anything about demand. The grid is a range, not an estimate.
