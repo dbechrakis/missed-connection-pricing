@@ -80,3 +80,60 @@ def diversification(weekly_by_hub: dict) -> dict:
     single = X.std(axis=0, ddof=1)
     return {"hubs": hubs, "correlation": corr.tolist(), "mean_pairwise_correlation": float((corr.sum() - len(hubs)) / (len(hubs) * (len(hubs) - 1))),
             "sd_pooled": float(pooled.std(ddof=1)), "sd_single_mean": float(single.mean()), "ratio": float(pooled.std(ddof=1) / single.mean())}
+
+
+# ---- the run on the 2019 to 2026 weekly record -----------------------------------------------------------------------
+
+EXPENSES, ATTACHMENTS, COCS = (0.10, 0.25, 0.35), (None, 1.0, 1.2), (0.06, 0.10, 0.15)
+
+
+def weekly_record(weeks, sold: bool) -> dict:
+    """Weekly claims and expected claims (all hubs together) from rows with columns week, hub, sold, claims, expected."""
+    d = weeks[weeks["sold"]] if sold else weeks
+    g = d.groupby("week")[["claims", "expected"]].sum().sort_index()
+    return {"week": np.array(g.index, dtype="datetime64[D]"), "claims": g["claims"].to_numpy(float), "expected": g["expected"].to_numpy(float)}
+
+
+def run(weeks, current_price_per_policy: float, n_sim: int = 2000) -> dict:
+    """The technical price on a weekly record: a grid of expense ratios, attachments and costs of capital, the tail of the annual loss ratio at
+    the existing price, and the diversification between hubs. `weeks` has the columns week, hub, sold, claims, expected."""
+    out = {}
+    for view, sold in (("all_overnight_risk", False), ("sold_within_cap", True)):
+        rec = weekly_record(weeks, sold)
+        pooled_lr0 = float(rec["claims"].sum() / (rec["expected"].sum() * CURRENT_PI))
+        grid = {}
+        for e in EXPENSES:
+            for att in ATTACHMENTS:
+                for coc in COCS:
+                    s = solve(rec["claims"], rec["expected"], rec["week"], attach=att, coc=coc, expense=e, n_sim=n_sim)
+                    key = f"expense{int(e * 100)}_attach{'none' if att is None else int(att * 100)}_coc{int(coc * 100)}"
+                    grid[key] = {"loading_vs_current": s["loading_vs_current"], "pi": s["pi"], **{k: v for k, v in s["terms"].items() if k in ("retained_loss_ratio", "stop_loss_cost", "capital_margin")}}
+        tails = []
+        for seed in range(10):
+            sim = risk.season_block_bootstrap_years(rec["claims"], rec["expected"] * CURRENT_PI, rec["week"], n_sim=n_sim, block=4, seed=seed)["annual_loss_ratio"]
+            tails.append({"var90": float(np.percentile(sim, 90)), "var95": float(np.percentile(sim, 95)), "mean": float(sim.mean())})
+        by_hub = weeks[weeks["sold"]] if sold else weeks
+        piv = by_hub.groupby(["week", "hub"])[["claims", "expected"]].sum().reset_index()
+        ratio = (piv["claims"] / piv["expected"]).groupby([piv["week"], piv["hub"]]).first().unstack("hub").dropna()
+        weekly_lr = rec["claims"] / (rec["expected"] * CURRENT_PI)
+        out[view] = {"weeks": int(len(rec["week"])), "pooled_loss_ratio_at_current_price": pooled_lr0, "grid": grid,
+                     "annual_loss_ratio_at_current_price": {"var90_mean": float(np.mean([t["var90"] for t in tails])), "var90_range": [min(t["var90"] for t in tails), max(t["var90"] for t in tails)],
+                                                            "var95_mean": float(np.mean([t["var95"] for t in tails])), "var95_range": [min(t["var95"] for t in tails), max(t["var95"] for t in tails)],
+                                                            "mean": float(np.mean([t["mean"] for t in tails]))},
+                     "weekly_loss_ratio": {"weeks_above_100": int((weekly_lr > 1).sum()), "worst": float(weekly_lr.max())},
+                     "stop_loss_at_current_price": {f"attach_{a:.0%}": risk.stop_loss_cost(weekly_lr, a) for a in (0.9, 1.0, 1.2)},
+                     "diversification": diversification({h: ratio[h].to_numpy() for h in ratio.columns}),
+                     "economics": economics(pooled_lr0, current_price_per_policy)}
+    return out
+
+
+def economics(pooled_lr_at_current: float, price_per_policy: float) -> dict:
+    """Margin per policy sold, per the loading that would be needed, under the expense ratios of the grid, using the sold book's
+    realized loss ratio at the existing price and its average premium per policy. A loading raises premium and leaves claims where
+    they are (the connections that pass the cap are held fixed, which flatters the price: fewer would pass)."""
+    out = {}
+    claims = pooled_lr_at_current * price_per_policy
+    for lam in (1.0, 1.16, 1.25, 1.5):
+        prem = lam * price_per_policy
+        out[f"loading_{lam:.2f}"] = {f"expense{int(e * 100)}": prem - claims - e * prem for e in EXPENSES}
+    return out

@@ -137,7 +137,9 @@ def load_rows(start: str, end: str) -> pd.DataFrame:
     from mcp.causes import inbound_cause_sql
     from mcp.connections import WEIGHTED
     from mcp.pricing import SEVERITY
-    from mcp.v3 import SEVERITY_FULL, claim_cost, gsa_table
+    from mcp.variant import sfx
+    severity_full = SEVERITY.with_name(f"{sfx('severity_full')}.parquet")      # the active variant's table (v3's name is fixed inside mcp.v3, which is why it is not used)
+    from mcp.v3 import claim_cost, gsa_table
     from mcp.features import FLIGHTS
     con = duckdb.connect()
     files = (WEIGHTED / "mct=45" / "year=*" / "*.parquet").as_posix()
@@ -147,7 +149,7 @@ def load_rows(start: str, end: str) -> pd.DataFrame:
     SELECT r.hub, r.carrier, r.in_sched_arr, r.out_sched_dep, r.weight, r.in_cancelled, r.in_diverted, fl.arr_delay_min,
            COALESCE(ic.cause, 'unattributed') AS cause, strftime(r.out_sched_dep, '%Y-%m') AS ym
     FROM read_parquet('{files}') r
-    JOIN read_parquet('{SEVERITY_FULL.as_posix()}') s ON s.carrier = r.carrier AND s.flight_date = r.out_flight_date
+    JOIN read_parquet('{severity_full.as_posix()}') s ON s.carrier = r.carrier AND s.flight_date = r.out_flight_date
          AND s.flight_number = r.out_flight_number AND s.crs_dep_hhmm = r.out_crs_dep_hhmm
     LEFT JOIN ic ON ic.carrier = r.carrier AND ic.flight_date = r.in_flight_date AND ic.flight_number = r.in_flight_number
                 AND ic.crs_dep_hhmm = r.in_crs_dep_hhmm AND ic.origin = r.origin AND ic.dest = r.hub

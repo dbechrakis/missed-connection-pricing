@@ -154,3 +154,37 @@ def test_only_the_backcast_modules_name_the_historical_data():
     for name in ("backcast.py", "backcast_st.py"):
         t = (ROOT / "src" / "mcp" / name).read_text(encoding="utf-8")
         assert "2024-09" not in t and "2026-09" not in t and "year=2026" not in t        # the sealed window is never named
+
+
+def test_part_7b_quotes_the_numbers_in_the_results_file():
+    import json
+    d = json.loads((ROOT / "results" / "backcast.json").read_text(encoding="utf-8"))
+    text = (ROOT / "VALIDATION.md").read_text(encoding="utf-8")
+    part = text[text.index("### 7B."):text.index("### 7C.")] if "### 7C." in text else text[text.index("### 7B."):]
+    g, a, lv, st = d["gap"], d["arm_B"], d["level"], d["self_transfer"]
+    assert d["n_months"] == 44 and "**44 months**" in part and len(B.scored_months()) == 60
+    for needle in (f"**{g['pooled_ratio_all']:.3f}**", f"**{__import__('statistics').stdev(g['monthly_ratio_all'].values()):.3f}**", f"{g['pooled_ratio_sold']:.3f} as sold, {g['pooled_ratio_all']:.3f} all",
+                   f"{100 * g['sold_loss_ratio_unloaded']:.1f}% to {100 * g['sold_loss_ratio_loaded']:.1f}%", f"{lv['crps']['local']:.3f}, against {lv['crps']['none']:.3f} and {lv['crps']['last12']:.3f}",
+                   f"{lv['interval_hits']} of {lv['months_scored']} months", f"loaded {st['ratio_loaded']:.3f}, unloaded {st['ratio_unloaded']:.3f}",
+                   f"ran {a['pooled_ratio_all']:.3f} on all connections and **{a['pooled_ratio_sold']:.3f} as sold**", f"{a['weeks_above_100_sold']} of {a['weeks']} weeks above 100%",
+                   f"{g['weeks_above_100_sold']} of {g['weeks']} weeks were above 100%", f"{100 * a['sold_loss_ratio_unloaded']:.1f}% ({100 * a['sold_loss_ratio_loaded']:.1f}% loaded)"):
+        assert needle in part, needle
+    share = sum(1 for v in g["monthly_sold_loss_ratio"].values() if v > 1) / len(g["monthly_sold_loss_ratio"])
+    assert f"{100 * share:.1f}% (1 of 44 months)" in part
+    lam = list(g["loading_lambda"].values())
+    assert f"mean {sum(lam) / len(lam):.2f}, from {min(lam):.2f} to {max(lam):.2f}" in part
+    for hub in ("ATL", "CLT", "DEN", "DFW", "ORD"):
+        row = [l for l in part.splitlines() if l.startswith(f"| {hub} |")][0]
+        cells = [c.strip() for c in row.strip("|").split("|")]
+        assert cells[1:] == [f"{d['by_hub_year'][hub][y]:.2f}" for y in ("2019", "2020", "2021", "2022", "2023")], row
+    lc = d["level_change"]
+    assert f"+{lc['largest_12_month_change']:.3f}" in part and f"{lc['development_2024_2026']['largest_12_month_change']:.3f}".replace("-", "−") in part
+    assert f"{d['pandemic_months']['pooled_ratio_all']:.3f}" in part and d["level"]["local_season_active_months"] == []
+    from mcp import grade
+    graded = grade.grade_backcast(d)
+    assert [k for k, v in graded.items() if v["pass"]] == ["B1", "B2", "B7"]
+    w = pd.read_csv(ROOT / "results" / "backcast_weeks_A.csv")
+    w = w[~w["ym"].map(B.is_pandemic)]
+    wk = w[w["sold"]].groupby("week")[["claims", "premium"]].sum()
+    lr = wk["claims"] / wk["premium"]
+    assert len(lr) == g["weeks"] == 192 and int((lr > 1).sum()) == g["weeks_above_100_sold"] and f"worst week {100 * lr.max():.0f}%" in part

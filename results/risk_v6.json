@@ -1,0 +1,586 @@
+{
+ "all_overnight_risk": {
+  "weeks": 306,
+  "pooled_loss_ratio_at_current_price": 0.6467668323474599,
+  "grid": {
+   "expense10_attachnone_coc6": {
+    "loading_vs_current": 0.7228901863098145,
+    "pi": 1.1121387481689453,
+    "retained_loss_ratio": 0.894695825999594,
+    "stop_loss_cost": 0.0,
+    "capital_margin": 0.005301500053310668
+   },
+   "expense10_attachnone_coc10": {
+    "loading_vs_current": 0.7257158851623536,
+    "pi": 1.1164859771728517,
+    "retained_loss_ratio": 0.8912121748620239,
+    "stop_loss_cost": 0.0,
+    "capital_margin": 0.008801429594360444
+   },
+   "expense10_attachnone_coc15": {
+    "loading_vs_current": 0.7292671012878418,
+    "pi": 1.1219493865966796,
+    "retained_loss_ratio": 0.8868723561028717,
+    "stop_loss_cost": 0.0,
+    "capital_margin": 0.013137855644699459
+   },
+   "expense10_attach100_coc6": {
+    "loading_vs_current": 0.7212100410461425,
+    "pi": 1.1095539093017577,
+    "retained_loss_ratio": 0.8209917084217135,
+    "stop_loss_cost": 0.07578841877854019,
+    "capital_margin": 0.0031975825335748384
+   },
+   "expense10_attach100_coc10": {
+    "loading_vs_current": 0.7229283714294433,
+    "pi": 1.1121974945068358,
+    "retained_loss_ratio": 0.8198436857385855,
+    "stop_loss_cost": 0.07480488237420073,
+    "capital_margin": 0.0053443140178702
+   },
+   "expense10_attach100_coc15": {
+    "loading_vs_current": 0.7251049232482911,
+    "pi": 1.1155460357666016,
+    "retained_loss_ratio": 0.8183897222460613,
+    "stop_loss_cost": 0.0735733738671247,
+    "capital_margin": 0.00804450327580567
+   },
+   "expense10_attach120_coc6": {
+    "loading_vs_current": 0.7221264839172366,
+    "pi": 1.110963821411133,
+    "retained_loss_ratio": 0.8697802276494885,
+    "stop_loss_cost": 0.025861805639497568,
+    "capital_margin": 0.004379037885745564
+   },
+   "expense10_attach120_coc10": {
+    "loading_vs_current": 0.7244939613342285,
+    "pi": 1.1146060943603515,
+    "retained_loss_ratio": 0.8675703243044561,
+    "stop_loss_cost": 0.02514495955570714,
+    "capital_margin": 0.00730553867535888
+   },
+   "expense10_attach120_coc15": {
+    "loading_vs_current": 0.7275105857849121,
+    "pi": 1.1192470550537108,
+    "retained_loss_ratio": 0.8647586513701924,
+    "stop_loss_cost": 0.024254986348442743,
+    "capital_margin": 0.01097119139649685
+   },
+   "expense25_attachnone_coc6": {
+    "loading_vs_current": 0.8674590492248538,
+    "pi": 1.3345523834228519,
+    "retained_loss_ratio": 0.7455877403381743,
+    "stop_loss_cost": 0.0,
+    "capital_margin": 0.004417963435488754
+   },
+   "expense25_attachnone_coc10": {
+    "loading_vs_current": 0.8708575248718264,
+    "pi": 1.3397808074951174,
+    "retained_loss_ratio": 0.7426781234308697,
+    "stop_loss_cost": 0.0,
+    "capital_margin": 0.007334537609588332
+   },
+   "expense25_attachnone_coc15": {
+    "loading_vs_current": 0.8751342582702637,
+    "pi": 1.3463603973388671,
+    "retained_loss_ratio": 0.7390486959404597,
+    "stop_loss_cost": 0.0,
+    "capital_margin": 0.01094804118637216
+   },
+   "expense25_attach100_coc6": {
+    "loading_vs_current": 0.8665807914733887,
+    "pi": 1.3332012176513672,
+    "retained_loss_ratio": 0.7247979898808119,
+    "stop_loss_cost": 0.02154538480651069,
+    "capital_margin": 0.003649234740131251
+   },
+   "expense25_attach100_coc10": {
+    "loading_vs_current": 0.8694064903259279,
+    "pi": 1.3375484466552736,
+    "retained_loss_ratio": 0.7229663950203187,
+    "stop_loss_cost": 0.020951254024371917,
+    "capital_margin": 0.006087978270568484
+   },
+   "expense25_attach100_coc15": {
+    "loading_vs_current": 0.872995891571045,
+    "pi": 1.343070602416992,
+    "retained_loss_ratio": 0.7206430511598912,
+    "stop_loss_cost": 0.020215913460821043,
+    "capital_margin": 0.009142606586820161
+   },
+   "expense25_attach120_coc6": {
+    "loading_vs_current": 0.8672299385070803,
+    "pi": 1.334199905395508,
+    "retained_loss_ratio": 0.7413388746642668,
+    "stop_loss_cost": 0.0044458401264337675,
+    "capital_margin": 0.0042281794225351365
+   },
+   "expense25_attach120_coc10": {
+    "loading_vs_current": 0.8705138587951662,
+    "pi": 1.3392520904541017,
+    "retained_loss_ratio": 0.7387288305639282,
+    "stop_loss_cost": 0.00424249127420646,
+    "capital_margin": 0.007031643077632855
+   },
+   "expense25_attach120_coc15": {
+    "loading_vs_current": 0.874637851715088,
+    "pi": 1.3455966949462892,
+    "retained_loss_ratio": 0.7354660225086871,
+    "stop_loss_cost": 0.004002125455875503,
+    "capital_margin": 0.010516882897756019
+   },
+   "expense35_attachnone_coc6": {
+    "loading_vs_current": 1.0009160423278807,
+    "pi": 1.5398708343505856,
+    "retained_loss_ratio": 0.6461749087798032,
+    "stop_loss_cost": 0.0,
+    "capital_margin": 0.0038288949314330377
+   },
+   "expense35_attachnone_coc10": {
+    "loading_vs_current": 1.0048491096496581,
+    "pi": 1.54592170715332,
+    "retained_loss_ratio": 0.6436457236579092,
+    "stop_loss_cost": 0.0,
+    "capital_margin": 0.006356513836184175
+   },
+   "expense35_attachnone_coc15": {
+    "loading_vs_current": 1.009774990081787,
+    "pi": 1.5534999847412105,
+    "retained_loss_ratio": 0.6405058935902888,
+    "stop_loss_cost": 0.0,
+    "capital_margin": 0.009488258272639633
+   },
+   "expense35_attach100_coc6": {
+    "loading_vs_current": 1.0005723762512209,
+    "pi": 1.5393421173095703,
+    "retained_loss_ratio": 0.6407323553554651,
+    "stop_loss_cost": 0.005664494786109826,
+    "capital_margin": 0.0036064045818499247
+   },
+   "expense35_attach100_coc10": {
+    "loading_vs_current": 1.0042763328552244,
+    "pi": 1.5450405120849606,
+    "retained_loss_ratio": 0.6385507640773254,
+    "stop_loss_cost": 0.005462055092333512,
+    "capital_margin": 0.005997478662384126
+   },
+   "expense35_attach100_coc15": {
+    "loading_vs_current": 1.008934917449951,
+    "pi": 1.5522075653076166,
+    "retained_loss_ratio": 0.635829649422043,
+    "stop_loss_cost": 0.005209550591116701,
+    "capital_margin": 0.00897176098728284
+   },
+   "expense35_attach120_coc6": {
+    "loading_vs_current": 1.000877857208252,
+    "pi": 1.539812088012695,
+    "retained_loss_ratio": 0.6458234906723532,
+    "stop_loss_cost": 0.000376070732158512,
+    "capital_margin": 0.0038121697990994205
+   },
+   "expense35_attach120_coc10": {
+    "loading_vs_current": 1.0048109245300292,
+    "pi": 1.5458629608154293,
+    "retained_loss_ratio": 0.6433236020191646,
+    "stop_loss_cost": 0.00034658165242125504,
+    "capital_margin": 0.006330751594215589
+   },
+   "expense35_attach120_coc15": {
+    "loading_vs_current": 1.009698619842529,
+    "pi": 1.5533824920654293,
+    "retained_loss_ratio": 0.6402440841466461,
+    "stop_loss_cost": 0.0003102551752482913,
+    "capital_margin": 0.009453878088708522
+   }
+  },
+  "annual_loss_ratio_at_current_price": {
+   "var90_mean": 0.6902075852525676,
+   "var90_range": [
+    0.6889227785423998,
+    0.6920552593909992
+   ],
+   "var95_mean": 0.7020216036462217,
+   "var95_range": [
+    0.6997380448791557,
+    0.7036428384582876
+   ],
+   "mean": 0.6500454705107734
+  },
+  "weekly_loss_ratio": {
+   "weeks_above_100": 16,
+   "worst": 1.2675462364812975
+  },
+  "stop_loss_at_current_price": {
+   "attach_90%": 0.014952082814710617,
+   "attach_100%": 0.00607891435963975,
+   "attach_120%": 0.0004193933864937251
+  },
+  "diversification": {
+   "hubs": [
+    "ATL",
+    "CLT",
+    "DEN",
+    "DFW",
+    "ORD"
+   ],
+   "correlation": [
+    [
+     1.0,
+     0.6898873091537733,
+     0.4903627701262622,
+     0.38597484802339027,
+     0.3890756935746014
+    ],
+    [
+     0.6898873091537732,
+     1.0,
+     0.43851722194091336,
+     0.3788587495113633,
+     0.3001396006482553
+    ],
+    [
+     0.4903627701262622,
+     0.43851722194091336,
+     1.0,
+     0.43443926580805264,
+     0.4144618040991851
+    ],
+    [
+     0.38597484802339027,
+     0.37885874951136334,
+     0.43443926580805264,
+     1.0,
+     0.24253127136279432
+    ],
+    [
+     0.38907569357460137,
+     0.3001396006482553,
+     0.4144618040991851,
+     0.24253127136279432,
+     1.0
+    ]
+   ],
+   "mean_pairwise_correlation": 0.4164248534248591,
+   "sd_pooled": 0.32826385230084015,
+   "sd_single_mean": 0.4493349430617606,
+   "ratio": 0.7305549175945585
+  },
+  "economics": {
+   "loading_1.00": {
+    "expense10": 2.534316086674023,
+    "expense25": 1.033140642220784,
+    "expense35": 0.03235701258529122
+   },
+   "loading_1.16": {
+    "expense10": 3.975444513349132,
+    "expense25": 2.2340809977833747,
+    "expense35": 1.0731719874062033
+   },
+   "loading_1.25": {
+    "expense10": 4.786079253353883,
+    "expense25": 2.9096099477873336,
+    "expense35": 1.6586304107429681
+   },
+   "loading_1.50": {
+    "expense10": 7.03784242003374,
+    "expense25": 4.786079253353881,
+    "expense35": 3.2849038089006424
+   }
+  }
+ },
+ "sold_within_cap": {
+  "weeks": 306,
+  "pooled_loss_ratio_at_current_price": 0.6581855146088009,
+  "grid": {
+   "expense10_attachnone_coc6": {
+    "loading_vs_current": 0.73980619430542,
+    "pi": 1.1381633758544922,
+    "retained_loss_ratio": 0.8896728895690714,
+    "stop_loss_cost": 0.0,
+    "capital_margin": 0.01032178066749078
+   },
+   "expense10_attachnone_coc10": {
+    "loading_vs_current": 0.745457592010498,
+    "pi": 1.1468578338623046,
+    "retained_loss_ratio": 0.8829281795006952,
+    "stop_loss_cost": 0.0,
+    "capital_margin": 0.017072550148866782
+   },
+   "expense10_attachnone_coc15": {
+    "loading_vs_current": 0.7525218391418458,
+    "pi": 1.1577259063720704,
+    "retained_loss_ratio": 0.8746397517969401,
+    "stop_loss_cost": 0.0,
+    "capital_margin": 0.025368424133642514
+   },
+   "expense10_attach100_coc6": {
+    "loading_vs_current": 0.7357967567443847,
+    "pi": 1.1319950103759764,
+    "retained_loss_ratio": 0.7325936617722886,
+    "stop_loss_cost": 0.16192715335200836,
+    "capital_margin": 0.005499973233353654
+   },
+   "expense10_attach100_coc10": {
+    "loading_vs_current": 0.7388515663146972,
+    "pi": 1.1366947174072264,
+    "retained_loss_ratio": 0.7310451954460898,
+    "stop_loss_cost": 0.15977718974793656,
+    "capital_margin": 0.009170838447697383
+   },
+   "expense10_attach100_coc15": {
+    "loading_vs_current": 0.742670078277588,
+    "pi": 1.142569351196289,
+    "retained_loss_ratio": 0.7291218823213989,
+    "stop_loss_cost": 0.15712025111054867,
+    "capital_margin": 0.013765056770855249
+   },
+   "expense10_attach120_coc6": {
+    "loading_vs_current": 0.7368659400939943,
+    "pi": 1.1336399078369142,
+    "retained_loss_ratio": 0.7945720386546429,
+    "stop_loss_cost": 0.09865083784965477,
+    "capital_margin": 0.006755456263634063
+   },
+   "expense10_attach120_coc10": {
+    "loading_vs_current": 0.7405698966979981,
+    "pi": 1.1393383026123047,
+    "retained_loss_ratio": 0.79215155704491,
+    "stop_loss_cost": 0.09660386974663678,
+    "capital_margin": 0.01126126460973148
+   },
+   "expense10_attach120_coc15": {
+    "loading_vs_current": 0.7453048515319824,
+    "pi": 1.1466228485107421,
+    "retained_loss_ratio": 0.7890642116286899,
+    "stop_loss_cost": 0.0940449124510654,
+    "capital_margin": 0.016894937854018775
+   },
+   "expense25_attachnone_coc6": {
+    "loading_vs_current": 0.8877735328674318,
+    "pi": 1.365805435180664,
+    "retained_loss_ratio": 0.7413889806817272,
+    "stop_loss_cost": 0.0,
+    "capital_margin": 0.00860142479063057
+   },
+   "expense25_attachnone_coc10": {
+    "loading_vs_current": 0.894532299041748,
+    "pi": 1.3762035369873045,
+    "retained_loss_ratio": 0.7357873106581738,
+    "stop_loss_cost": 0.0,
+    "capital_margin": 0.014227392501183168
+   },
+   "expense25_attachnone_coc15": {
+    "loading_vs_current": 0.9030475807189944,
+    "pi": 1.3893039703369143,
+    "retained_loss_ratio": 0.7288492086815211,
+    "stop_loss_cost": 0.0,
+    "capital_margin": 0.021139853085016407
+   },
+   "expense25_attach100_coc6": {
+    "loading_vs_current": 0.8842223167419434,
+    "pi": 1.360342025756836,
+    "retained_loss_ratio": 0.66215097218728,
+    "stop_loss_cost": 0.08221557697875927,
+    "capital_margin": 0.005629542485531322
+   },
+   "expense25_attach100_coc10": {
+    "loading_vs_current": 0.8886899757385255,
+    "pi": 1.367215347290039,
+    "retained_loss_ratio": 0.660123536894589,
+    "stop_loss_cost": 0.08050090197322987,
+    "capital_margin": 0.00938438955511256
+   },
+   "expense25_attach100_coc15": {
+    "loading_vs_current": 0.8943795585632324,
+    "pi": 1.375968551635742,
+    "retained_loss_ratio": 0.6575473219659439,
+    "stop_loss_cost": 0.07836564508144361,
+    "capital_margin": 0.014079120643224651
+   },
+   "expense25_attach120_coc6": {
+    "loading_vs_current": 0.8854442405700684,
+    "pi": 1.362221908569336,
+    "retained_loss_ratio": 0.6987639448634648,
+    "stop_loss_cost": 0.04457536940554746,
+    "capital_margin": 0.006644804299630604
+   },
+   "expense25_attach120_coc10": {
+    "loading_vs_current": 0.8907137870788574,
+    "pi": 1.370328903198242,
+    "retained_loss_ratio": 0.6954967466137786,
+    "stop_loss_cost": 0.043444902383656364,
+    "capital_margin": 0.011057857751050094
+   },
+   "expense25_attach120_coc15": {
+    "loading_vs_current": 0.8973961830139161,
+    "pi": 1.3806095123291016,
+    "retained_loss_ratio": 0.6914004485536832,
+    "stop_loss_cost": 0.04203872476470202,
+    "capital_margin": 0.016556580083168813
+   },
+   "expense35_attachnone_coc6": {
+    "loading_vs_current": 1.0243235206604004,
+    "pi": 1.575882339477539,
+    "retained_loss_ratio": 0.642556283569918,
+    "stop_loss_cost": 0.0,
+    "capital_margin": 0.007454790522772021
+   },
+   "expense35_attachnone_coc10": {
+    "loading_vs_current": 1.0321896553039551,
+    "pi": 1.5879840850830076,
+    "retained_loss_ratio": 0.6376594758789569,
+    "stop_loss_cost": 0.0,
+    "capital_margin": 0.012329964806424
+   },
+   "expense35_attachnone_coc15": {
+    "loading_vs_current": 1.0419650459289551,
+    "pi": 1.6030231475830077,
+    "retained_loss_ratio": 0.6316771538358097,
+    "stop_loss_cost": 0.0,
+    "capital_margin": 0.01832143339142367
+   },
+   "expense35_attach100_coc6": {
+    "loading_vs_current": 1.0213832664489746,
+    "pi": 1.5713588714599607,
+    "retained_loss_ratio": 0.6003337587699529,
+    "stop_loss_cost": 0.0440722504425373,
+    "capital_margin": 0.00558639380678915
+   },
+   "expense35_attach100_coc10": {
+    "loading_vs_current": 1.0273019599914552,
+    "pi": 1.5804645538330078,
+    "retained_loss_ratio": 0.5977384725962677,
+    "stop_loss_cost": 0.0429548583249307,
+    "capital_margin": 0.009300877927162788
+   },
+   "expense35_attach100_coc15": {
+    "loading_vs_current": 1.0347480583190918,
+    "pi": 1.5919200897216796,
+    "retained_loss_ratio": 0.594443367542512,
+    "stop_loss_cost": 0.04163950240555809,
+    "capital_margin": 0.01392677914952845
+   },
+   "expense35_attach120_coc6": {
+    "loading_vs_current": 1.022414264678955,
+    "pi": 1.5729450225830075,
+    "retained_loss_ratio": 0.6201890827022999,
+    "stop_loss_cost": 0.023567110209851843,
+    "capital_margin": 0.006253751112689483
+   },
+   "expense35_attach120_coc10": {
+    "loading_vs_current": 1.0290202903747558,
+    "pi": 1.5831081390380857,
+    "retained_loss_ratio": 0.6167330933809945,
+    "stop_loss_cost": 0.022890362798959528,
+    "capital_margin": 0.010386551756231889
+   },
+   "expense35_attach120_coc15": {
+    "loading_vs_current": 1.0373446464538574,
+    "pi": 1.595914840698242,
+    "retained_loss_ratio": 0.6124408275361474,
+    "stop_loss_cost": 0.022049856788291505,
+    "capital_margin": 0.015512896088566284
+   }
+  },
+  "annual_loss_ratio_at_current_price": {
+   "var90_mean": 0.7377433891501856,
+   "var90_range": [
+    0.7353598918910514,
+    0.7409176181813393
+   ],
+   "var95_mean": 0.7613201344059443,
+   "var95_range": [
+    0.7583000368933464,
+    0.7645187753726282
+   ],
+   "mean": 0.6596262035687239
+  },
+  "weekly_loss_ratio": {
+   "weeks_above_100": 51,
+   "worst": 2.476009941220741
+  },
+  "stop_loss_at_current_price": {
+   "attach_90%": 0.07261807510479693,
+   "attach_100%": 0.051256812694747814,
+   "attach_120%": 0.02770786577024494
+  },
+  "diversification": {
+   "hubs": [
+    "ATL",
+    "CLT",
+    "DEN",
+    "DFW",
+    "ORD"
+   ],
+   "correlation": [
+    [
+     1.0,
+     0.6326479846914851,
+     0.38772324094539046,
+     0.30696589313833755,
+     0.2745101850008229
+    ],
+    [
+     0.6326479846914851,
+     1.0,
+     0.34072300469855626,
+     0.3265071894653566,
+     0.22042019219319328
+    ],
+    [
+     0.3877232409453905,
+     0.34072300469855626,
+     1.0,
+     0.3197046773658127,
+     0.2146574779203799
+    ],
+    [
+     0.30696589313833755,
+     0.3265071894653566,
+     0.3197046773658127,
+     0.9999999999999999,
+     0.17746789212708067
+    ],
+    [
+     0.2745101850008229,
+     0.22042019219319328,
+     0.21465747792037992,
+     0.17746789212708067,
+     1.0
+    ]
+   ],
+   "mean_pairwise_correlation": 0.3201327737546415,
+   "sd_pooled": 0.6213098374335895,
+   "sd_single_mean": 0.9272300658214089,
+   "ratio": 0.6700708490111215
+  },
+  "economics": {
+   "loading_1.00": {
+    "expense10": 2.42003978388243,
+    "expense25": 0.9188643394291911,
+    "expense35": -0.08191929020630173
+   },
+   "loading_1.16": {
+    "expense10": 3.861168210557539,
+    "expense25": 2.1198046949917817,
+    "expense35": 0.9588956846146104
+   },
+   "loading_1.25": {
+    "expense10": 4.67180295056229,
+    "expense25": 2.7953336449957407,
+    "expense35": 1.5443541079513752
+   },
+   "loading_1.50": {
+    "expense10": 6.9235661172421485,
+    "expense25": 4.67180295056229,
+    "expense35": 3.170627506109051
+   }
+  }
+ },
+ "status": "development evidence: the technical price on the weekly record of the backcast years (2019 to 2023, outside the pandemic) joined to the 2024 to 2026 development weeks; a 1-in-100 year cannot be read from 8 years",
+ "record": {
+  "backcast_weeks": 192,
+  "development_weeks": 114,
+  "note": "the two parts come from different fit windows; 2024-01 to 2024-06 and the pandemic months are missing"
+ }
+}

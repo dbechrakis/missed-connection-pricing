@@ -886,3 +886,87 @@ By airline, break 1 September 2022, Y1 and Y2: American −14.9 and −5.0, Delt
 - **What it means for the cover.** The risk the README names, that airlines code toward weather once a carrier code costs them a hotel, is neither confirmed nor ruled out. A launched cover would still need its own check of the coding against a second source, which the trigger of 7D is a first step toward.
 
 **Limits.** Four airlines at five hubs, 261 to 304 airline-months. The weather covariate is each flight's own hub hour, not the pre-registered "flight-hours" taken literally. Whether a given hub hour was stormy is a coarse stand-in for what the airline faced. The FAA programs are the ones the FAA's database lists, and revised programs keep their first end time. BTS coding of late-arriving aircraft, which does not say why an aircraft was late, is outside Y2's carrier share and is not examined.
+
+
+### 7B. The backcast: the pricing procedures on January 2019 to December 2023 (read once, 12 November 2026)
+
+Pre-registered in `PREREGISTRATION_V6_BACKCAST.md` and its addendum (tags `prereg-v6-backcast`, `prereg-v6-backcast-addendum`) before any 2018 to 2023 outcome existed. Code: `src/mcp/backcast.py` and `src/mcp/backcast_st.py`, tests: `tests/test_backcast.py`, results: `results/backcast.json`, `results/backcast_weeks_A.csv` and `results/backcast_weeks_B.csv`. Nothing was changed after the read. Sixty months were scored, 16 pandemic months (March 2020 to June 2021) are reported separately, so every figure below is over **44 months**. The gap cover is v3's procedure refitted at 20 quarterly origins, each month priced by a model that had not seen it. Arm A fits on everything from January 2018, arm B on the trailing 24 months. The sample is 20%, fixed by the sample check (`results/sample_check.json`: 1.047 against 1.045 published, and 1.138 against 1.151 as sold, both within 0.02).
+
+**Two departures from the pre-registered order, recorded here.** The 2018 to 2023 on-time ingest (counts only) had begun before the sample check finished, which section 7 of the pre-registration did not allow. The check passed at the first fraction, so nothing depended on it. And B6 and B7 were amended before any outcome existed by the addendum, because the 44 observed months can never reach the 48 that `local_season` needed.
+
+| # | Expectation | Result | Verdict |
+| --- | --- | --- | --- |
+| B1 | Gap cover within 1 ± 0.173 of expected claims | **0.964** | Passed |
+| B2 | Monthly spread of the ratio 0.19 to 0.33 | **0.245** | Passed |
+| B3 | As sold within the cap runs worse than all connections | 0.932 as sold, 0.964 all | **Failed** |
+| B4 | 9% to 44% of months above a 100% loss ratio as sold | 2.3% (1 of 44 months) | **Failed** |
+| B5 | The refitted loading lowers the sold loss ratio by at least 3.0 points | 2.9 points (55.7% to 52.9%) | **Failed** |
+| B6 | `local` has lower CRPS than `none` and `last12` | 0.199, against 0.156 and 0.170 | **Failed** |
+| B7 | The 90% intervals of `local` cover within the binomial range | 30 of 37 months, range 29 to 36 | Passed |
+| B8 | The loading brings the self-transfer ratio closer to 1 | loaded 0.912, unloaded 0.981 | **Failed** |
+| B9 | Arm A against arm B, no prediction | see below | Reported |
+| B10 | Largest earlier change in the 12-month level, no prediction | see below | Reported |
+
+**What held.** The pricing procedure priced the earlier years on target: **0.964** against a band of 0.83 to 1.17 (a realized loss ratio of 62.7% against 65%), and the month-to-month spread, 0.245, is what 26 months had said, 0.241. The procedure was designed on 2024 to 2026 and is not contradicted by 2019 to 2023.
+
+**What did not, and what it changes.**
+
+- **The sold cover was not worse than the average cover.** Within the 5% cap the ratio was 0.932, below the 0.964 of all connections, and the sold loss ratio over the 37 months that have a loading was 55.7%. Only **1 of 44 months** ran above a 100% loss ratio as sold, against 6 of 26 in 2024 to 2026. The finding of the audit, that the cover as sold lost money in bad months and the cap selected connections the model under-prices, **did not appear in these five years**. 23 of 192 weeks were above 100% as sold, worst week 197%.
+- **The loading was not needed, and it did little.** The refitted loading (mean 1.08, from 1.00 to 1.42) lowered the sold loss ratio by 2.9 points, 0.1 short of the line, in years when the sold cover already ran under target.
+- **Following the level did not pay.** `local` scored worse than a constant level (CRPS 0.199 against 0.156) and worse than the last 12 months (0.170). This is the same answer as the 26 development months (7A), now on 37 months it had not seen. By the rule fixed in the pre-registration, **v6 uses no level model**. `local_season` was never active, as the addendum said it would not be. The intervals of `local` do cover (30 of 37 months).
+- **The loading hurt the self-transfer cover.** The table priced 2019 to 2023 within 2% on average (0.981 over the 37 months compared, 1.024 over all 44), and adding a loading re-estimated from earlier months moved it to 0.912. The mechanism of the 2026 failure of v5 (a level that kept rising) was not present in these years.
+
+**B9, arm A against arm B (no prediction).** Arm B, which sees only the last 24 months, ran 1.012 on all connections and **1.088 as sold**, a sold loss ratio of 67.6% (58.9% loaded), and 43 of 192 weeks above 100%. Arm A ran 0.964, 0.932, 55.7% and 23 of 192. The longer the model's history, the better the cover did as sold.
+
+**B10, was 2024 to 2026 unusual (no prediction).** The log of the 12-month level (claims over expected, all overnight-risk connections) ranged from −0.099 to +0.036 across the 22 windows in which all 12 months were observed, and the largest change between two windows 12 months apart was +0.121 (window ending October 2023 against October 2022). The development years offer only three comparable windows and a change of −0.061. The pre-registration asked for windows 24 months apart, and no two valid windows are that far apart once the pandemic is removed.
+
+**By hub and year (arm A), realized over expected.**
+
+| Hub | 2019 | 2020 (Jan, Feb) | 2021 (Jul to Dec) | 2022 | 2023 |
+| --- | --- | --- | --- | --- | --- |
+| ATL | 0.91 | 0.82 | 0.77 | 0.95 | 1.00 |
+| CLT | 1.03 | 1.00 | 0.76 | 1.08 | 1.09 |
+| DEN | 1.08 | 0.71 | 0.92 | 0.92 | 1.04 |
+| DFW | 1.05 | 0.86 | 0.84 | 0.97 | 0.94 |
+| ORD | 1.05 | 0.71 | 0.84 | 0.88 | 0.85 |
+
+**The pandemic months, separately.** Over the 16 months the pooled ratio was 1.043, and single months ran from 0.37 to 5.14 (April 2020, when a handful of connections carried the claims). They are in no headline.
+
+**Exploratory, after the read, and not pre-registered: the winner's curse and the length of history.** Arm A's ratio as sold, divided by its ratio on all connections, by year: 1.09 (2019, the first model had 12 to 24 months), 1.03, 0.84, 0.98, 0.87 (2023, five years of history). Arm B, with 24 months throughout: 1.10, 1.05, 0.98, 1.18, 0.98. The cap selected connections the model under-rated when the model had little history, and stopped doing so as the history grew. That fits how 2024 to 2026 looked (a model with 6 to 30 months of history) and would make the 75% loss ratio as sold a property of a young model, and not of the cover. Five years do not prove it, and it is one reading among others.
+
+**What this does and does not show.** It shows that the pricing procedure travels to earlier years on average and in its monthly spread, that the loading and the level models should not be built on the strength of 2024 to 2026 alone, and that the "sold loses money" finding was period or model-age specific. It does not show that 2024 to 2026 is the unusual period. The pandemic years, a different airline mix (Virgin America had just merged into Alaska) and no published hotel commitments before September 2022 all limit what 2019 to 2023 says about the cover as it would be sold today.
+
+
+### 7C. What the margin has to carry: the technical price on eight years of weeks (development evidence)
+
+Code: `src/mcp/capital.py` and `src/mcp/risk.py`, tests: `tests/test_capital.py` and `tests/test_risk.py`, results: `results/risk_v6.json` and the weekly record `results/risk_weeks_2019_2026.csv`. The record joins the 192 weeks of the backcast (2019 to 2023, outside the pandemic, 7B) to the 114 development weeks (July 2024 to August 2026), **306 weeks**, from two different fit windows. January to June 2024 and the pandemic months are missing. It is development evidence, and eight years cannot give a 1-in-100 year. The annual figures come from a season block bootstrap of the weeks (runs of four neighbouring weeks drawn quarter by quarter), which keeps the week-to-week weather but **cannot** carry a level that persists from one year to the next, so the annual tail is probably understated.
+
+**The record at the existing price** (expected claims over the 65% target).
+
+| | All overnight-risk connections | Sold within the 5% cap |
+| --- | --- | --- |
+| Pooled loss ratio | 64.7% | 65.8% |
+| Weeks above a 100% loss ratio | 16 of 306 | 51 of 306 |
+| Worst week | 127% | 248% |
+| Annual loss ratio, mean, 90th and 95th percentile | 65.0%, 69.0%, 70.2% | 66.0%, 73.8%, 76.1% |
+| Cost of a weekly stop-loss per unit of premium at 90%, 100%, 120% attachment | 1.5%, 0.6%, 0.0% | 7.3%, 5.1%, 2.8% |
+| Standard deviation of the five-hub weekly ratio against the average single hub | 0.73 | 0.67 |
+
+**The technical price.** Premium that equals expected claims realized on this record, plus the cost of a weekly stop-loss at the attachment, plus a cost of capital (10%) on the tail value at risk of the annual loss ratio beyond its mean, divided by one minus an expense ratio. It is stated as a multiple of the existing price (expected claims over 65%). The existing price pays a 35% share that must cover expenses, commissions and any margin, so 35% is the expense ratio at which a multiple of 1 is expected.
+
+| Expense ratio | All connections | Sold within the cap | Sold, weekly stop-loss at 100% |
+| --- | --- | --- | --- |
+| 10% | 0.73 | 0.75 | 0.74 |
+| 25% | 0.87 | 0.89 | 0.89 |
+| 35% | 1.00 | 1.03 | 1.03 |
+
+**What it says.**
+
+- **On this record the existing price is about right, and the 1.16 loading is not a requirement.** At a 35% expense share the price needed is 1.00 to 1.03 times the existing one, and below that at lower expense shares. The 1.16 loading answers 2024 to 2026 alone (a sold ratio of 1.15), and the earlier years ran under target (0.93). Over all eight years the record averages out to about on target.
+- **The margin for the weather is small in the annual sense, and the weeks are not.** The capital term is 0.3% to 2.5% of premium across costs of capital of 6% to 15%, because the bootstrap's annual loss ratio stays within 66% to 76% in 19 of 20 years. The weeks are another matter: 51 of 306 weeks as sold (17%) ran above a 100% loss ratio, the worst at 248%. A cover that cannot absorb a bad week needs a weekly stop-loss, which costs 5.1% of premium at a 100% attachment as sold, or reserves that do. The capital term does not price that.
+- **More hubs would buy some safety.** The five-hub weekly ratio varies 0.67 to 0.73 as much as the average single hub (mean correlation between hubs 0.32 as sold, 0.42 for all connections), so volume at one hub is riskier per dollar than the same volume spread over five. The roadmap's "more hubs" is worth something, not much: hubs share a good part of their weather.
+- **The annual tail is probably understated.** The bootstrap treats years as independent draws of quarters. The level persisted across years in 2024 to 2026 (the monthly ratios have a lag-1 correlation of 0.70), and a persistent level is exactly what an annual capital figure should carry.
+
+**Margin per policy.** At the sold book's realized loss ratio of 65.8% and the average premium of $10.01 a policy (`VALIDATION.md` 5J), a 1.00 loading leaves $0.92 a policy after claims at a 25% expense share and **−$0.08** at 35%. A 1.16 loading leaves $2.12 at 25% and $0.96 at 35%. This holds the claims fixed when the price rises, which flatters it (fewer connections would pass the cap).
+
+**What this does not do.** It does not say what the cover costs to run, what a reinsurer would quote, or what a traveller would pay.

@@ -90,3 +90,36 @@ def test_economics_raises_premium_and_leaves_claims():
     e = K.economics(0.75, 10.0)
     assert e["loading_1.00"]["expense10"] == pytest.approx(10 - 7.5 - 1.0)
     assert e["loading_1.16"]["expense25"] == pytest.approx(11.6 - 7.5 - 0.25 * 11.6)
+
+
+def test_part_7c_quotes_the_numbers_in_the_results_file():
+    import json
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    r = json.loads((root / "results" / "risk_v6.json").read_text(encoding="utf-8"))
+    text = (root / "VALIDATION.md").read_text(encoding="utf-8")
+    part = text[text.index("### 7C."):]
+    a, s = r["all_overnight_risk"], r["sold_within_cap"]
+    assert a["weeks"] == s["weeks"] == 306 and "**306 weeks**" in part
+    pct = lambda x: f"{100 * x:.1f}%"
+    for v in (a, s):
+        assert pct(v["pooled_loss_ratio_at_current_price"]) in part
+    assert f"{a['weekly_loss_ratio']['weeks_above_100']} of 306 | {s['weekly_loss_ratio']['weeks_above_100']} of 306" in part
+    assert f"{100 * a['weekly_loss_ratio']['worst']:.0f}% | {100 * s['weekly_loss_ratio']['worst']:.0f}%" in part
+    for v, other in ((a, "all"), (s, "sold")):
+        q = v["annual_loss_ratio_at_current_price"]
+    assert f"{pct(a['annual_loss_ratio_at_current_price']['mean'])}, {pct(a['annual_loss_ratio_at_current_price']['var90_mean'])}, {pct(a['annual_loss_ratio_at_current_price']['var95_mean'])}" in part
+    assert f"{pct(s['annual_loss_ratio_at_current_price']['mean'])}, {pct(s['annual_loss_ratio_at_current_price']['var90_mean'])}, {pct(s['annual_loss_ratio_at_current_price']['var95_mean'])}" in part
+    sl = lambda v: ", ".join(pct(v["stop_loss_at_current_price"][k]) for k in ("attach_90%", "attach_100%", "attach_120%"))
+    assert sl(a) in part and sl(s) in part
+    assert f"| {a['diversification']['ratio']:.2f} | {s['diversification']['ratio']:.2f} |" in part
+    for e in (10, 25, 35):
+        row = [l for l in part.splitlines() if l.startswith(f"| {e}% |")][0]
+        cells = [c.strip() for c in row.strip("|").split("|")]
+        assert cells[1] == f"{a['grid'][f'expense{e}_attachnone_coc10']['loading_vs_current']:.2f}" and cells[2] == f"{s['grid'][f'expense{e}_attachnone_coc10']['loading_vs_current']:.2f}"
+        assert cells[3] == f"{s['grid'][f'expense{e}_attach100_coc10']['loading_vs_current']:.2f}", row
+    caps = [g["capital_margin"] for v in (a, s) for g in v["grid"].values()]
+    assert f"{100 * min(caps):.1f}% to {100 * max(caps):.1f}%" in part
+    eco = s["economics"]
+    assert f"${eco['loading_1.00']['expense25']:.2f} a policy" in part and f"${eco['loading_1.16']['expense25']:.2f}" in part and f"${eco['loading_1.16']['expense35']:.2f}" in part
+    assert eco["loading_1.00"]["expense35"] < 0 and f"**−${abs(eco['loading_1.00']['expense35']):.2f}**" in part
