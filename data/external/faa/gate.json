@@ -1,0 +1,7 @@
+{
+ "checked": 100,
+ "consistent": 100,
+ "passed": true,
+ "method": "100 random cached advisories re-fetched from the FAA. A parsed advisory is right if its control element, cause class and program period each appear in the advisory; one with nothing parsed is right if it is a cancellation or the page carries no standard control element or period (airline-only and category stops). Three earlier samples fixed an unmapped class (RWY-TAXI) and the checker; this is the fourth, drawn after all fixes.",
+ "read": "2026-11-12"
+}

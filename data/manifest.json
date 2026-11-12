@@ -1,14 +1,14 @@
 {
   "asos": {
     "files": {
-      "ATL.csv": "d5a8f1c1a8163c4f6b6b1d3444612e0c4ed1c542e18a5d2483f0552f70add6d7",
-      "CLT.csv": "5db0efccdb2c663516dc0be0d88ee4f2b91edacd4ac627f2a0744ec5b69563bb",
-      "DEN.csv": "5277fc2b9595bd8d2e08717ea0569d64655278f8c1473a6593f86cfbb6dd795f",
-      "DFW.csv": "5a0e51537fce29c01487b04b6b20539fb8b49fcb05683c496511db171d286284",
-      "ORD.csv": "41d6accf0972e9b923b6b8fbfb9fe3fb9730540d01f6b15eb8dc14810e1b032a"
+      "ATL.csv": "fbe412775f57f940ede5532c65d6ed937e3e709a8d6706d247d433f98df6618f",
+      "CLT.csv": "7c04cdc51f669e339e46eb625d1e2f75611f8b0b8d2e9d4ae89c9b2497f86320",
+      "DEN.csv": "29f83d9a7cabf325c4bc81eb08b7c0b2773bab9b3eb4baaa8c93b9aa65c909d4",
+      "DFW.csv": "5df6e7d86e7f9784e926ef95ad7c1899a6ccf5c9e355abd479cd41fa55408316",
+      "ORD.csv": "680846967138d89cb0ce8ad759b2e2f1801f64161f76f47ff1e3c24efbda7875"
     },
-    "ingested": "2026-11-07",
-    "rows": 103068
+    "ingested": "2026-11-12",
+    "rows": 448456
   },
   "db1b": {
     "2024Q1": {
@@ -46,6 +46,152 @@
       "ingested": "2026-11-07",
       "market_sha256": "e137271888e48ff2b6eb404d0f2ea532b3266aba64362249b42d05858ad87db2",
       "rows": 120223
+    }
+  },
+  "db1b_hist": {
+    "2017Q1": {
+      "coupon_sha256": "e3a0afa198578b3fcab111493068b55f3c244f378bcb8646adffb0db8d8b642f",
+      "ingested": "2026-11-12",
+      "market_sha256": "76a980219d9b106ae5c492cd2020ce070d7e4200ec57848a126d2fc0b63703a3",
+      "rows": 68514
+    },
+    "2017Q2": {
+      "coupon_sha256": "66df3ebf427e8bd21e5b65c110a98bb37072f74a08e16031e62d72f1137bae0b",
+      "ingested": "2026-11-12",
+      "market_sha256": "a7fe9690b1d436d9c71aa9df719e50e1479a1bb6895bd465e2d6644d51975fb3",
+      "rows": 70690
+    },
+    "2017Q3": {
+      "coupon_sha256": "829ff3fa92f56358a4b59fa2c80dffa2961a0db12039f627d4b4cdc821e041af",
+      "ingested": "2026-11-12",
+      "market_sha256": "03b25ae9ea5aec85c8a015a965c93b870d4089c34624eba55a9a907e13394e3d",
+      "rows": 73775
+    },
+    "2017Q4": {
+      "coupon_sha256": "0602e27c6c345744fa261a22b55a4011f89071e64f7929be6f6d84d6abab892f",
+      "ingested": "2026-11-12",
+      "market_sha256": "53b2d0f39e31155667cfb32b5962622ae93651ec96fa984b5c6a3ae1098ff15d",
+      "rows": 72909
+    },
+    "2018Q1": {
+      "coupon_sha256": "45bc34efd0c27cd538becdab3986c3700d10f5be3066a091d6c7a3915f4a351e",
+      "ingested": "2026-11-12",
+      "market_sha256": "d522eb9ac9cdae1f51bebf8b808cb630acdd3e4f291a314f35a9e53dc9c47b84",
+      "rows": 70955
+    },
+    "2018Q2": {
+      "coupon_sha256": "81ae9ca1cad79c201c5004a860ac7c3bf112e6ae5286f0f25a517a05cc1ff8ae",
+      "ingested": "2026-11-12",
+      "market_sha256": "cf29f358221e55f102e330ea8b1f99c0fef9304b47e8f07ce8137e8699194a69",
+      "rows": 78184
+    },
+    "2018Q3": {
+      "coupon_sha256": "594f8b841997edc48dd083c5128ef140a12a5a34bac0a15609cc6902fc94c02d",
+      "ingested": "2026-11-12",
+      "market_sha256": "c2ae6f08f367628060e106767ac9c94ee0878c6ce64340cffefa947b26ef0e99",
+      "rows": 80057
+    },
+    "2018Q4": {
+      "coupon_sha256": "685401c0d90c5d508c4a9d648b65eec954758c0ead0840824c7239048a1d334f",
+      "ingested": "2026-11-12",
+      "market_sha256": "1365f2e81be6db7fa6b81efa1d6a4adc09c038cf1a2ab09e247cc663314d5b3f",
+      "rows": 79190
+    },
+    "2019Q1": {
+      "coupon_sha256": "063eec031d3a67d1fe4a4e8d4bd8628942535c3ba4609af67812c8c92adc741e",
+      "ingested": "2026-11-12",
+      "market_sha256": "6aa2bccdaf5165a2762668a8cb41f560d84dde6c7c948a1c956d474fff08b9d5",
+      "rows": 77627
+    },
+    "2019Q2": {
+      "coupon_sha256": "cde6423c205bf036c8296ae366dd2bd194babf175691fccebd6a400a0ed50c43",
+      "ingested": "2026-11-12",
+      "market_sha256": "43e21376ec44185d8c0f32f7dbe9486ec723aab8d18d8074598b1a681e714e48",
+      "rows": 86260
+    },
+    "2019Q3": {
+      "coupon_sha256": "8ed7775db60c14371cd817000be7f78b91eee777b232a4fdb42c7effb5518753",
+      "ingested": "2026-11-12",
+      "market_sha256": "c7b7659710c9d90cc05d9bd067ab5d8373e28d9b1d479f2763b59ab6a9f4f94c",
+      "rows": 87054
+    },
+    "2019Q4": {
+      "coupon_sha256": "32e7f46baf8d3ff434ff51585ff042bcd38c9ba264957b1b4842a0d68db5c763",
+      "ingested": "2026-11-12",
+      "market_sha256": "4259c4643a46c50379feeba01c0cefc2e87cacc1ee989c13393735b7c7c996cc",
+      "rows": 86882
+    },
+    "2020Q1": {
+      "coupon_sha256": "e5951d3a38af20c8557e64096200312a80dc54775d857e53317cb6bde163326b",
+      "ingested": "2026-11-12",
+      "market_sha256": "55e70e8412ab848658dece6f682d4e9ad3276abf7d44d15f73441b6c8470be27",
+      "rows": 80528
+    },
+    "2020Q2": {
+      "coupon_sha256": "7b8f119e62ff9ee11dd9962f429100b509c265b612993180790f65f6fd8965d3",
+      "ingested": "2026-11-12",
+      "market_sha256": "16fdd9408959bfc6e1ede5d3ac9a74b2d466ea1fbede06421f388109ef04dfb7",
+      "rows": 47231
+    },
+    "2020Q3": {
+      "coupon_sha256": "660eedc0770ed6bff6e366bfdd97c60f6ebfa5dc55e026102f37db3a0efd8192",
+      "ingested": "2026-11-12",
+      "market_sha256": "27a951fc2e06a6b94220dc92379acc085bbc90aa842aa78f40a2aa004d4d66e9",
+      "rows": 69639
+    },
+    "2020Q4": {
+      "coupon_sha256": "9ecda63410c438a6598e767ca358b15f4c184dcf3701396932757e39201fad16",
+      "ingested": "2026-11-12",
+      "market_sha256": "f0759caa26196d8d13bf4f2505606095636520c93f15d0161b429d95945d9774",
+      "rows": 72254
+    },
+    "2021Q1": {
+      "coupon_sha256": "b06da8fcdc5ce3ff67a2cbd8fe9819e3ea151dac4f6e320d8cef645ed005da08",
+      "ingested": "2026-11-12",
+      "market_sha256": "690ed7ca44749a4c13ac5cafd51ba8b2c9e86bc439a54986519eb0d4eea5238f",
+      "rows": 72444
+    },
+    "2021Q2": {
+      "coupon_sha256": "ab4a1ec1fbd276802ce5374f89675aaf1aa89feacd8a5e2d6d571fdb9eec31a3",
+      "ingested": "2026-11-12",
+      "market_sha256": "5297b4a49815c1ae82d4b8794cd631b3ee834e0577df16f68a4d2b6674ab5f80",
+      "rows": 91780
+    },
+    "2021Q3": {
+      "coupon_sha256": "5b85c1d001abf4873aa47e0230aab476c157d87e97e98eec579f380d3ea910c0",
+      "ingested": "2026-11-12",
+      "market_sha256": "4fb17ef4798a30374ee95c1b133c501c42935d1d302437c176296c45960bb4df",
+      "rows": 95972
+    },
+    "2021Q4": {
+      "coupon_sha256": "896a2ec2b5085b33699ea6164a9d9f23316fa12b4ce9062aeccf145be95ec554",
+      "ingested": "2026-11-12",
+      "market_sha256": "6d4576453a44a46a407b9bd04e602e071509b34bf8cb5cc39922916c0385e3eb",
+      "rows": 89797
+    },
+    "2022Q1": {
+      "coupon_sha256": "e6b9ccf1d9507bd02cb5f3a8f33eaf8afbb1b13ab568c3f22758c698239ae3ee",
+      "ingested": "2026-11-12",
+      "market_sha256": "f4dc2dc13f44968e12ad17ed12da728e0b79d3256f1dce8fb42e6e5eedb5b18c",
+      "rows": 81650
+    },
+    "2022Q2": {
+      "coupon_sha256": "b1354c605f039b9438cf5ea4d3151ae1232ec9ab3a16a5456a39b361f8bbc143",
+      "ingested": "2026-11-12",
+      "market_sha256": "c4f5054947309665a56e9ebadb47ad53ac427f224f3a9b72baef2f964756dd5b",
+      "rows": 86069
+    },
+    "2022Q3": {
+      "coupon_sha256": "58555592ee760673bf55e87498f243fa58ce381b01d33f785f9d317b0c8ab6af",
+      "ingested": "2026-11-12",
+      "market_sha256": "800489cc7e4ddc1de0dbb78ab3b828d71e86a9de47525561cf02dcf28ec17e50",
+      "rows": 85895
+    },
+    "2022Q4": {
+      "coupon_sha256": "ba1e1bbc3272c0fe109e19a36a2d099b6dfc7b398ade77b2720eed119ec3b9f3",
+      "ingested": "2026-11-12",
+      "market_sha256": "b4cf26fbdf331c398508e8b25e80bb1a7b19e8264659fbb26b265ec6b7c599f6",
+      "rows": 84258
     }
   },
   "db1b_v3": {
@@ -317,6 +463,512 @@
       "url": "https://transtats.bts.gov/PREZIP/On_Time_Reporting_Carrier_On_Time_Performance_1987_present_2026_8.zip",
       "zip_bytes": 32030583,
       "zip_sha256": "203509350f574f81728ca51175a17360d0413aa990512f8e0c8f1342f5baf23a"
+    }
+  },
+  "ontime_hist": {
+    "2018-01": {
+      "hub_rows": 237055,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2018_1.zip",
+      "zip_bytes": 33600393,
+      "zip_sha256": "f70e8e248c1ba3f25b29cf1ba81261a6e05ffa21d2779f492a5e646e5450ef52"
+    },
+    "2018-02": {
+      "hub_rows": 216053,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2018_2.zip",
+      "zip_bytes": 30804962,
+      "zip_sha256": "1d1140ac2b439f1bbab46631064ede25be7b8635861871f5ecfe137e9655d398"
+    },
+    "2018-03": {
+      "hub_rows": 251419,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2018_3.zip",
+      "zip_bytes": 34733152,
+      "zip_sha256": "3a493a8163c739052a8bdfda14a796244946c3496aa05c8cec85f64c7c99f64d"
+    },
+    "2018-04": {
+      "hub_rows": 246525,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2018_4.zip",
+      "zip_bytes": 35394422,
+      "zip_sha256": "e1e6bea22013068274704a996b950e85d29c10d7af89789e25498adda630628f"
+    },
+    "2018-05": {
+      "hub_rows": 258019,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2018_5.zip",
+      "zip_bytes": 36528017,
+      "zip_sha256": "868dc3ec5c39a0b87b5738af941135e68ed8aba7f873720147fc939734cf1f4b"
+    },
+    "2018-06": {
+      "hub_rows": 264164,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2018_6.zip",
+      "zip_bytes": 37103201,
+      "zip_sha256": "32ea0e186b842bc1ef845a469c5b65331c78daed3e52bacb1aa3f8a15684f7c3"
+    },
+    "2018-07": {
+      "hub_rows": 271367,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2018_7.zip",
+      "zip_bytes": 37770116,
+      "zip_sha256": "7a8d367d2a7998f40f4cdeab25a431489b12d71836e235c80290025d572528b1"
+    },
+    "2018-08": {
+      "hub_rows": 273125,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2018_8.zip",
+      "zip_bytes": 37985771,
+      "zip_sha256": "80b6a405969737f1f2c21686901d249233810a12ef7066ee399ca73dbc114747"
+    },
+    "2018-09": {
+      "hub_rows": 250851,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2018_9.zip",
+      "zip_bytes": 34398921,
+      "zip_sha256": "cd0408bcc995af7fc38d8947aa247193330072d27ebf49736aeb96061659e05d"
+    },
+    "2018-10": {
+      "hub_rows": 262138,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2018_10.zip",
+      "zip_bytes": 36130068,
+      "zip_sha256": "8f1041410347a409ffe2acb4251255a6aad0dcac9e6cc6a4e1f46a63550a6cbd"
+    },
+    "2018-11": {
+      "hub_rows": 247001,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2018_11.zip",
+      "zip_bytes": 34567105,
+      "zip_sha256": "90e575dfd63c559782a67b670dfdfa0ab14e0185aedb1af348ad21cdb44b7ba6"
+    },
+    "2018-12": {
+      "hub_rows": 249114,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2018_12.zip",
+      "zip_bytes": 35175384,
+      "zip_sha256": "221bac4fe61e0e1cbe26c4ac3349c77a5b84bfee26cd04942ad279e826dc93d4"
+    },
+    "2019-01": {
+      "hub_rows": 246105,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2019_1.zip",
+      "zip_bytes": 34217271,
+      "zip_sha256": "c8cc2c6e365d2f48a4e772de7e8d0df0e2cd80d42379c6c03ca81d96d65d501b"
+    },
+    "2019-02": {
+      "hub_rows": 224365,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2019_2.zip",
+      "zip_bytes": 31738702,
+      "zip_sha256": "120efb1842674840a9a63c56388f21b1e060ced58f26191a57f0edbdf6d636df"
+    },
+    "2019-03": {
+      "hub_rows": 263259,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2019_3.zip",
+      "zip_bytes": 36914261,
+      "zip_sha256": "94b81ffc7bae866f319d5ac31b0c87d072b07efefe2cc51ebed464944647573c"
+    },
+    "2019-04": {
+      "hub_rows": 257344,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2019_4.zip",
+      "zip_bytes": 35919647,
+      "zip_sha256": "087833213f34abaef862677d2537fb7afe106df874a6a24a829663d4d0cec794"
+    },
+    "2019-05": {
+      "hub_rows": 273627,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2019_5.zip",
+      "zip_bytes": 37980415,
+      "zip_sha256": "ee9d9902e252c7b07fbe2f0750ef60c692c3d2d637983e0a02969d8a03313feb"
+    },
+    "2019-06": {
+      "hub_rows": 275512,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2019_6.zip",
+      "zip_bytes": 38681632,
+      "zip_sha256": "84f85b4cb0b0acdd11dfcb07feac37d34d996b84cda5bfe85c6a6f6716ac9974"
+    },
+    "2019-07": {
+      "hub_rows": 282966,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2019_7.zip",
+      "zip_bytes": 39372652,
+      "zip_sha256": "f631f81a21b793513a06647b328ffac90f58f61f7c91e8909e3a4cf0b1fdeb93"
+    },
+    "2019-08": {
+      "hub_rows": 284045,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2019_8.zip",
+      "zip_bytes": 39270221,
+      "zip_sha256": "3ca4a0c0876cd7d392c225bb5008907d63f91c4d5d9e54bd1d7ab6a9b759fe1e"
+    },
+    "2019-09": {
+      "hub_rows": 266414,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2019_9.zip",
+      "zip_bytes": 35204345,
+      "zip_sha256": "b0b27cdc40cb4bd76e8e78c5c86ee9b13268104c25519786a4f29ed06c5c487f"
+    },
+    "2019-10": {
+      "hub_rows": 276650,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2019_10.zip",
+      "zip_bytes": 37373006,
+      "zip_sha256": "eec336946aff36262c4ee1279fcc102c6478c51c7a8c088c370779548ba7eb80"
+    },
+    "2019-11": {
+      "hub_rows": 258011,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2019_11.zip",
+      "zip_bytes": 35687715,
+      "zip_sha256": "dc222f1df5600e14ab96b94fd37b041878f18af5a718f22e8365902066ff065d"
+    },
+    "2019-12": {
+      "hub_rows": 263849,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2019_12.zip",
+      "zip_bytes": 38055647,
+      "zip_sha256": "b903c67cbd156714ba728b79d2c954e1774d7cc7bd5cf6a39ec9473d5a8499dc"
+    },
+    "2020-01": {
+      "hub_rows": 256433,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2020_1.zip",
+      "zip_bytes": 35288718,
+      "zip_sha256": "a92f77e4966aceb79eb88c7f62d5565496b26602ebd5640e3ff0dbac7c7362b4"
+    },
+    "2020-02": {
+      "hub_rows": 241571,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2020_2.zip",
+      "zip_bytes": 33868724,
+      "zip_sha256": "ec779f92633622817956e943d19369ac6cf959a07ddba29b6395eacf33518aa4"
+    },
+    "2020-03": {
+      "hub_rows": 271201,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2020_3.zip",
+      "zip_bytes": 34789585,
+      "zip_sha256": "0c0c855a553bb64e082ab65752dfc5d1774bb77288643ce18800c34b12e1667a"
+    },
+    "2020-04": {
+      "hub_rows": 140234,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2020_4.zip",
+      "zip_bytes": 14443870,
+      "zip_sha256": "8c4684c24469af7f6b6b34c6bf75244d5feaf72795427818e1ce5b70bd350abe"
+    },
+    "2020-05": {
+      "hub_rows": 88202,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2020_5.zip",
+      "zip_bytes": 9807351,
+      "zip_sha256": "2acce24ac4eeee10c6d46bb7d91f1ce7d71b1268adf7b7a43e4d56a02857ac62"
+    },
+    "2020-06": {
+      "hub_rows": 99952,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2020_6.zip",
+      "zip_bytes": 11937688,
+      "zip_sha256": "4cb30e72eb946ee27800f731718dee32eda4818add44dae8ba1916fd91313e94"
+    },
+    "2020-07": {
+      "hub_rows": 158225,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2020_7.zip",
+      "zip_bytes": 18683195,
+      "zip_sha256": "82221cfabf6b46c2385500a350653ae6f057475423a677f6ef42d02fe7b4d2e7"
+    },
+    "2020-08": {
+      "hub_rows": 177759,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2020_8.zip",
+      "zip_bytes": 20312627,
+      "zip_sha256": "825bd2e39505cc34bc1334763d018272f9d7737d6ba241c5c31556b9303a5231"
+    },
+    "2020-09": {
+      "hub_rows": 163379,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2020_9.zip",
+      "zip_bytes": 17755167,
+      "zip_sha256": "b22f2aee53144e2ea2346cc5a8b36ab14dad344b025454ae22c850d57cbc0117"
+    },
+    "2020-10": {
+      "hub_rows": 173482,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2020_10.zip",
+      "zip_bytes": 19207433,
+      "zip_sha256": "be49a9e21d50469bded99ed519473dd262e2baa40af40189a9886156c9e956b8"
+    },
+    "2020-11": {
+      "hub_rows": 171448,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2020_11.zip",
+      "zip_bytes": 20327189,
+      "zip_sha256": "e2872740f779fc3380902b65c958a2686ac2ae71bbe79d578c64beb82cfea7d4"
+    },
+    "2020-12": {
+      "hub_rows": 175950,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2020_12.zip",
+      "zip_bytes": 21151304,
+      "zip_sha256": "951af5f567a01c26bf674d06f3eadc005ff3d2f776036796c689245cb9552bea"
+    },
+    "2021-01": {
+      "hub_rows": 169991,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2021_1.zip",
+      "zip_bytes": 20028205,
+      "zip_sha256": "6a74f5a23bd5664449dc7497a81a24362d0fe92379e342339759371ae6115d9d"
+    },
+    "2021-02": {
+      "hub_rows": 154791,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2021_2.zip",
+      "zip_bytes": 18587034,
+      "zip_sha256": "052d36c5c87a1856ca610c9f2e416bc0dc08d0d4c1c06090cb8a88a4d308ed29"
+    },
+    "2021-03": {
+      "hub_rows": 203977,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2021_3.zip",
+      "zip_bytes": 24675708,
+      "zip_sha256": "a032ff7b5b32349387085602aa656129c83b708875946ec23a4fa696188e7239"
+    },
+    "2021-04": {
+      "hub_rows": 204720,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2021_4.zip",
+      "zip_bytes": 25110468,
+      "zip_sha256": "6152b11b31f00be7a76807fc279b986aaa5f4d576d58fa9e3363bda616adaf9c"
+    },
+    "2021-05": {
+      "hub_rows": 225274,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2021_5.zip",
+      "zip_bytes": 27646582,
+      "zip_sha256": "b0ad04910f74d43a01983d92b68bc3b294ecc3ea5c331f2d3b5540b7943577b2"
+    },
+    "2021-06": {
+      "hub_rows": 241358,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2021_6.zip",
+      "zip_bytes": 31778700,
+      "zip_sha256": "27620fef259c6e99901053cee9c784c456f3ce762698701a7e371b501fca7480"
+    },
+    "2021-07": {
+      "hub_rows": 256557,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2021_7.zip",
+      "zip_bytes": 34170650,
+      "zip_sha256": "e1a7644f0340b7999b1179b8cc6c60df7cc14c284af5d35af050b6e836a4921a"
+    },
+    "2021-08": {
+      "hub_rows": 255607,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2021_8.zip",
+      "zip_bytes": 33974411,
+      "zip_sha256": "e5b7b1745851150978334ff9bddd9b2ff63aec747ddb403f5c08c9c58800bb5e"
+    },
+    "2021-09": {
+      "hub_rows": 237436,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2021_9.zip",
+      "zip_bytes": 30825390,
+      "zip_sha256": "9e37c1ea29370022aa146ae6b85ad80c3feee64f343894eef09f8a0037dad9fa"
+    },
+    "2021-10": {
+      "hub_rows": 245271,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2021_10.zip",
+      "zip_bytes": 32549012,
+      "zip_sha256": "fecc9127be867ec9fb352cf96cabfd40603647e84338e61fcad2f6a21f6e1f72"
+    },
+    "2021-11": {
+      "hub_rows": 225890,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2021_11.zip",
+      "zip_bytes": 31703015,
+      "zip_sha256": "57aa8fe2498355dd6e7e805b0f423b48be1dd3d3f0b5f5d8e0ca2c604b10a6da"
+    },
+    "2021-12": {
+      "hub_rows": 225800,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2021_12.zip",
+      "zip_bytes": 32519798,
+      "zip_sha256": "7be310f46728f2e518098ec0cc3f68734ce3c297a352caca261c7b6772468604"
+    },
+    "2022-01": {
+      "hub_rows": 216043,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2022_1.zip",
+      "zip_bytes": 30752387,
+      "zip_sha256": "e8d70150decd6b0df05c7b1ad27897d1a76ca0bc3779b6881904545a44c22c9b"
+    },
+    "2022-02": {
+      "hub_rows": 198008,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2022_2.zip",
+      "zip_bytes": 26945325,
+      "zip_sha256": "5e36679e1e58121b581319017c15c93ecf7f6d239add06c9f77c9c2950034b63"
+    },
+    "2022-03": {
+      "hub_rows": 220772,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2022_3.zip",
+      "zip_bytes": 30963923,
+      "zip_sha256": "d9faddd43547ac23b2b9dff120a5d9ce5b9c5c2575fa8175acc505e82e1f58e2"
+    },
+    "2022-04": {
+      "hub_rows": 215921,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2022_4.zip",
+      "zip_bytes": 30635513,
+      "zip_sha256": "6425a8c9514bfbbb1a285ec3000527554f31655327cdf9644a6ec36a051dbb80"
+    },
+    "2022-05": {
+      "hub_rows": 227435,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2022_5.zip",
+      "zip_bytes": 31709063,
+      "zip_sha256": "37a188cdbc4dc9218d6a6377197b43bda166d46d7a88ab5f96f163258416a6ec"
+    },
+    "2022-06": {
+      "hub_rows": 231162,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2022_6.zip",
+      "zip_bytes": 31882537,
+      "zip_sha256": "8255c4d9ad46db637c129e0564223d107dfe099f161c6c3776cedfb85c9fc804"
+    },
+    "2022-07": {
+      "hub_rows": 235644,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2022_7.zip",
+      "zip_bytes": 32557278,
+      "zip_sha256": "146ba816b3d440d7a39904752cea9e8b767e9b7e4e0f20cde846af3920d03624"
+    },
+    "2022-08": {
+      "hub_rows": 235681,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2022_8.zip",
+      "zip_bytes": 31985697,
+      "zip_sha256": "8af8747f4ff2062ed38cf96fcd4ec5a2d763c9fd8b296da7c1ddd956491ff08c"
+    },
+    "2022-09": {
+      "hub_rows": 225321,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2022_9.zip",
+      "zip_bytes": 30119040,
+      "zip_sha256": "d6c914abe6c340f054bd5339e2fed3a274c19814163bcef9c87871cacf8031e1"
+    },
+    "2022-10": {
+      "hub_rows": 229434,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2022_10.zip",
+      "zip_bytes": 30771989,
+      "zip_sha256": "01fc3eb2089715df7187bc95a21a015ba01b2224d257fef810475e53d65f4a99"
+    },
+    "2022-11": {
+      "hub_rows": 215558,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2022_11.zip",
+      "zip_bytes": 29861948,
+      "zip_sha256": "50f579b0fcc9f2fce1606322ca57ddd703a4090b8ff2ee0fd2b00f072b7c2659"
+    },
+    "2022-12": {
+      "hub_rows": 219886,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2022_12.zip",
+      "zip_bytes": 30639907,
+      "zip_sha256": "c1fdafef25136e65330fe8050dade52413eec238acb0a7bb3478b5c933ac3e14"
+    },
+    "2023-01": {
+      "hub_rows": 215687,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2023_1.zip",
+      "zip_bytes": 30592621,
+      "zip_sha256": "91e86a0df1e6727e12a459597caf5f1571c04db4a4aa13986fdd3fcf5ad46fcf"
+    },
+    "2023-02": {
+      "hub_rows": 202104,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2023_2.zip",
+      "zip_bytes": 27954550,
+      "zip_sha256": "80addb22b8eac6f2387eaa2c1df8bb72ff3c1540851ce8898e72e48a42e8d424"
+    },
+    "2023-03": {
+      "hub_rows": 230462,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2023_3.zip",
+      "zip_bytes": 32510491,
+      "zip_sha256": "2c45916cd96d0e0d2bbbe481861995ab930cfdc5a07f20960f521f21be4fa679"
+    },
+    "2023-04": {
+      "hub_rows": 224533,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2023_4.zip",
+      "zip_bytes": 31511282,
+      "zip_sha256": "48b90360425beb5f91f92421ca0f0b4cff3e280785e0c27a225b8f202174dee7"
+    },
+    "2023-05": {
+      "hub_rows": 233549,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2023_5.zip",
+      "zip_bytes": 31932462,
+      "zip_sha256": "3ede30e01777c020127cf64e083fe413eb491bc41ed2569123f35f1b670ad076"
+    },
+    "2023-06": {
+      "hub_rows": 237549,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2023_6.zip",
+      "zip_bytes": 32626440,
+      "zip_sha256": "b46c88d7ccecff864d3c2daaba8947a726a9181bc7fd7c54fa64ca471e104044"
+    },
+    "2023-07": {
+      "hub_rows": 247876,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2023_7.zip",
+      "zip_bytes": 33867598,
+      "zip_sha256": "97a50c3d4520a555387e1dbac12a5f376e43bdec34a23c848da2b352a3259bb3"
+    },
+    "2023-08": {
+      "hub_rows": 250467,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2023_8.zip",
+      "zip_bytes": 33134150,
+      "zip_sha256": "0c202d6df3991bfd902870178e6de03e342f93f7fe9c7d6a5aceb2b2c0084c91"
+    },
+    "2023-09": {
+      "hub_rows": 236791,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2023_9.zip",
+      "zip_bytes": 31480933,
+      "zip_sha256": "f8001edb256472ac41975e781de99d3d97a3a92d2a7b6fe0aa306ac0e3b02fa0"
+    },
+    "2023-10": {
+      "hub_rows": 246611,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2023_10.zip",
+      "zip_bytes": 33025323,
+      "zip_sha256": "68c5a96d28c6193a85e7257ba131faf0112b810c54e3a9fc38ff61cb66b5bfa0"
+    },
+    "2023-11": {
+      "hub_rows": 229840,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2023_11.zip",
+      "zip_bytes": 31072754,
+      "zip_sha256": "2e376ed81cd9b457a47ae0838b1a4d9f8ddbfbbb4c9ad150934b6a01242d5219"
+    },
+    "2023-12": {
+      "hub_rows": 232452,
+      "ingested": "2026-11-12",
+      "url": "https://transtats.bts.gov/PREZIP/On_Time_Marketing_Carrier_On_Time_Performance_Beginning_January_2018_2023_12.zip",
+      "zip_bytes": 32415374,
+      "zip_sha256": "9747d2b72eb418682728be90ad7326093bc7b448a64bf8b7c2bf4a1f6edde9d1"
     }
   },
   "ontime_v3": {

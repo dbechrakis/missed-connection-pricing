@@ -1,0 +1,691 @@
+{
+"month": "2020-06",
+"days_done": [
+"2020-06-01",
+"2020-06-02",
+"2020-06-03",
+"2020-06-04",
+"2020-06-05",
+"2020-06-06",
+"2020-06-07",
+"2020-06-08",
+"2020-06-09",
+"2020-06-10",
+"2020-06-11",
+"2020-06-12",
+"2020-06-13",
+"2020-06-14",
+"2020-06-15",
+"2020-06-16",
+"2020-06-17",
+"2020-06-18",
+"2020-06-19",
+"2020-06-20",
+"2020-06-21",
+"2020-06-22",
+"2020-06-23",
+"2020-06-24",
+"2020-06-25",
+"2020-06-26",
+"2020-06-27",
+"2020-06-28",
+"2020-06-29",
+"2020-06-30"
+],
+"advisories": [
+{
+"title": "CDM GROUND STOP",
+"element": "DEN",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-06-06T21:55:00+00:00",
+"2020-06-06T22:45:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-06-06",
+"advn": 25,
+"kind": "gs",
+"list_element": "DEN/ZDV",
+"send": "06/06/20 22:06"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DEN",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-06-06T21:16:00+00:00",
+"2020-06-06T22:45:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-06-06",
+"advn": 22,
+"kind": "gs",
+"list_element": "DEN/ZDV",
+"send": "06/06/20 21:26"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ORD",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-06-09T19:45:00+00:00",
+"2020-06-09T21:30:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-06-09",
+"advn": 32,
+"kind": "gs",
+"list_element": "ORD/ZAU",
+"send": "06/09/20 20:33"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ORD",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-06-09T19:45:00+00:00",
+"2020-06-09T20:45:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-06-09",
+"advn": 29,
+"kind": "gs",
+"list_element": "ORD/ZAU",
+"send": "06/09/20 19:52"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "CLT",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-06-10T21:39:00+00:00",
+"2020-06-10T23:00:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-06-10",
+"advn": 34,
+"kind": "gs",
+"list_element": "CLT/ZTL",
+"send": "06/10/20 21:55"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DEN",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-06-13T22:03:00+00:00",
+"2020-06-13T22:45:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-06-13",
+"advn": 60,
+"kind": "gs",
+"list_element": "DEN/ZDV",
+"send": "06/13/20 22:18"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DEN",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-06-13T21:15:00+00:00",
+"2020-06-13T22:30:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-06-13",
+"advn": 55,
+"kind": "gs",
+"list_element": "DEN/ZDV",
+"send": "06/13/20 21:23"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DEN",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-06-13T21:15:00+00:00",
+"2020-06-13T22:15:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-06-13",
+"advn": 54,
+"kind": "gs",
+"list_element": "DEN/ZDV",
+"send": "06/13/20 21:12"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DEN",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-06-13T20:11:00+00:00",
+"2020-06-13T21:15:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-06-13",
+"advn": 53,
+"kind": "gs",
+"list_element": "DEN/ZDV",
+"send": "06/13/20 20:28"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DEN",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-06-19T21:18:00+00:00",
+"2020-06-19T22:30:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-06-19",
+"advn": 36,
+"kind": "gs",
+"list_element": "DEN/ZDV",
+"send": "06/19/20 21:34"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-06-20T01:02:00+00:00",
+"2020-06-20T02:15:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-06-20",
+"advn": 2,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "06/20/20 01:15"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ATL",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-06-21T22:29:00+00:00",
+"2020-06-21T23:30:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-06-21",
+"advn": 60,
+"kind": "gs",
+"list_element": "ATL/ZTL",
+"send": "06/21/20 22:42"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ATL",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-06-21T21:30:00+00:00",
+"2020-06-21T22:45:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-06-21",
+"advn": 55,
+"kind": "gs",
+"list_element": "ATL/ZTL",
+"send": "06/21/20 21:29"
+},
+{
+"title": "CDM GROUND DELAY PROGRAM CNX",
+"element": "DFW",
+"impacting": null,
+"period": null,
+"cause": "none",
+"cnx": true,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-06-21",
+"advn": 39,
+"kind": "gdp",
+"list_element": "DFW/ZFW",
+"send": "06/21/20 16:56"
+},
+{
+"title": "DFW GROUND STOP CANCELLATION",
+"element": "DFW",
+"impacting": null,
+"period": null,
+"cause": "none",
+"cnx": true,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-06-21",
+"advn": 33,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "06/21/20 13:57"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-06-21T12:43:00+00:00",
+"2020-06-21T14:00:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-06-21",
+"advn": 28,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "06/21/20 12:54"
+},
+{
+"title": "CDM GROUND DELAY PROGRAM",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-06-21T14:00:00+00:00",
+"2020-06-21T16:59:00+00:00"
+],
+"cause": "weather",
+"period_key": "CUMULATIVE PROGRAM PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-06-21",
+"advn": 25,
+"kind": "gdp",
+"list_element": "DFW/ZFW",
+"send": "06/21/20 12:23"
+},
+{
+"title": "CDM PROPOSED GROUND DELAY PROGRAM",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-06-21T14:00:00+00:00",
+"2020-06-21T16:59:00+00:00"
+],
+"cause": "weather",
+"period_key": "ARRIVALS ESTIMATED FOR",
+"cnx": false,
+"proposed": true,
+"carrier_specific": false,
+"day": "2020-06-21",
+"advn": 19,
+"kind": "gdp",
+"list_element": "DFW/ZFW",
+"send": "06/21/20 12:00"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-06-23T12:39:00+00:00",
+"2020-06-23T14:00:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-06-23",
+"advn": 24,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "06/23/20 12:52"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DEN",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-06-25T21:06:00+00:00",
+"2020-06-25T21:45:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-06-25",
+"advn": 36,
+"kind": "gs",
+"list_element": "DEN/ZDV",
+"send": "06/25/20 21:19"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ORD",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-06-26T15:51:00+00:00",
+"2020-06-26T17:00:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-06-26",
+"advn": 41,
+"kind": "gs",
+"list_element": "ORD/ZAU",
+"send": "06/26/20 16:06"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ORD",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-06-26T12:22:00+00:00",
+"2020-06-26T13:00:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-06-26",
+"advn": 24,
+"kind": "gs",
+"list_element": "ORD/ZAU",
+"send": "06/26/20 12:36"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ORD",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-06-26T12:02:00+00:00",
+"2020-06-26T12:30:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-06-26",
+"advn": 18,
+"kind": "gs",
+"list_element": "ORD/ZAU",
+"send": "06/26/20 12:17"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ORD",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-06-26T11:51:00+00:00",
+"2020-06-26T12:30:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-06-26",
+"advn": 15,
+"kind": "gs",
+"list_element": "ORD/ZAU",
+"send": "06/26/20 12:07"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ORD",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-06-26T11:30:00+00:00",
+"2020-06-26T12:30:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-06-26",
+"advn": 13,
+"kind": "gs",
+"list_element": "ORD/ZAU",
+"send": "06/26/20 11:41"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ORD",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-06-26T11:15:00+00:00",
+"2020-06-26T12:30:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-06-26",
+"advn": 11,
+"kind": "gs",
+"list_element": "ORD/ZAU",
+"send": "06/26/20 11:20"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ORD",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-06-26T10:30:00+00:00",
+"2020-06-26T11:30:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-06-26",
+"advn": 7,
+"kind": "gs",
+"list_element": "ORD/ZAU",
+"send": "06/26/20 10:34"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DEN",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-06-27T01:43:00+00:00",
+"2020-06-27T03:00:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-06-27",
+"advn": 12,
+"kind": "gs",
+"list_element": "DEN/ZDV",
+"send": "06/27/20 01:53"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DEN",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-06-27T00:59:00+00:00",
+"2020-06-27T02:00:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-06-27",
+"advn": 6,
+"kind": "gs",
+"list_element": "DEN/ZDV",
+"send": "06/27/20 01:13"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "CLT",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-06-28T20:50:00+00:00",
+"2020-06-28T22:00:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-06-28",
+"advn": 33,
+"kind": "gs",
+"list_element": "CLT/ZTL",
+"send": "06/28/20 21:02"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "CLT",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-06-28T20:10:00+00:00",
+"2020-06-28T21:30:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-06-28",
+"advn": 30,
+"kind": "gs",
+"list_element": "CLT/ZTL",
+"send": "06/28/20 20:29"
+},
+{
+"title": "CDM GROUND DELAY PROGRAM CNX",
+"element": "ORD",
+"impacting": null,
+"period": null,
+"cause": "none",
+"cnx": true,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-06-29",
+"advn": 32,
+"kind": "gdp",
+"list_element": "ORD/ZAU",
+"send": "06/29/20 21:49"
+},
+{
+"title": "CDM GROUND DELAY PROGRAM",
+"element": "ORD",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-06-29T20:30:00+00:00",
+"2020-06-29T22:59:00+00:00"
+],
+"cause": "weather",
+"period_key": "CUMULATIVE PROGRAM PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-06-29",
+"advn": 24,
+"kind": "gdp",
+"list_element": "ORD/ZAU",
+"send": "06/29/20 19:01"
+},
+{
+"title": "CDM PROPOSED GROUND DELAY PROGRAM",
+"element": "ORD",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-06-29T20:30:00+00:00",
+"2020-06-29T22:59:00+00:00"
+],
+"cause": "weather",
+"period_key": "ARRIVALS ESTIMATED FOR",
+"cnx": false,
+"proposed": true,
+"carrier_specific": false,
+"day": "2020-06-29",
+"advn": 23,
+"kind": "gdp",
+"list_element": "ORD/ZAU",
+"send": "06/29/20 18:56"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ATL",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-06-30T21:02:00+00:00",
+"2020-06-30T22:00:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-06-30",
+"advn": 31,
+"kind": "gs",
+"list_element": "ATL/ZTL",
+"send": "06/30/20 21:16"
+}
+],
+"read": "2026-11-12"
+}
