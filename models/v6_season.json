@@ -1,0 +1,36 @@
+{
+ "kappa": 1.0,
+ "grand_mean_log_ratio": -0.035134,
+ "effects_log": {
+  "01": 0.000722,
+  "02": -0.01562,
+  "03": -0.031204,
+  "04": 0.041786,
+  "05": 0.068564,
+  "06": 0.278039,
+  "07": 0.274315,
+  "08": 0.196396,
+  "09": -0.156431,
+  "10": -0.251699,
+  "11": -0.287962,
+  "12": -0.133125
+ },
+ "multiplier": {
+  "01": 0.9662,
+  "02": 0.9505,
+  "03": 0.9358,
+  "04": 1.0067,
+  "05": 1.034,
+  "06": 1.2749,
+  "07": 1.2702,
+  "08": 1.175,
+  "09": 0.8257,
+  "10": 0.7506,
+  "11": 0.7239,
+  "12": 0.8451
+ },
+ "residual_sd_leave_one_year_out": 0.1585,
+ "residual_lag1_autocorrelation": 0.423,
+ "fitted_on": "2019-01 to 2026-08: 70 observed months of the 2019 to 2023 backcast (outside the pandemic) joined to July 2024 to August 2026, all overnight-risk connections, realized over expected claims",
+ "rule": "multiplier of month m = exp(grand mean + shrunk deviation of the month's mean log ratio), with the deviation shrunk by n/(n + kappa)"
+}

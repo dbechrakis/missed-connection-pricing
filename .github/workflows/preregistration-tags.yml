@@ -36,4 +36,5 @@ jobs:
           prereg-v6-coding aadad1452587fdb3364915e5fbabb3b5c66e7abb PREREGISTRATION_V6_CODING.md
           prereg-v6-backcast-addendum 4e3552c8f259898f4cd80dd6caedc3833f4af471 PREREGISTRATION_V6_BACKCAST_ADDENDUM.md
           prereg-v6-forecast 3f1d6cd4728ec88354acf99d79e26c12df689a5a PREREGISTRATION_V6_FORECAST.md
+          prereg-v6-forward 4b2c8dc4b322ff937eda6df77cc17b24b996d790 PREREGISTRATION_V6_FORWARD.md
           EOF
