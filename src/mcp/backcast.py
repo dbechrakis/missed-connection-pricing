@@ -71,11 +71,19 @@ def is_pandemic(ym: str) -> bool:
 
 
 def fit_bounds(arm: str, block_start: str, fit_start: str) -> tuple[str, str]:
-    """First month (inclusive) and the block start (exclusive) of the months a block's model is fitted on."""
-    if arm == "A":
+    """First month (inclusive) and the block start (exclusive) of the months a block's model is fitted on.
+    Arms A and B are the pre-registered ones. C and D are exploratory, added after the read (VALIDATION.md 7I): the same two
+    windows with the pandemic months left out of the fit, D reaching back until it holds 24 months that are not pandemic months."""
+    if arm in ("A", "C"):
         return fit_start, block_start
     if arm == "B":
         return max(fit_start, shift(block_start, -TRAILING_MONTHS)), block_start
+    if arm == "D":
+        m, kept = block_start, 0
+        while kept < TRAILING_MONTHS and m > fit_start:
+            m = shift(m, -1)
+            kept += not is_pandemic(m)
+        return m, block_start
     raise ValueError(arm)
 
 
@@ -83,11 +91,19 @@ def window(col: str, start: str, end: str) -> str:
     return f"({col} >= TIMESTAMP '{start}-01' AND {col} < TIMESTAMP '{end}-01')"
 
 
+def fit_window(arm: str, col: str, start: str, end: str) -> str:
+    """The fit predicate of an arm: the window, and for the exploratory arms C and D not a pandemic month."""
+    w = window(col, start, end)
+    if arm in ("C", "D"):
+        return f"({w} AND NOT {window(col, PANDEMIC[0], shift(PANDEMIC[1], 1))})"
+    return w
+
+
 def run_block(con, start: str, end: str, table: dict, arm: str, fit_start: str, frac: float, rows_dir) -> pd.DataFrame:
     a, b = fit_bounds(arm, start, fit_start)
-    F.create_stats(con, fit_flights=window("flight_date", a, b), fit_asos=window("obs_utc", a, b))
+    F.create_stats(con, fit_flights=fit_window(arm, "flight_date", a, b), fit_asos=fit_window(arm, "obs_utc", a, b))
     src = f"read_parquet('{SOURCE_GLOB}')"
-    pred = window("r.out_sched_dep", a, b)
+    pred = fit_window(arm, "r.out_sched_dep", a, b)
     (total,) = con.execute(f"SELECT count(*) FROM {src} r WHERE {pred}").fetchone()
     frame = lambda s, p, f: con.execute(gap_label_sql(F.feature_sql(s, p, f, SEVERITY_FULL.as_posix(), with_keys=True))).fetchdf()
     fit = frame(src, pred, min(1.0, FIT_ROWS / total))

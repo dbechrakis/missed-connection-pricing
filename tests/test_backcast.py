@@ -37,7 +37,7 @@ def test_arm_a_fits_on_everything_before_and_arm_b_on_the_trailing_24_months():
     assert B.fit_bounds("B", "2021-07", "2018-01") == ("2019-07", "2021-07")
     assert B.fit_bounds("B", "2019-04", "2018-01") == ("2018-01", "2019-04")          # less than 24 months exist: what there is
     with pytest.raises(ValueError):
-        B.fit_bounds("C", "2021-07", "2018-01")
+        B.fit_bounds("Z", "2021-07", "2018-01")
 
 
 def _weeks(seed=0, drift=0.0):
@@ -188,3 +188,19 @@ def test_part_7b_quotes_the_numbers_in_the_results_file():
     wk = w[w["sold"]].groupby("week")[["claims", "premium"]].sum()
     lr = wk["claims"] / wk["premium"]
     assert len(lr) == g["weeks"] == 192 and int((lr > 1).sum()) == g["weeks_above_100_sold"] and f"worst week {100 * lr.max():.0f}%" in part
+
+
+def test_the_exploratory_arms_leave_the_pandemic_out_of_the_fit_and_do_not_change_the_pre_registered_ones():
+    assert B.fit_window("A", "c", "2018-01", "2022-01") == B.window("c", "2018-01", "2022-01") == B.fit_window("B", "c", "2018-01", "2022-01")
+    w = B.fit_window("C", "c", "2018-01", "2022-01")
+    assert "NOT (c >= TIMESTAMP '2020-03-01' AND c < TIMESTAMP '2021-07-01')" in w and w.startswith("((c >= TIMESTAMP '2018-01-01'")
+    assert B.fit_bounds("C", "2022-01", "2018-01") == ("2018-01", "2022-01")
+    # D reaches back until it holds 24 months that are not pandemic months: 6 of 2021, 14 of 2019-01..2020-02, 4 more of 2018
+    a, b = B.fit_bounds("D", "2022-01", "2018-01")
+    months, m = [], a
+    while m < b:
+        months.append(m)
+        m = B.shift(m, 1)
+    assert sum(1 for x in months if not B.is_pandemic(x)) == 24 and a == "2018-09"
+    assert B.fit_bounds("D", "2019-04", "2018-01") == ("2018-01", "2019-04") == B.fit_bounds("B", "2019-04", "2018-01")
+    assert B.fit_bounds("D", "2020-01", "2018-01") == B.fit_bounds("B", "2020-01", "2018-01")          # no pandemic month yet: the same window
