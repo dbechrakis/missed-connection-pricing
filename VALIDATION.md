@@ -1168,3 +1168,22 @@ Written after the coding audit of 7E was read, so **none of this is a test and C
 - **What would close it.** The test of `docs/season3-plan.md` T6 (cancellations on days with no adverse weather and no FAA program at either airport), which needs its own pre-registration.
 
 **Limits.** Point estimates without intervals. Three or four airlines. Twenty-five overlapping fake breaks, not twenty-five draws.
+
+### 7M. Is there enough clear-day data for a sharper coding test? Counts only, and the answer is no (14 November 2026)
+
+This is the first step of task T6 of `docs/season3-plan.md`, which proposed testing the coding of cancellations on days when nothing outside the airline could explain them. Code: `src/mcp/clear_day_counts.py`, tests: `tests/test_clear_day_counts.py`, results: `results/clear_day_counts.json`. **No cause code was read.** A cancelled flight between two of the five hubs counts as on a clear window when no adverse ASOS hour and no FAA ground stop or ground delay program touched the origin within three hours of the scheduled departure or the destination within three hours of the scheduled arrival. The count is by airline and calendar quarter, January 2018 to August 2026, pandemic months out.
+
+There are 13,174 cancelled flights between two hubs outside the pandemic months. **4,242 of them (32.2%) are on clear windows.** For the committing airlines of 7E:
+
+| Airline | Quarters | Cancelled hub-to-hub flights | On clear windows | Quarters with at least 100 on clear windows |
+| --- | --- | --- | --- | --- |
+| AA | 30 | 7336 | 2,271 | 8 |
+| DL | 28 | 1361 | 496 | 0 |
+| UA | 30 | 2331 | 697 | 0 |
+| WN | 30 | 819 | 274 | 0 |
+
+**The gate of the plan was 40 airline-quarters of committing airlines with at least 100 clear-window cancellations. The data give 8, all of them American. The gate is not met, so the clear-day test is not built and no pre-registration was written for it.** The threshold was not lowered, as the plan said. Counted this way, only American flies enough hub-to-hub flights at these five hubs for the design to have power, and one airline cannot separate a change in coding from a change in that airline's operations.
+
+**What would close it.** More hubs, which means more airports with weather and traffic-management data and a larger project, or a design that does not need clear windows, such as comparing cancellations coded to the airline against an independent record of the same flight's cause. Neither is started here.
+
+**Limits.** The window is a count of hours with a flag in ASOS and in the FAA advisories, so it is conservative about what counts as clear. The FAA database keeps a program's first end time when it was revised.

@@ -1,0 +1,48 @@
+{
+ "status": "counts only, no cause code read (docs/season3-plan.md T6 step 1)",
+ "cancelled_hub_to_hub_flights": 13174,
+ "clear_flights": 4242,
+ "clear_share": 0.32199787460148777,
+ "per_airline": {
+  "AA": {
+   "quarters": 30,
+   "quarters_with_enough": 8,
+   "clear_flights": 2271,
+   "cancelled_flights": 7336
+  },
+  "DL": {
+   "quarters": 28,
+   "quarters_with_enough": 0,
+   "clear_flights": 496,
+   "cancelled_flights": 1361
+  },
+  "F9": {
+   "quarters": 30,
+   "quarters_with_enough": 0,
+   "clear_flights": 354,
+   "cancelled_flights": 884
+  },
+  "NK": {
+   "quarters": 28,
+   "quarters_with_enough": 0,
+   "clear_flights": 150,
+   "cancelled_flights": 443
+  },
+  "UA": {
+   "quarters": 30,
+   "quarters_with_enough": 0,
+   "clear_flights": 697,
+   "cancelled_flights": 2331
+  },
+  "WN": {
+   "quarters": 30,
+   "quarters_with_enough": 0,
+   "clear_flights": 274,
+   "cancelled_flights": 819
+  }
+ },
+ "airline_quarters_with_enough_committing": 8,
+ "min_flights": 100,
+ "min_airline_quarters": 40,
+ "gate_passed": false
+}

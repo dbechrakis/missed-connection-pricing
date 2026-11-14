@@ -8,7 +8,7 @@ The plan for the other repositories of the portfolio is a separate file, `PORTFO
 
 ## Status (14 November 2026)
 
-T1, T2 and T3 are done (`VALIDATION.md` 7J, the scoreboard, the order guard in `mcp.v6`). T4 and T5 are done (7K and 7L). The owner agreed to the forward addendum (O2), which is `PREREGISTRATION_V6_FORWARD_ADDENDUM.md`. T6, T7 and T8 are open. Each task below keeps its text as written.
+T1, T2 and T3 are done (`VALIDATION.md` 7J, the scoreboard, the order guard in `mcp.v6`). T4 and T5 are done (7K and 7L). The owner agreed to the forward addendum (O2), which is `PREREGISTRATION_V6_FORWARD_ADDENDUM.md`. T6 stopped at its gate (`VALIDATION.md` 7M: 8 airline-quarters against the 40 needed), as the plan said it should, and was not built. T7 and T8 are open. Each task below keeps its text as written.
 
 ## Part A. Review
 
