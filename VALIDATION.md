@@ -1016,3 +1016,28 @@ Predicting each year's months from a season fitted on the other six or seven yea
 - **It is a prediction, and the project's way of testing a prediction is the one it already has.** The multipliers are frozen in `models/v6_season.json` and tested forward in `PREREGISTRATION_V6_FORWARD.md` on March to August 2027, with one prediction about the sealed autumn of 2026.
 
 **Limits.** Seven years of a pattern in months that are also the weather of those years. The multipliers are in-sample for the record they were fitted on. A seasonal price raises summer prices by up to 27% and lowers autumn prices, which changes what can be offered within the cap and has no demand evidence behind it. The record joins two different fit windows.
+
+
+### 7H. Do three features of the timetable earn a place? The schedule-structure test (read once, 13 November 2026)
+
+Pre-registered in `PREREGISTRATION_V6_SCHEDULE.md` (tag `prereg-v6-schedule`) before any of the features was built. Code: `src/mcp/schedule_features.py`, tests: `tests/test_schedule_features.py`, result: `results/schedule_features.json`. The three features are the number of flights scheduled into the inbound flight's quarter-hour at the hub (`hub_arr_15`), the number scheduled out in the onward flight's quarter-hour (`hub_dep_15`), and the inbound flight's scheduled time minus the median time flown by the same network on the same leg in the fit window (`in_block_pad`). Fit on January 2018 to December 2022 without the pandemic months (3,000,654 rows), scored once on 2023 (5,497,858 overnight-risk connections, a 20% sample, the gap label, the v1 feature set plus the three).
+
+| Model | Weighted log loss | Difference from the base |
+| --- | --- | --- |
+| Base (v1 feature set) | 0.230573 | |
+| Base, another random seed | 0.230358 | 0.000215 |
+| Base plus `hub_arr_15` alone | 0.230255 | 0.000318 |
+| Base plus `hub_dep_15` alone | 0.230521 | 0.000052 |
+| Base plus `in_block_pad` alone | 0.230358 | 0.000215 |
+| **Base plus all three** | **0.229839** | **0.000734** |
+
+**X1 failed.** The expectation was that the three features add at most 0.0002 to the log loss, the project's tie band. They added **0.00073**, which is 0.32% of the base log loss. By the rule written before the read, the features carry information the model lacks.
+
+**How to read a failure of this size.**
+
+- **It is small.** A third of one percent of the log loss, against 1% to 2% for everything the model already uses over a connection-time table (Part 2). The pooled realized over expected ratio moves from 1.006 to 1.002.
+- **It is only about three times the noise between two fits.** Refitting the base model with another seed moves the log loss by 0.000215, which is as much as `in_block_pad` adds alone. So `hub_dep_15` and `in_block_pad` are indistinguishable from fit noise here, and `hub_arr_15` (0.000318) is not far above it.
+- **Most of the gain is `hub_arr_15`.** How crowded the hub is when the inbound flight lands carries some risk that connection time and the route's history do not. That is a scheduled field known at booking.
+- **The project's prior was a null, and the rule says the null did not hold.** The pre-registration says such a failure sends the features to a later model version under its own pre-registration, and changes nothing already frozen. Nothing frozen changes. The three-month forward test of the seasonal price (`PREREGISTRATION_V6_FORWARD.md`) does not use them.
+
+**Limits.** One year (2023), whose monthly ratios were already seen. Three features out of many possible timetable features. A gain in log loss is not a gain in margin, and the price cap would change which connections are sold. The comparison uses two fits with different features, and the seed difference shows a fit alone moves the score by a fifth of the gain.

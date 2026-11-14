@@ -44,7 +44,7 @@ def test_v4_graders_use_the_thresholds_of_the_preregistration():
     assert grade.grade_v4(v4_result(weeks=1))["L4"]["pass"] and not grade.grade_v4(v4_result(weeks=2))["L4"]["pass"]
 
 
-GRADED_SEASON2 = {"C1", "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8"}      # read once, 12 November 2026
+GRADED_SEASON2 = {"X1", "C1", "B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8"}      # read once, 12 November 2026
 
 
 def test_every_prediction_in_the_nine_documents_is_on_the_scoreboard_and_only_v5_and_the_forecast_test_have_been_read():
@@ -67,6 +67,8 @@ def test_every_prediction_in_the_nine_documents_is_on_the_scoreboard_and_only_v5
     bc = grade.grade_backcast(json.loads((ROOT / "results" / "backcast.json").read_text(encoding="utf-8")))
     assert set(bc) == {f"B{i}" for i in range(1, 9)} and all(on_board[k]["status"] == ("pass" if g["pass"] else "fail") and on_board[k]["result"] == g["value"] for k, g in bc.items())
     assert on_board["B9"]["status"] == on_board["B10"]["status"] == "pending"
+    sf = grade.grade_schedule(json.loads((ROOT / "results" / "schedule_features.json").read_text(encoding="utf-8")))
+    assert on_board["X1"]["status"] == "fail" and on_board["X1"]["result"] == sf["X1"]["value"]
     assert (ROOT / "SCOREBOARD.md").read_text(encoding="utf-8") == grade.render(status)
 
 

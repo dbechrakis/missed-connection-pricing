@@ -462,8 +462,8 @@
    "claim": "Three timetable features add at most 0.0002 to the log loss (they do not earn a place)",
    "document": "PREREGISTRATION_V6_SCHEDULE.md",
    "tag": "prereg-v6-schedule",
-   "status": "pending",
-   "result": null
+   "status": "fail",
+   "result": "gain in log loss +0.00073 (+0.32%) against a tie band of 0.0002; two seeds differ by 0.00022"
   }
  ]
 }

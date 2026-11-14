@@ -98,3 +98,24 @@ def test_the_expectation_is_graded_by_the_tie_band_the_document_states():
     assert grade.grade_schedule({"gain": 0.0001, "gain_pct": 0.05, "seed_difference": 0.00005})["X1"]["pass"]
     assert not grade.grade_schedule({"gain": 0.0003, "gain_pct": 0.15, "seed_difference": 0.00005})["X1"]["pass"]
     assert grade.grade_schedule({"gain": -0.001, "gain_pct": -0.4, "seed_difference": 0.0})["X1"]["pass"]
+
+
+def test_part_7h_quotes_the_numbers_in_the_results_file_and_the_failure_is_graded():
+    import json
+    d = json.loads((ROOT / "results" / "schedule_features.json").read_text(encoding="utf-8"))
+    text = (ROOT / "VALIDATION.md").read_text(encoding="utf-8")
+    part = text[text.index("### 7H."):]
+    ll = d["log_loss"]
+    for label, key, diff in (("Base (v1 feature set)", "base", None), ("Base, another random seed", "base_seed1", abs(ll["base"] - ll["base_seed1"])),
+                             ("Base plus `hub_arr_15` alone", "only_hub_arr_15", d["gain_each_alone"]["hub_arr_15"]),
+                             ("Base plus `hub_dep_15` alone", "only_hub_dep_15", d["gain_each_alone"]["hub_dep_15"]),
+                             ("Base plus `in_block_pad` alone", "only_in_block_pad", d["gain_each_alone"]["in_block_pad"]),
+                             ("**Base plus all three**", "all", d["gain"])):
+        row = [l for l in part.splitlines() if l.startswith(f"| {label} |")][0]
+        cells = [c.strip() for c in row.strip("|").split("|")]
+        assert cells[1].strip("*") == f"{ll[key]:.6f}", row
+        assert cells[2].strip("*") == ("" if diff is None else f"{diff:.6f}"), row
+    assert f"**{d['gain']:.5f}**" in part and f"{d['gain_pct']:.2f}% of the base" in part and f"{d['seed_difference']:.6f}" in part
+    assert f"{d['ratio']['base']:.3f} to {d['ratio']['all']:.3f}" in part and f"{d['fit_rows']:,}" in part and f"{d['test_rows']:,}" in part
+    assert d["gain"] > S.TIE_BAND and not grade.grade_schedule(d)["X1"]["pass"]
+    assert d["gain"] / d["seed_difference"] == pytest.approx(3.4, abs=0.1) and "about three times" in part
