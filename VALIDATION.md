@@ -1041,3 +1041,35 @@ Pre-registered in `PREREGISTRATION_V6_SCHEDULE.md` (tag `prereg-v6-schedule`) be
 - **The project's prior was a null, and the rule says the null did not hold.** The pre-registration says such a failure sends the features to a later model version under its own pre-registration, and changes nothing already frozen. Nothing frozen changes. The three-month forward test of the seasonal price (`PREREGISTRATION_V6_FORWARD.md`) does not use them.
 
 **Limits.** One year (2023), whose monthly ratios were already seen. Three features out of many possible timetable features. A gain in log loss is not a gain in margin, and the price cap would change which connections are sold. The comparison uses two fits with different features, and the seed difference shows a fit alone moves the score by a fifth of the gain.
+
+
+### 7I. Four arms, and a correction to the exploratory reading in 7B (exploratory, 13 November 2026)
+
+Written after the backcast was read, so **none of this is a test**. Code: `explore_arms` in `src/mcp/backcast.py`, results: `results/backcast_arms.json`. Two arms were added to the two pre-registered ones. Arm C fits on every earlier month like arm A, but leaves the pandemic months (March 2020 to June 2021) out of the fit. Arm D does the same for arm B: it reaches back until it holds 24 months that are not pandemic months. Each month is priced by a model that had not seen it, as before. All four are over the same 44 scored months.
+
+| Arm | Fit | Pooled ratio, all connections | Pooled ratio, sold | Sold loss ratio | Weeks above 100% as sold (of 192) |
+| --- | --- | --- | --- | --- | --- |
+| A | All earlier months (pre-registered) | 0.964 | 0.932 | 60.6% | 23 |
+| B | Last 24 months (pre-registered) | 1.012 | 1.088 | 70.7% | 43 |
+| C | All earlier months, no pandemic months | 0.979 | 1.045 | 67.9% | 42 |
+| D | Last 24 non-pandemic months | 0.997 | 1.070 | 69.6% | 41 |
+
+Sold ratio divided by the all-connections ratio, by year (a value above 1 means the cap selected connections the model under-rated):
+
+| Arm | 2019 | 2020 | 2021 | 2022 | 2023 |
+| --- | --- | --- | --- | --- | --- |
+| A | 1.09 | 1.03 | 0.84 | 0.98 | 0.87 |
+| B | 1.10 | 1.05 | 0.98 | 1.18 | 0.98 |
+| C | 1.10 | 1.04 | 1.06 | 1.16 | 0.98 |
+| D | 1.11 | 1.02 | 1.03 | 1.14 | 0.99 |
+
+**Correction.** The exploratory paragraph of 7B read the difference between arms A and B as the winner's curse shrinking as the model's history grew, and called the 75% loss ratio as sold of 2024 to 2026 "a property of a young model". **The new arms do not support that reading.** Arm C has the same long history as arm A and runs 1.045 as sold, 67.9%, 42 weeks above 100%, as bad as arm B and arm D. What separates arm A from the rest is that its fit contains the pandemic months. Leaving them out removes A's advantage in 2021 (0.84 to 1.06) and in 2022 (0.98 to 1.16). The length of history is not what mattered.
+
+**What can and cannot be said.**
+
+- **The pre-registered result stands as written.** Arm A, as pre-registered, ran 60.6% as sold. That number and the verdicts of B1 to B8 are unchanged.
+- **The advantage of arm A is fragile.** It depends on training months in which schedules had collapsed and cancellations dominated. Whether those months teach the model something useful about which connections are safe, or only make it less sure of itself so that the cap selects differently, cannot be told from this record. Either way it is not a property of a long history.
+- **The sold cover without that fit looks like 2024 to 2026.** Arms B, C and D run 68% to 71% as sold with 41 to 43 bad weeks, close to the 75% and 28 of 114 weeks of the development years. The "as sold, it runs above its target and has bad weeks" finding of season 1 is therefore the usual outcome, and arm A's 60.6% is the exception that needs explaining.
+- **What it changes elsewhere.** The README and the memo no longer say the history explains the difference. The seasonal price (7G) and the forward test (`PREREGISTRATION_V6_FORWARD.md`) are unaffected: they fit the model on months from January 2024, with no pandemic months in them.
+
+**Limits.** One backcast, four arms, 44 months. The two new arms were run after the result of the first two was known, and the comparison is descriptive.

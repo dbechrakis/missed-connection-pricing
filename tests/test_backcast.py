@@ -218,3 +218,22 @@ def test_arm_summary_reports_the_pooled_ratios_the_sold_loss_ratio_and_the_yearl
     assert set(r["sold_over_all_by_year"]) == {"2019", "2020", "2021", "2022", "2023"}
     with_pandemic = pd.concat([w, w.assign(ym="2020-05", claims=w["claims"] * 50)])
     assert B.arm_summary(with_pandemic)["pooled_ratio_all"] == pytest.approx(r["pooled_ratio_all"])          # pandemic months are left out
+
+
+def test_part_7i_quotes_the_numbers_in_the_results_file_and_the_pre_registered_arms_are_unchanged():
+    import json
+    d = json.loads((ROOT / "results" / "backcast_arms.json").read_text(encoding="utf-8"))
+    bc = json.loads((ROOT / "results" / "backcast.json").read_text(encoding="utf-8"))
+    text = (ROOT / "VALIDATION.md").read_text(encoding="utf-8")
+    part = text[text.index("### 7I."):]
+    assert d["A"]["pooled_ratio_all"] == pytest.approx(bc["gap"]["pooled_ratio_all"]) and d["B"]["pooled_ratio_sold"] == pytest.approx(bc["arm_B"]["pooled_ratio_sold"])
+    for arm in "ABCD":
+        row = [l for l in part.splitlines() if l.startswith(f"| {arm} | ") and "%" in l][0]
+        cells = [c.strip() for c in row.strip("|").split("|")]
+        x = d[arm]
+        assert cells[2:] == [f"{x['pooled_ratio_all']:.3f}", f"{x['pooled_ratio_sold']:.3f}", f"{100 * x['sold_loss_ratio']:.1f}%", str(x["weeks_above_100_sold"])], row
+        yr = [l for l in part.splitlines() if l.startswith(f"| {arm} | ") and "%" not in l][0]
+        assert [c.strip() for c in yr.strip("|").split("|")][1:] == [f"{d[arm]['sold_over_all_by_year'][y]:.2f}" for y in ("2019", "2020", "2021", "2022", "2023")], yr
+    assert d["C"]["pooled_ratio_sold"] > 1.0 > d["A"]["pooled_ratio_sold"] and all(d[a]["weeks_above_100_sold"] >= 41 for a in "BCD")
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    assert "VALIDATION.md` 7I" in readme and "winner's curse looks like a young model's problem" not in readme
