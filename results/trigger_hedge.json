@@ -1,0 +1,39 @@
+{
+ "status": "development evidence, both periods already read (VALIDATION.md 7N)",
+ "split": "2024-01-01",
+ "fit": {
+  "h": 1.0400162047884276,
+  "x_mean_fit": 0.3814339087026808,
+  "cost_per_premium": 0.39669744610657764,
+  "weeks_fit": 192,
+  "correlation_fit": 0.7887752676096533
+ },
+ "later": {
+  "weeks": 114,
+  "sd_unhedged": 0.43596929569622755,
+  "sd_hedged": 0.3093607980777692,
+  "sd_remaining_share": 0.7095930863290061,
+  "weeks_above_100_unhedged": 28,
+  "weeks_above_100_hedged": 14,
+  "worst_unhedged": 2.476009941220741,
+  "worst_hedged": 2.42337901127258,
+  "pooled_unhedged": 0.7482677492556573,
+  "pooled_hedged": 0.6786943755913593,
+  "net_paid_per_premium": 0.06957337366429807,
+  "correlation": 0.7051121374693055
+ },
+ "in_sample": {
+  "weeks": 192,
+  "sd_unhedged": 0.3456609771017283,
+  "sd_hedged": 0.21265409065846713,
+  "sd_remaining_share": 0.615210002707025,
+  "weeks_above_100_unhedged": 23,
+  "weeks_above_100_hedged": 9,
+  "worst_unhedged": 1.9718757878613031,
+  "worst_hedged": 1.421411873520561,
+  "pooled_unhedged": 0.6058474694414697,
+  "pooled_hedged": 0.6058474694414697,
+  "net_paid_per_premium": -2.3071950205297003e-17,
+  "correlation": 0.7887752676096533
+ }
+}

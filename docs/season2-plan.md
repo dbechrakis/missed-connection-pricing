@@ -21,6 +21,7 @@ Written as the work went, so a reader can see where the executed work differs fr
 | Review | Done, `docs/season3-plan.md` Part A | Seven findings and five process findings. The main one is that 7C rests on arm A, which 7I showed to be the exception |
 | T1 to T3 of the review | Done, `VALIDATION.md` 7J | The technical price, the season and the reach under each arm. B9 and B10 are reported on the scoreboard. The forward test waits for the scheduled reads |
 | T4 and T5 of the review | Done, `VALIDATION.md` 7K and 7L | The schedule test over five seeds: the three features add 0.0004 in log loss, above twice the noise between seeds, X1 stays failed. The coding placebo distribution: both real estimates lie below every fake-break estimate, and the earlier years already show a rising carrier-coded share |
+| T6 and T7 of the review | Done, `VALIDATION.md` 7M and 7N | The clear-day coding test stopped at its gate and was not built. A hedge on the same-night trigger leaves 71% of the weekly spread out of its fit period |
 | Forward addendum | Done, `PREREGISTRATION_V6_FORWARD_ADDENDUM.md` | A loaded series at a fixed 1.10, reported without an expectation, pushed before any 2027 month existed. The tag row is in the workflow |
 
 ## 1. Where the project stands, and what it has not answered

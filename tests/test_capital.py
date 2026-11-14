@@ -193,3 +193,77 @@ def test_part_7j_quotes_the_numbers_in_the_results_file():
     assert d["B"]["sold"]["loading_expense35"] > 1.10 and d["A"]["sold"]["loading_expense35"] < 1.05
     for arm in "BCD":
         assert 1.10 <= round(d[arm]["sold"]["loading_expense35"], 2) <= 1.13
+
+
+def _hedge_frames(h=0.5, noise=0.0, seed=0, later_shift=0.0):
+    import pandas as pd
+    rng = np.random.default_rng(seed)
+    weeks = [str(d.date()) for d in pd.date_range("2022-01-03", periods=160, freq="7D")]
+    x = rng.gamma(2.0, 0.1, 160)
+    y = 0.4 + h * x + rng.normal(0, noise, 160)
+    risk, trig = [], []
+    for w, xv, yv in zip(weeks, x, y):
+        late = later_shift if w >= K.HEDGE_SPLIT else 0.0
+        risk.append({"week": w, "sold": True, "claims": (yv + late) * 100.0, "expected": 30.0, "premium": 100.0})
+        risk.append({"week": w, "sold": False, "claims": 50.0, "expected": 70.0, "premium": 200.0})
+        trig.append({"week": w, "t2": xv * 100.0})
+    return pd.DataFrame(risk), pd.DataFrame(trig)
+
+
+def test_the_hedge_ratio_is_recovered_and_a_perfect_index_removes_the_weekly_spread():
+    risk, trig = _hedge_frames(h=0.5)
+    table = K.hedge_table(risk, trig)
+    assert table["x"].iloc[0] == pytest.approx(trig["t2"].iloc[0] / 100.0)
+    fit = K.fit_hedge(table)
+    assert fit["h"] == pytest.approx(0.5) and fit["cost_per_premium"] == pytest.approx(0.5 * fit["x_mean_fit"])
+    later = K.apply_hedge(table, fit)
+    assert later["sd_hedged"] == pytest.approx(0.0, abs=1e-9) and later["sd_remaining_share"] < 1e-6
+
+
+def test_weeks_after_the_split_cannot_change_the_hedge_ratio_or_its_cost():
+    risk, trig = _hedge_frames(h=0.5, noise=0.05)
+    base = K.fit_hedge(K.hedge_table(risk, trig))
+    risk2, trig2 = risk.copy(), trig.copy()
+    risk2.loc[risk2["week"] >= K.HEDGE_SPLIT, "claims"] *= 3
+    trig2.loc[trig2["week"] >= K.HEDGE_SPLIT, "t2"] *= 5
+    assert K.fit_hedge(K.hedge_table(risk2, trig2)) == base
+
+
+def test_a_level_shift_after_the_split_is_not_hedged_away():
+    risk, trig = _hedge_frames(h=0.5, later_shift=0.2)
+    table = K.hedge_table(risk, trig)
+    later = K.apply_hedge(table, K.fit_hedge(table))
+    assert later["pooled_hedged"] - later["net_paid_per_premium"] * 0 > 0.55 and later["pooled_unhedged"] - later["pooled_hedged"] == pytest.approx(later["net_paid_per_premium"])
+
+
+def test_the_two_sources_of_the_weekly_record_are_on_the_scale_the_sampling_fractions_say():
+    import pandas as pd
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    risk = pd.read_csv(root / "results" / "risk_weeks_2019_2026.csv")
+    for name, source in (("2019_2023", "backcast_2019_2023"), ("2024_2026", "development_2024_2026")):
+        t = pd.read_csv(root / "results" / f"trigger_weeks_{name}.csv").set_index("week")
+        claims = risk[risk["source"] == source].groupby("week")["claims"].sum()
+        j = t.join(claims, how="inner")
+        assert j["gap"].sum() / j["claims"].sum() == pytest.approx(1 / K.SAMPLE_FRACTION[source], rel=0.02)
+
+
+def test_part_7n_quotes_the_numbers_in_the_hedge_file():
+    import json
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    d = json.loads((root / "results" / "trigger_hedge.json").read_text(encoding="utf-8"))
+    text = (root / "VALIDATION.md").read_text(encoding="utf-8")
+    part = text[text.index("### 7N."):]
+    f = d["fit"]
+    assert f"The hedge ratio is {f['h']:.2f} and the cost is {100 * f['cost_per_premium']:.1f}% of premium" in part and f"({f['weeks_fit']} weeks" in part
+    for name, x in (("2019 to 2023, where it was fitted", d["in_sample"]), ("July 2024 to August 2026, applied unchanged", d["later"])):
+        row = [l for l in part.splitlines() if l.startswith(f"| {name} |")][0]
+        assert [c.strip() for c in row.strip("|").split("|")][1:] == [str(x["weeks"]), f"{x['sd_unhedged']:.3f}", f"{x['sd_hedged']:.3f}", f"{100 * x['sd_remaining_share']:.0f}%",
+                                                                       str(x["weeks_above_100_unhedged"]), str(x["weeks_above_100_hedged"]), f"{100 * x['worst_unhedged']:.0f}%",
+                                                                       f"{100 * x['worst_hedged']:.0f}%", f"{100 * x['pooled_unhedged']:.1f}%", f"{100 * x['pooled_hedged']:.1f}%"]
+    assert f"paid {100 * d['later']['net_paid_per_premium']:.1f} points" in part
+    assert 0.6 < d["later"]["sd_remaining_share"] < 0.8 and d["later"]["weeks_above_100_hedged"] * 2 == d["later"]["weeks_above_100_unhedged"]
+    recomputed = K.hedge_table(__import__("pandas").read_csv(root / "results" / "risk_weeks_2019_2026.csv"),
+                               __import__("pandas").concat([__import__("pandas").read_csv(root / "results" / f"trigger_weeks_{n}.csv") for n in ("2019_2023", "2024_2026")]))
+    assert K.fit_hedge(recomputed)["h"] == pytest.approx(f["h"])
