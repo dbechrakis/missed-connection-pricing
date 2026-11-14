@@ -8,7 +8,7 @@ The plan for the other repositories of the portfolio is a separate file, `PORTFO
 
 ## Status (14 November 2026)
 
-T1, T2 and T3 are done (`VALIDATION.md` 7J, the scoreboard, the order guard in `mcp.v6`). T4 and T5 are done (7K and 7L). The owner agreed to the forward addendum (O2), which is `PREREGISTRATION_V6_FORWARD_ADDENDUM.md`. T6 stopped at its gate (`VALIDATION.md` 7M: 8 airline-quarters against the 40 needed), as the plan said it should, and was not built. T7 and T8 are open. Each task below keeps its text as written.
+T1, T2 and T3 are done (`VALIDATION.md` 7J, the scoreboard, the order guard in `mcp.v6`). T4 and T5 are done (7K and 7L). The owner agreed to the forward addendum (O2), which is `PREREGISTRATION_V6_FORWARD_ADDENDUM.md`. T6 stopped at its gate (`VALIDATION.md` 7M: 8 airline-quarters against the 40 needed), as the plan said it should, and was not built. T7 is done (7N: out of its fit period the hedge leaves 71% of the weekly spread and halves the weeks above 100%, and it does not touch the worst week). A second review by a stronger model corrected two readings, in 7J (reach does not explain 2021) and in 7L. T8 is done except the five tags of O1. Each task below keeps its text as written.
 
 ## Part A. Review
 

@@ -163,6 +163,31 @@ def load_rows(start: str, end: str) -> pd.DataFrame:
     return df
 
 
+def weekly_payouts(df: pd.DataFrame, programs: list[dict], asos: pd.DataFrame) -> pd.DataFrame:
+    """Per week (Monday of the onward departure): the T2 payouts and the BTS-coded gap payouts of the missed overnight connections of `df`."""
+    d = window_utc(df)
+    t1 = np.zeros(len(d), bool)
+    for hub, spans in faa.active_intervals(programs).items():
+        m = (d["hub"] == hub).to_numpy()
+        if m.any():
+            t1[m] = overlaps(spans, d.loc[m, "w_start"], d.loc[m, "w_end"])
+    t2 = t1 | weather_overlap(d, adverse_hours(asos))
+    pay = (d["weight"] * d["cost"]).to_numpy(float)
+    dep = pd.to_datetime(d["out_sched_dep"])
+    week = (dep - pd.to_timedelta(dep.dt.day_of_week, unit="D")).dt.strftime("%Y-%m-%d")
+    out = pd.DataFrame({"week": week.to_numpy(), "ym": d["ym"].to_numpy(), "t2": pay * t2, "gap": pay * (d["cause"] != "carrier").to_numpy()})
+    return out.groupby("week").agg(ym=("ym", "min"), t2=("t2", "sum"), gap=("gap", "sum")).reset_index()
+
+
+def run_weekly(start: str, end: str, name: str) -> pd.DataFrame:
+    import duckdb
+    df = pandemic_free(load_rows(start, end))
+    asos = duckdb.connect().execute(f"SELECT * FROM read_parquet('{ASOS_ALL.as_posix()}')").fetchdf()
+    out = weekly_payouts(df, faa.programs(start, end), asos)
+    out.to_csv(ROOT / "results" / f"trigger_weeks_{name}.csv", index=False, float_format="%.4f")
+    return out
+
+
 def months_between(start: str, end: str) -> int:
     return (int(end[:4]) - int(start[:4])) * 12 + int(end[5:]) - int(start[5:])
 
@@ -183,4 +208,5 @@ def run(start: str, end: str, label: str) -> dict:
 
 
 if __name__ == "__main__":
-    {"dev": lambda: run("2024-01", "2026-08", "development_2024_2026"), "backcast": lambda: run("2019-01", "2023-12", "backcast_2019_2023")}[sys.argv[1]]()
+    {"dev": lambda: run("2024-01", "2026-08", "development_2024_2026"), "backcast": lambda: run("2019-01", "2023-12", "backcast_2019_2023"),
+     "weeks-dev": lambda: run_weekly("2024-01", "2026-08", "2024_2026"), "weeks-backcast": lambda: run_weekly("2019-01", "2023-12", "2019_2023")}[sys.argv[1]]()

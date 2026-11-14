@@ -241,7 +241,71 @@ def arm_sensitivity(root=None) -> dict:
     return out
 
 
+# ---- a hedge that pays on the same-night trigger (development evidence, VALIDATION.md 7N) ------------------------------------
+
+HEDGE_SPLIT = "2024-01-01"
+SAMPLE_FRACTION = {"backcast_2019_2023": 0.20, "development_2024_2026": 0.10}   # the weekly record's two sources are hash samples of different size
+
+
+def hedge_table(risk_weeks, trigger_weeks):
+    """Per week: the sold loss ratio at the existing price (y), the sold premium (the weight) and the trigger index x, the T2 payouts
+    of the week over the expected claims of all overnight-risk connections of the same week (so that x does not grow with volume)."""
+    sold = risk_weeks[risk_weeks["sold"]].groupby("week")[["claims", "premium"]].sum()
+    scaled = risk_weeks["expected"] / risk_weeks["source"].map(SAMPLE_FRACTION) if "source" in risk_weeks else risk_weeks["expected"]
+    exposure = scaled.groupby(risk_weeks["week"]).sum().rename("expected")      # on the scale of all connections, as the trigger payouts are
+    t = trigger_weeks.set_index("week")["t2"]
+    d = sold.join(exposure, how="inner").join(t, how="inner")
+    d["y"] = d["claims"] / d["premium"]
+    d["x"] = d["t2"] / d["expected"]
+    return d.reset_index()
+
+
+def fit_hedge(table, split: str = HEDGE_SPLIT) -> dict:
+    """Premium-weighted least squares of y on x over the weeks before `split`. Returns the hedge ratio h and the mean of x there,
+    which sets what the hedge costs per unit of premium (h times that mean, its burning cost on the fit period)."""
+    f = table[table["week"] < split]
+    w = f["premium"].to_numpy(float)
+    x, y = f["x"].to_numpy(float), f["y"].to_numpy(float)
+    xm, ym = np.average(x, weights=w), np.average(y, weights=w)
+    h = float(np.sum(w * (x - xm) * (y - ym)) / np.sum(w * (x - xm) ** 2))
+    return {"h": h, "x_mean_fit": float(xm), "cost_per_premium": float(h * xm), "weeks_fit": int(len(f)),
+            "correlation_fit": float(np.corrcoef(x, y)[0, 1])}
+
+
+def apply_hedge(table, fit: dict, split: str = HEDGE_SPLIT) -> dict:
+    """The weeks from `split` on, with the hedge ratio and the cost fixed on the earlier weeks: the weekly loss ratio with and without
+    the hedge (it pays h times x and costs h times the fit-period mean of x, both per unit of premium)."""
+    t = table[table["week"] >= split]
+    y, x, w = t["y"].to_numpy(float), t["x"].to_numpy(float), t["premium"].to_numpy(float)
+    hedged = y - fit["h"] * (x - fit["x_mean_fit"])
+    return {"weeks": int(len(t)), "sd_unhedged": float(y.std(ddof=1)), "sd_hedged": float(hedged.std(ddof=1)),
+            "sd_remaining_share": float(hedged.std(ddof=1) / y.std(ddof=1)),
+            "weeks_above_100_unhedged": int((y > 1).sum()), "weeks_above_100_hedged": int((hedged > 1).sum()),
+            "worst_unhedged": float(y.max()), "worst_hedged": float(hedged.max()),
+            "pooled_unhedged": float(np.average(y, weights=w)), "pooled_hedged": float(np.average(hedged, weights=w)),
+            "net_paid_per_premium": float(np.average(fit["h"] * (x - fit["x_mean_fit"]), weights=w)),
+            "correlation": float(np.corrcoef(x, y)[0, 1])}
+
+
+def hedge(root=None) -> dict:
+    """Writes results/trigger_hedge.json from the committed weekly record and the weekly trigger payouts of both periods."""
+    import json
+    import pandas as pd
+    from pathlib import Path
+    root = Path(root) if root else Path(__file__).resolve().parents[2]
+    risk_weeks = pd.read_csv(root / "results" / "risk_weeks_2019_2026.csv")
+    trig = pd.concat([pd.read_csv(root / "results" / f"trigger_weeks_{n}.csv") for n in ("2019_2023", "2024_2026")], ignore_index=True)
+    table = hedge_table(risk_weeks, trig)
+    fit = fit_hedge(table)
+    out = {"status": "development evidence, both periods already read (VALIDATION.md 7N)", "split": HEDGE_SPLIT, "fit": fit, "later": apply_hedge(table, fit),
+           "in_sample": apply_hedge(table[table["week"] < HEDGE_SPLIT], fit, split="0000")}
+    (root / "results" / "trigger_hedge.json").write_text(json.dumps(out, indent=1) + "\n", encoding="utf-8", newline="\n")
+    return out
+
+
 if __name__ == "__main__":
     import sys
     if sys.argv[1] == "arms":
         arm_sensitivity()
+    elif sys.argv[1] == "hedge":
+        hedge()
