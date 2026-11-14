@@ -133,7 +133,18 @@ Order: T1, T2, T3, then T4 to T7 in any order, then T8. O1 to O3 are the owner's
 
 ### Owner actions
 
-- **O1. Tags and merge, in this order.** In GitHub, Actions, "preregistration tags" workflow, run it on branch `claude/season2`. Check that six `prereg-v6-*` tags exist. Only then merge pull request 7, with "Create a merge commit" and not "Squash and merge". Do not delete the branch before the tags exist.
+- **O1. Tags.** The pull request was merged with a merge commit, so every pre-registration commit is reachable from `main`. The workflow `preregistration-tags.yml` created `prereg-v6-backcast` and `prereg-v6-coding`. It cannot create the other five, because GitHub refuses a tag push by the Actions token when the tagged commit carries a different version of a workflow file than the default branch, and these commits predate the last edit of that file. Create them from a machine with your own credentials, from a clone of `main`:
+
+```bash
+git fetch origin
+git tag -a prereg-v6-backcast-addendum 4e3552c8f259898f4cd80dd6caedc3833f4af471 -m "PREREGISTRATION_V6_BACKCAST_ADDENDUM.md, as pushed before its data existed"
+git tag -a prereg-v6-forecast 3f1d6cd4728ec88354acf99d79e26c12df689a5a -m "PREREGISTRATION_V6_FORECAST.md, as pushed before its data existed"
+git tag -a prereg-v6-forward 4b2c8dc4b322ff937eda6df77cc17b24b996d790 -m "PREREGISTRATION_V6_FORWARD.md, as pushed before its data existed"
+git tag -a prereg-v6-schedule 3868d0cc39a7f19eed4268947bff5465b944f306 -m "PREREGISTRATION_V6_SCHEDULE.md, as pushed before its data existed"
+git tag -a prereg-v6-forward-addendum 67cc5f6c85ab6105dec11950e6b7b8e31549326a -m "PREREGISTRATION_V6_FORWARD_ADDENDUM.md, as pushed before its data existed"
+git push origin prereg-v6-backcast-addendum prereg-v6-forecast prereg-v6-forward prereg-v6-schedule prereg-v6-forward-addendum
+```
+
 - **O2. Decide on the forward test (F3).** Recommended: leave `PREREGISTRATION_V6_FORWARD.md` as it is and let 7J carry the warning. The alternative is an addendum before any 2027 month exists that adds a loaded price as a second series reported without expectation. An executing model must not write that addendum without the owner's word.
 - **O3. Field the survey** (`docs/survey-fielding.md`), and run the scheduled reads and the `mcp.v6` commands on the author's machine when the months are published.
 
