@@ -27,6 +27,7 @@ FIT_START = "2024-01"
 FRAC = 0.20
 SHARE_BAND = (0.20, 0.55)
 SIGMA, RHO = 0.1585, 0.423
+LOADING = 1.10                  # PREREGISTRATION_V6_FORWARD_ADDENDUM.md: a second series, reported without an expectation
 
 
 def load_season() -> dict:
@@ -59,6 +60,19 @@ def monthly_table(rows: pd.DataFrame, season: dict) -> dict:
     return out
 
 
+def loaded_table(rows: pd.DataFrame, season: dict, loading: float = LOADING) -> dict:
+    """Per month, the sold loss ratio and the share sold when the seasonal price is multiplied by a fixed loading and the cap is applied to
+    the loaded price. Reported without an expectation (PREREGISTRATION_V6_FORWARD_ADDENDUM.md)."""
+    out = {}
+    for ym, g in rows.groupby("ym"):
+        w, p, c, y = g["weight"].to_numpy(float), g["p"].to_numpy(float), g["claim_cost"].to_numpy(float), g["y_gap"].to_numpy(float)
+        price = loading * multiplier(ym, season) * p * c / TARGET_LR
+        sold = price <= WTP_CAP * g["fare"].to_numpy(float)
+        prem = float((w * price)[sold].sum())
+        out[ym] = {"sold_loss_ratio": float((w * y * c)[sold].sum() / prem) if prem else None, "share_sold": float(w[sold].sum() / w.sum())}
+    return out
+
+
 def analyse(rows: pd.DataFrame, window: str, season: dict | None = None) -> dict:
     season = season or load_season()
     m = monthly_table(rows, season)
@@ -73,9 +87,25 @@ def analyse(rows: pd.DataFrame, window: str, season: dict | None = None) -> dict
             "share_sold_range": [min(m[k]["share_sold"] for k in months), max(m[k]["share_sold"] for k in months)]}
 
 
+SCHEDULED_READS = ("holdout_v3_next.json", "holdout_v4_next.json", "v5_2_holdout.json")
+
+
+def scheduled_reads_done(root=None) -> bool:
+    """True when the scheduled reads of the sealed months (v3 and v4 on September to November 2026, v5.2 on its window) have written their
+    results. The forward test refits on months from January 2024 through the block start, which include those months, so it waits for them."""
+    base = root or ROOT
+    return all((base / "results" / name).exists() for name in SCHEDULED_READS)
+
+
+def require_scheduled_reads() -> None:
+    if not scheduled_reads_done():
+        raise SystemExit("the scheduled reads of v3, v4 and v5.2 have not all written their results (" + ", ".join(SCHEDULED_READS) + "): the forward test must not touch the months they read first")
+
+
 def run(window: str) -> None:
     from mcp.variant import VARIANT
     assert VARIANT == "v3", "run with MCP_VARIANT=v3"
+    require_scheduled_reads()
     out = B.DATA / "v6_forward" / window
     B.run("A", blocks=[WINDOWS[window]], fit_start=FIT_START, frac=FRAC, out=out)
 
@@ -84,9 +114,11 @@ def read(window: str) -> dict:
     result = ROOT / "results" / f"v6_forward_{window}.json"
     if result.exists():
         raise SystemExit(f"{result.name} exists: each window is read once (PREREGISTRATION_V6_FORWARD.md section 6)")
+    require_scheduled_reads()
     rows_dir = B.DATA / "v6_forward" / window / "rows_A"
     rows = pd.concat([pd.read_parquet(f) for f in sorted(rows_dir.glob("*.parquet"))], ignore_index=True)
     res = analyse(rows, window)
+    res["loaded"] = {"loading": LOADING, "months": loaded_table(rows, load_season())}
     result.write_text(json.dumps(res, indent=1) + "\n", encoding="utf-8", newline="\n")
     return res
 

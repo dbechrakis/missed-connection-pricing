@@ -162,3 +162,86 @@ def yearly_loss_ratios(weeks, min_months: int = 10) -> dict:
         out[y] = {"months": int(months[y]), "all": float(g["claims"].sum() / g["premium"].sum()), "sold": float(s["claims"].sum() / s["premium"].sum())}
     sold = np.array([v["sold"] for v in out.values()])
     return {"years": out, "sold_mean": float(sold.mean()), "sold_sd": float(sold.std(ddof=1)) if len(sold) > 1 else None}
+
+
+# ---- the same questions under each backcast arm (exploratory, VALIDATION.md 7J) -------------------------------------------
+
+PANDEMIC = ("2020-03", "2021-06")
+SUMMER = ("06", "07", "08")
+ARMS = ("A", "B", "C", "D")
+
+
+def without_pandemic(weeks):
+    return weeks[~((weeks["ym"] >= PANDEMIC[0]) & (weeks["ym"] <= PANDEMIC[1]))]
+
+
+def arm_record(arm_weeks, development_weeks):
+    """The backcast weeks of one arm outside the pandemic months followed by the development weeks, the record of 7C under that arm."""
+    import pandas as pd
+    return pd.concat([without_pandemic(arm_weeks), development_weeks], ignore_index=True)
+
+
+def reach_by_year(arm_weeks) -> dict:
+    """Share of the weight of all overnight-risk connections that passes the cap, by calendar year, outside the pandemic months."""
+    w = without_pandemic(arm_weeks)
+    w = w.assign(year=w["ym"].str[:4])
+    sold = w[w["sold"]].groupby("year")["w"].sum()
+    total = w.groupby("year")["w"].sum()
+    return {y: float(sold[y] / total[y]) for y in total.index}
+
+
+def seasonal_sold(record, multiplier: dict) -> dict:
+    """The sold loss ratio had each month's premium been multiplied by its seasonal multiplier, the cap not applied again: pooled, the number of
+    months above 100% and the same for June to August."""
+    s = record[record["sold"]].assign(m=lambda d: d["ym"].str[5:7])
+    s = s.assign(prem2=s["premium"] * s["m"].map(multiplier))
+    by_month = s.groupby("ym")[["claims", "premium", "prem2"]].sum()
+    summer = by_month[by_month.index.str[5:7].isin(SUMMER)]
+    return {"pooled_loss_ratio": float(by_month["claims"].sum() / by_month["prem2"].sum()), "months": int(len(by_month)),
+            "months_above_100": int((by_month["claims"] / by_month["prem2"] > 1).sum()),
+            "months_above_100_existing_price": int((by_month["claims"] / by_month["premium"] > 1).sum()),
+            "summer_months": int(len(summer)), "summer_above_100": int((summer["claims"] / summer["prem2"] > 1).sum()),
+            "summer_above_100_existing_price": int((summer["claims"] / summer["premium"] > 1).sum())}
+
+
+def arm_summary_record(record, multiplier: dict) -> dict:
+    from mcp import v6
+    out = {}
+    for view, sold in (("all", False), ("sold", True)):
+        rec = weekly_record(record, sold)
+        lr = rec["claims"] / (rec["expected"] * CURRENT_PI)
+        out[view] = {"weeks": int(len(lr)), "pooled_loss_ratio": float(rec["claims"].sum() / (rec["expected"].sum() * CURRENT_PI)),
+                     "weeks_above_100": int((lr > 1).sum()), "worst_week": float(lr.max()),
+                     "loading_expense35": solve(rec["claims"], rec["expected"], rec["week"], expense=0.35)["loading_vs_current"],
+                     "loading_expense35_attach100": solve(rec["claims"], rec["expected"], rec["week"], attach=1.0, expense=0.35)["loading_vs_current"]}
+    z = v6.monthly_log_ratio(record)
+    fit = v6.fit_season(z)
+    loyo = v6.leave_one_year_out(z)
+    out["season"] = {"multiplier": {k: float(np.exp(fit["mu"] + fit["effects"][k])) for k in fit["effects"]},
+                     "mae_season": loyo["mae_season"], "mae_none": loyo["mae_none"], "months": loyo["months"]}
+    out["at_frozen_multipliers_as_sold"] = seasonal_sold(record, multiplier)
+    return out
+
+
+def arm_sensitivity(root=None) -> dict:
+    """Writes results/arm_sensitivity.json from the committed weekly files of the four backcast arms and the development weeks."""
+    import json
+    import pandas as pd
+    from pathlib import Path
+    root = Path(root) if root else Path(__file__).resolve().parents[2]
+    record = pd.read_csv(root / "results" / "risk_weeks_2019_2026.csv")
+    development = record[record["source"] != "backcast_2019_2023"]
+    development = development[[c for c in development.columns if c != "source"]]
+    multiplier = json.loads((root / "models" / "v6_season.json").read_text(encoding="utf-8"))["multiplier"]
+    out = {"status": "exploratory, after the single read of the backcast (VALIDATION.md 7J)"}
+    for arm in ARMS:
+        weeks = pd.read_csv(root / "results" / f"backcast_weeks_{arm}.csv")
+        out[arm] = {**arm_summary_record(arm_record(weeks, development), multiplier), "share_sold_by_year": reach_by_year(weeks)}
+    (root / "results" / "arm_sensitivity.json").write_text(json.dumps(out, indent=1) + "\n", encoding="utf-8", newline="\n")
+    return out
+
+
+if __name__ == "__main__":
+    import sys
+    if sys.argv[1] == "arms":
+        arm_sensitivity()

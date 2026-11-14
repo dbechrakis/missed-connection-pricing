@@ -201,6 +201,14 @@ def grade_autumn(res: dict) -> dict:
     return {"Q1": {"pass": mean * (1 - hw) <= ratio <= mean * (1 + hw), "value": f"{ratio:.3f} against {mean * (1 - hw):.3f} to {mean * (1 + hw):.3f}"}}
 
 
+def report_backcast(res: dict) -> dict:
+    """B9 and B10 from results/backcast.json. Their document gives no prediction, so they are reported and never pass or fail."""
+    a, b = res["gap"], res["arm_B"]
+    ch = res["level_change"]
+    return {"B9": {"value": f"as sold, arm A {a['pooled_ratio_sold']:.3f} and arm B {b['pooled_ratio_sold']:.3f} (VALIDATION.md 7B and 7I)"},
+            "B10": {"value": f"largest change in the 12-month level {ch['largest_12_month_change']:+.3f} in 2019 to 2023 against {ch['development_2024_2026']['largest_12_month_change']:+.3f} in 2024 to 2026, windows 12 months apart (VALIDATION.md 7B)"}}
+
+
 def grade_schedule(res: dict) -> dict:
     """X1 from results/schedule_features.json (written by mcp.schedule_features), as in PREREGISTRATION_V6_SCHEDULE.md."""
     return {"X1": {"pass": res["gain"] <= 0.0002, "value": f"gain in log loss {res['gain']:+.5f} ({res['gain_pct']:+.2f}%) against a tie band of 0.0002; two seeds differ by {res['seed_difference']:.5f}"}}
@@ -208,14 +216,15 @@ def grade_schedule(res: dict) -> dict:
 
 def render(status: dict) -> str:
     """SCOREBOARD.md from the status file: one row per pre-registered prediction."""
-    icon = {"pending": "pending", "pass": "**passed**", "fail": "**failed**"}
+    icon = {"pending": "pending", "pass": "**passed**", "fail": "**failed**", "reported": "reported"}
     rows = "\n".join(f"| {e['id']} | {e['claim']} | [{e['tag']}]({e['document']}) | {icon[e['status']]} | {e['result'] or ''} |" for e in status["expectations"])
-    done = sum(1 for e in status["expectations"] if e["status"] != "pending")
+    done = sum(1 for e in status["expectations"] if e["status"] in ("pass", "fail"))
+    reported = sum(1 for e in status["expectations"] if e["status"] == "reported")
     return f"""# Scoreboard: every pre-registered prediction and how it turned out
 
 Each prediction was written, hashed and tagged **before** its data existed, so each is judged by the rule it was written with. Nothing here is edited by hand once a result is in: `python -m mcp.grade` grades from the result files with thresholds copied from the documents (`src/mcp/grade.py`), except E1 to E6, A1 to A3, B9, B10 and the sizes of F3, which their documents say are graded by hand.
 
-**{done} of {len(status['expectations'])} graded.** {status['when']}
+**{done} of {len(status['expectations'])} graded, {reported} reported without a prediction.** {status['when']}
 
 | # | Prediction | Document (tag) | Status | Result |
 | --- | --- | --- | --- | --- |
@@ -239,6 +248,14 @@ def apply(status: dict, grades: dict) -> dict:
     return status
 
 
+def apply_reported(status: dict, reports: dict) -> dict:
+    for e in status["expectations"]:
+        if e["id"] in reports:
+            e["status"] = "reported"
+            e["result"] = reports[e["id"]]["value"]
+    return status
+
+
 def main() -> None:
     status = load()
     for name, grader in (("holdout_v3_next.json", grade_v3), ("holdout_v4_next.json", grade_v4), ("v5_holdout.json", grade_v5),
@@ -247,6 +264,9 @@ def main() -> None:
         path = ROOT / "results" / name
         if path.exists():
             apply(status, grader(json.loads(path.read_text(encoding="utf-8"))))
+    path = ROOT / "results" / "backcast.json"
+    if path.exists():
+        apply_reported(status, report_backcast(json.loads(path.read_text(encoding="utf-8"))))
     for window in ("spring2027", "summer2027"):
         path = ROOT / "results" / f"v6_forward_{window}.json"
         if path.exists():

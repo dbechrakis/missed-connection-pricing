@@ -934,6 +934,8 @@ Pre-registered in `PREREGISTRATION_V6_BACKCAST.md` and its addendum (tags `prere
 
 **Exploratory, after the read, and not pre-registered: the winner's curse and the length of history.** Arm A's ratio as sold, divided by its ratio on all connections, by year: 1.09 (2019, the first model had 12 to 24 months), 1.03, 0.84, 0.98, 0.87 (2023, five years of history). Arm B, with 24 months throughout: 1.10, 1.05, 0.98, 1.18, 0.98. The cap selected connections the model under-rated when the model had little history, and stopped doing so as the history grew. That fits how 2024 to 2026 looked (a model with 6 to 30 months of history) and would make the 75% loss ratio as sold a property of a young model, and not of the cover. Five years do not prove it, and it is one reading among others.
 
+[Corrected in 7I.]
+
 **What this does and does not show.** It shows that the pricing procedure travels to earlier years on average and in its monthly spread, that the loading and the level models should not be built on the strength of 2024 to 2026 alone, and that the "sold loses money" finding was period or model-age specific. It does not show that 2024 to 2026 is the unusual period. The pandemic years, a different airline mix (Virgin America had just merged into Alaska) and no published hotel commitments before September 2022 all limit what 2019 to 2023 says about the cover as it would be sold today.
 
 
@@ -961,6 +963,8 @@ Code: `src/mcp/capital.py` and `src/mcp/risk.py`, tests: `tests/test_capital.py`
 | 35% | 1.00 | 1.03 | 1.03 |
 
 **What it says.**
+
+[Qualified in 7J.]
 
 - **On this record the existing price is about right, and the 1.16 loading is not a requirement.** At a 35% expense share the price needed is 1.00 to 1.03 times the existing one, and below that at lower expense shares. The 1.16 loading answers 2024 to 2026 alone (a sold ratio of 1.15), and the earlier years ran under target (0.93). Over all eight years the record averages out to about on target.
 - **The margin for the weather is small in the annual sense, and the weeks are not.** The capital term is 0.3% to 2.5% of premium across costs of capital of 6% to 15%, because the bootstrap's annual loss ratio stays within 66% to 76% in 19 of 20 years. The weeks are another matter: 51 of 306 weeks as sold (17%) ran above a 100% loss ratio, the worst at 248%. A cover that cannot absorb a bad week needs a weekly stop-loss, which costs 5.1% of premium at a 100% attachment as sold, or reserves that do. The capital term does not price that.
@@ -1073,3 +1077,54 @@ Sold ratio divided by the all-connections ratio, by year (a value above 1 means 
 - **What it changes elsewhere.** The README and the memo no longer say the history explains the difference. The seasonal price (7G) and the forward test (`PREREGISTRATION_V6_FORWARD.md`) are unaffected: they fit the model on months from January 2024, with no pandemic months in them.
 
 **Limits.** One backcast, four arms, 44 months. The two new arms were run after the result of the first two was known, and the comparison is descriptive.
+
+
+### 7J. The technical price, the season and the reach under each arm (exploratory, 14 November 2026)
+
+Written after the backcast was read, so **none of this is a test**. It repeats 7C and 7G with the weekly record built from each of the four arms of 7I in turn, so that the answer does not depend on one way of fitting the model. Code: `arm_sensitivity` in `src/mcp/capital.py`, tests: `tests/test_capital.py`, results: `results/arm_sensitivity.json`, inputs: `results/backcast_weeks_A.csv` to `_D.csv`, `results/risk_weeks_2019_2026.csv` and `models/v6_season.json`. Each record is the arm's 44 scored months of 2019 to 2023 joined to the 114 development weeks, 306 weeks as in 7C. The technical price is as in 7C, at a 35% expense share, a 10% cost of capital and no weekly stop-loss, as a multiple of the existing price.
+
+| Arm | Pooled sold loss ratio | Weeks above 100% as sold (of 306) | Technical price as sold | With a stop-loss at 100% | Technical price, all connections |
+| --- | --- | --- | --- | --- | --- |
+| A | 65.8% | 51 | 1.032 | 1.027 | 1.005 |
+| B | 72.2% | 71 | 1.130 | 1.127 | 1.035 |
+| C | 70.5% | 70 | 1.103 | 1.098 | 1.014 |
+| D | 71.5% | 69 | 1.118 | 1.114 | 1.026 |
+
+Share of overnight-risk connections that pass the 5% cap, by year of the backcast:
+
+| Arm | 2019 | 2020 | 2021 | 2022 | 2023 |
+| --- | --- | --- | --- | --- | --- |
+| A | 0.459 | 0.472 | 0.263 | 0.325 | 0.466 |
+| B | 0.460 | 0.470 | 0.269 | 0.405 | 0.524 |
+| C | 0.460 | 0.470 | 0.355 | 0.413 | 0.509 |
+| D | 0.461 | 0.472 | 0.351 | 0.410 | 0.528 |
+
+The calendar pattern of 7G under each arm, and its error in leave-one-year-out prediction against no adjustment (level 1):
+
+| Arm | June | July | November | Error with the season | Error with no adjustment |
+| --- | --- | --- | --- | --- | --- |
+| A | 1.27 | 1.27 | 0.72 | 0.125 | 0.206 |
+| B | 1.31 | 1.32 | 0.75 | 0.134 | 0.207 |
+| C | 1.29 | 1.28 | 0.73 | 0.123 | 0.205 |
+| D | 1.31 | 1.29 | 0.73 | 0.125 | 0.209 |
+
+At the frozen multipliers of `models/v6_season.json`, with each month's sold premium multiplied by its multiplier and the cap not applied again (so reach is held fixed, which flatters the price), months above a 100% loss ratio as sold out of 70, and the pooled sold loss ratio:
+
+| Arm | Months above 100% at the existing price | Months above 100% at the seasonal price | Pooled sold loss ratio, seasonal price |
+| --- | --- | --- | --- |
+| A | 7 | 3 | 67.3% |
+| B | 12 | 5 | 73.8% |
+| C | 8 | 5 | 72.0% |
+| D | 11 | 5 | 73.1% |
+
+**Correction to 7C.** 7C reads the record of arm A and concludes that the existing price is about right as sold and that the loading of 1.16 is not a requirement. **That holds under arm A only.** Under arms B, C and D the technical price as sold is 1.10 to 1.13 times the existing one, the pooled sold loss ratio is 70.5% to 72.2% and 69 to 71 of 306 weeks are above 100%, against 51 under arm A. A loading of that size is nearer to what the record asks for than 7C said. The finding about all connections is less sensitive (1.005 to 1.035).
+
+**Why arm A differs.** In 2021 and 2022 arm A sells 26% and 33% of overnight-risk connections where arms C and D sell 35% and 41%. In 2019 and 2020 every arm sells the same share. A model that has seen the pandemic months prices higher afterwards, so fewer connections pass the cap and those that do are safer. Arm A's sold loss ratio came with about nine points less reach in two of the five years. This is a reading of the table and not a test. 7I says why the mechanism cannot be told from the record.
+
+**What it means for the forward test.** `PREREGISTRATION_V6_FORWARD.md` fits its model on months from January 2024, which have no pandemic months in them, and has no loading. It resembles arms B, C and D more than arm A. At its frozen multipliers those arms put 5 months in 70 above a 100% loss ratio as sold, and a pooled sold loss ratio of 72% to 74%. This is written before any month of 2027 exists. If G3 or H3 (no month above 100% as sold) fails, it is what this record suggested, and not a surprise. The reach band of G4 and H4 (20% to 55%) was set at the price without multipliers. In June and July the multiplier of 1.27 raises every price, so reach may fall below the band for that reason alone. Nothing in the pre-registration is changed. `PREREGISTRATION_V6_FORWARD_ADDENDUM.md` adds a second series, reported without an expectation, so that both readings can be compared on the same months.
+
+**What does not depend on the arm.** The multipliers move by at most 0.05 between arms and the leave-one-year-out error with the season stays between 0.123 and 0.134 against 0.205 to 0.209 without it. The calendar pattern of 7G is not a property of one way of fitting the model.
+
+**Limits.** One record of 306 weeks, four arms that share the same development weeks, and a seasonal price evaluated with the cap held fixed. The development weeks are the same in every row, so the arms differ only in 192 weeks. None of it has demand evidence behind it.
+
+**Process.** The forward test's `run` and `read` refuse to start until the scheduled reads of v3 and v4 and of v5.2 have written their results. The guard was added on 14 November 2026, before any month of 2027 existed, and changes no computation.

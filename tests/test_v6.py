@@ -129,3 +129,34 @@ def test_the_season_functions_recover_a_planted_pattern():
     assert all(abs(fit["effects"][f"{m:02d}"] - (plant[m] - np.mean(list(plant.values())))) < 0.06 for m in range(1, 13))
     r = v6.leave_one_year_out(z)
     assert r["mae_season"] < 0.5 * r["mae_none"] and r["months"] == 84 and r["residual_sd"] < 0.1
+
+
+def test_the_forward_test_waits_for_the_scheduled_reads(tmp_path, monkeypatch):
+    monkeypatch.setattr(v6, "ROOT", tmp_path)
+    monkeypatch.setattr("mcp.variant.VARIANT", "v3")
+    (tmp_path / "results").mkdir()
+    assert not v6.scheduled_reads_done(tmp_path)
+    for name in v6.SCHEDULED_READS[:-1]:
+        (tmp_path / "results" / name).write_text("{}")
+    assert not v6.scheduled_reads_done(tmp_path)
+    with pytest.raises(SystemExit, match="scheduled reads"):
+        v6.run("spring2027")
+    (tmp_path / "results" / v6.SCHEDULED_READS[-1]).write_text("{}")
+    assert v6.scheduled_reads_done(tmp_path)
+    monkeypatch.setattr(v6.B, "run", lambda *a, **k: None)
+    v6.run("spring2027")
+    with pytest.raises(SystemExit, match="scheduled reads"):
+        monkeypatch.setattr(v6, "scheduled_reads_done", lambda root=None: False)
+        v6.read("summer2027")
+
+
+def test_the_loaded_series_multiplies_the_price_and_reapplies_the_cap_without_touching_the_pre_registered_table():
+    season = {"multiplier": {f"{m:02d}": 1.0 for m in range(1, 13)}}
+    rows = pd.DataFrame({"ym": ["2027-06"] * 2, "weight": [1.0, 1.0], "p": [0.05, 0.05], "claim_cost": [100.0, 100.0], "y_gap": [0.0, 1.0], "fare": [160.0, 200.0]})
+    price = 0.05 * 100.0 / v6.TARGET_LR
+    assert price <= v6.WTP_CAP * 160.0 < 1.10 * price
+    assert v6.monthly_table(rows, season)["2027-06"]["share_sold"] == 1.0
+    loaded = v6.loaded_table(rows, season, 1.10)["2027-06"]
+    assert loaded["share_sold"] == pytest.approx(0.5)
+    assert loaded["sold_loss_ratio"] == pytest.approx(100.0 / (1.10 * price))
+    assert v6.LOADING == 1.10

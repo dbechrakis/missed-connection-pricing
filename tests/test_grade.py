@@ -57,7 +57,7 @@ def test_every_prediction_in_the_nine_documents_is_on_the_scoreboard_and_only_v5
     for doc in {e["document"] for e in on_board.values()}:
         in_docs |= set(re.findall(r"^\| ([EAVLSRWBCFGHQX]\d+) \|", (ROOT / doc).read_text(encoding="utf-8"), flags=re.M))
     assert in_docs == set(on_board) and len(on_board) == 58
-    assert all(e["status"] == "pending" and e["result"] is None for k, e in on_board.items() if not (k.startswith(("S", "F")) or k in GRADED_SEASON2))
+    assert all(e["status"] == "pending" and e["result"] is None for k, e in on_board.items() if not (k.startswith(("S", "F")) or k in GRADED_SEASON2 or k in {"B9", "B10"}))
     v5 = grade.grade_v5(json.loads((ROOT / "results" / "v5_holdout.json").read_text(encoding="utf-8")))
     assert all(on_board[k]["status"] == ("pass" if g["pass"] else "fail") and on_board[k]["result"] == g["value"] for k, g in v5.items())
     fc = grade.grade_forecast(json.loads((ROOT / "results" / "forecast.json").read_text(encoding="utf-8")))
@@ -66,7 +66,8 @@ def test_every_prediction_in_the_nine_documents_is_on_the_scoreboard_and_only_v5
     assert set(ca) == {"C1"} and on_board["C1"]["status"] == "fail" and on_board["C2"]["status"] == "pending"
     bc = grade.grade_backcast(json.loads((ROOT / "results" / "backcast.json").read_text(encoding="utf-8")))
     assert set(bc) == {f"B{i}" for i in range(1, 9)} and all(on_board[k]["status"] == ("pass" if g["pass"] else "fail") and on_board[k]["result"] == g["value"] for k, g in bc.items())
-    assert on_board["B9"]["status"] == on_board["B10"]["status"] == "pending"
+    rep = grade.report_backcast(json.loads((ROOT / "results" / "backcast.json").read_text(encoding="utf-8")))
+    assert all(on_board[k]["status"] == "reported" and on_board[k]["result"] == v["value"] for k, v in rep.items()) and set(rep) == {"B9", "B10"}
     sf = grade.grade_schedule(json.loads((ROOT / "results" / "schedule_features.json").read_text(encoding="utf-8")))
     assert on_board["X1"]["status"] == "fail" and on_board["X1"]["result"] == sf["X1"]["value"]
     assert (ROOT / "SCOREBOARD.md").read_text(encoding="utf-8") == grade.render(status)

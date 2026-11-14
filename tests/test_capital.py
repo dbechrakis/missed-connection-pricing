@@ -143,3 +143,53 @@ def test_yearly_loss_ratios_keep_only_years_with_enough_months():
     assert set(r["years"]) == {"2019", "2022"} and r["years"]["2019"]["months"] == 12
     assert r["years"]["2019"]["sold"] == pytest.approx(0.77) and r["years"]["2022"]["all"] == pytest.approx(0.6 * (1 + 1.1) / 2)
     assert r["sold_mean"] == pytest.approx((0.77 + 0.66) / 2)
+
+
+def _weeks(arm_months, sold_weight=1.0, premium=100.0, claims=65.0):
+    import pandas as pd
+    rows = []
+    for i, ym in enumerate(arm_months):
+        for sold in (False, True):
+            rows.append({"ym": ym, "week": f"{ym}-01", "hub": "ATL", "sold": sold, "claims": claims, "expected": 65.0, "w": 2.0 if not sold else sold_weight, "premium": premium})
+    return pd.DataFrame(rows)
+
+
+def test_the_pandemic_months_are_left_out_of_an_arms_record_and_reach_counts_only_scored_months():
+    w = _weeks(["2019-05", "2020-02", "2020-03", "2021-06", "2021-07"], sold_weight=1.0)
+    kept = K.without_pandemic(w)
+    assert sorted(kept["ym"].unique()) == ["2019-05", "2020-02", "2021-07"]
+    reach = K.reach_by_year(w)
+    assert reach == {"2019": pytest.approx(1 / 3), "2020": pytest.approx(1 / 3), "2021": pytest.approx(1 / 3)}
+    dev = _weeks(["2024-03"])
+    assert sorted(K.arm_record(w, dev)["ym"].unique()) == ["2019-05", "2020-02", "2021-07", "2024-03"]
+
+
+def test_the_seasonal_price_divides_claims_by_the_multiplied_premium_and_counts_months_above_100():
+    import pandas as pd
+    rec = pd.DataFrame({"ym": ["2025-06", "2025-06", "2025-11", "2025-11"], "sold": [True, True, True, True], "claims": [150.0, 150.0, 40.0, 40.0], "premium": [100.0, 100.0, 100.0, 100.0]})
+    out = K.seasonal_sold(rec, {"06": 2.0, "11": 0.5})
+    assert out["pooled_loss_ratio"] == pytest.approx(380 / (400 + 100))
+    assert out["months_above_100_existing_price"] == 1 and out["months_above_100"] == 0
+    assert out["summer_months"] == 1 and out["summer_above_100"] == 0 and out["summer_above_100_existing_price"] == 1
+
+
+def test_part_7j_quotes_the_numbers_in_the_results_file():
+    import json
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    d = json.loads((root / "results" / "arm_sensitivity.json").read_text(encoding="utf-8"))
+    text = (root / "VALIDATION.md").read_text(encoding="utf-8")
+    part = text[text.index("### 7J."):]
+    for arm in "ABCD":
+        x = d[arm]
+        sold_rows = [l for l in part.splitlines() if l.startswith(f"| {arm} | ") and "%" in l.split("|")[2]]
+        cells = [c.strip() for c in sold_rows[0].strip().strip("|").split("|")]
+        assert cells[1:] == [f"{100 * x['sold']['pooled_loss_ratio']:.1f}%", str(x["sold"]["weeks_above_100"]), f"{x['sold']['loading_expense35']:.3f}", f"{x['sold']['loading_expense35_attach100']:.3f}", f"{x['all']['loading_expense35']:.3f}"], sold_rows[0]
+        reach = [l for l in part.splitlines() if l.startswith(f"| {arm} | 0.")][0]
+        assert [c.strip() for c in reach.strip().strip("|").split("|")][1:] == [f"{x['share_sold_by_year'][y]:.3f}" for y in ("2019", "2020", "2021", "2022", "2023")], reach
+        f = x["at_frozen_multipliers_as_sold"]
+        fr = [l for l in part.splitlines() if l.startswith(f"| {arm} | ") and l.count("|") == 5 and l.split("|")[2].strip().isdigit()][0]
+        assert [c.strip() for c in fr.strip().strip("|").split("|")][1:] == [str(f["months_above_100_existing_price"]), str(f["months_above_100"]), f"{100 * f['pooled_loss_ratio']:.1f}%"], fr
+    assert d["B"]["sold"]["loading_expense35"] > 1.10 and d["A"]["sold"]["loading_expense35"] < 1.05
+    for arm in "BCD":
+        assert 1.10 <= round(d[arm]["sold"]["loading_expense35"], 2) <= 1.13

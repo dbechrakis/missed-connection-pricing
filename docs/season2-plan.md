@@ -17,7 +17,10 @@ Written as the work went, so a reader can see where the executed work differs fr
 | WP6 | Done, `VALIDATION.md` 7D and 7E. C1 failed, C2 is not graded | FAA advisories are fetched by four parallel workers at one request a second each, not one worker. The parse gate (100 sampled advisories checked against the pages) passed on the fourth sample, after the first three found an unmapped condition class and flaws in the checker itself |
 | WP7 | Done, `VALIDATION.md` 7F. F1 and F2 passed, F2 by one week | Snowfall and weather code at lead 7 exist in the archive only from 12 December 2024, earlier values are missing values. A noise floor for kappa (two fits of the same information) is reported next to it |
 | WP8 | Done, `PREREGISTRATION_V6_FORWARD.md` | v6 is the v3 procedure with frozen month multipliers (found after the backcast, `VALIDATION.md` 7G), not a level model and not a loading. The plan's WP8 assumed `local_season` or `none` plus a loading, which the backcast did not support |
-| WP9 | Done except the independent review | README round four, the memo's second edition, the decision log, the demo's risk section, the profile. The sceptical review by a fresh read-only session is not done and is the owner's call |
+| WP9 | Done except the independent review | README round four, the memo's second edition, the decision log, the demo's risk section, the profile. The independent review is done on 14 November 2026 and is in `docs/season3-plan.md` |
+| Review | Done, `docs/season3-plan.md` Part A | Seven findings and five process findings. The main one is that 7C rests on arm A, which 7I showed to be the exception |
+| T1 to T3 of the review | Done, `VALIDATION.md` 7J | The technical price, the season and the reach under each arm. B9 and B10 are reported on the scoreboard. The forward test waits for the scheduled reads |
+| Forward addendum | Done, `PREREGISTRATION_V6_FORWARD_ADDENDUM.md` | A loaded series at a fixed 1.10, reported without an expectation, pushed before any 2027 month existed. The tag row is in the workflow |
 
 ## 1. Where the project stands, and what it has not answered
 

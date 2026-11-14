@@ -1,5 +1,5 @@
 {
- "when": "v5 (S1 to S5) was read on 9 November 2026. The rows read when November 2026 is published (probably early February 2027) include v5.1 (R1 to R5). v5.2 (W1 to W5) is read when February 2027 is published (probably early May 2027). Every date was decided before the data exists. The backcast (B1 to B10) and the coding audit (C1, C2) are read once, after the 2018 to 2023 months are ingested, and are pending until then. The seasonal price (G1 to G4, H1 to H4) is read when May 2027 and August 2027 are published (probably August and November 2027). Q1 is graded from the same file as V1 to V6.",
+ "when": "v5 (S1 to S5) was read on 9 November 2026. The rows read when November 2026 is published (probably early February 2027) include v5.1 (R1 to R5). v5.2 (W1 to W5) is read when February 2027 is published (probably early May 2027). Every date was decided before the data exists. The backcast (B1 to B10), the coding audit (C1, C2) and the schedule test (X1) were read once on 12 and 13 November 2026. B9 and B10 have no prediction and are reported. The seasonal price (G1 to G4, H1 to H4) is read when May 2027 and August 2027 are published (probably August and November 2027). Q1 is graded from the same file as V1 to V6.",
  "expectations": [
   {
    "id": "E1",
@@ -342,16 +342,16 @@
    "claim": "Arm A (all earlier months) against arm B (trailing 24): reported either way, no prediction",
    "document": "PREREGISTRATION_V6_BACKCAST.md",
    "tag": "prereg-v6-backcast",
-   "status": "pending",
-   "result": null
+   "status": "reported",
+   "result": "as sold, arm A 0.932 and arm B 1.088 (VALIDATION.md 7B and 7I)"
   },
   {
    "id": "B10",
    "claim": "Largest earlier 24-month change in the 12-month level, reported next to 2024 to 2026, no prediction",
    "document": "PREREGISTRATION_V6_BACKCAST.md",
    "tag": "prereg-v6-backcast",
-   "status": "pending",
-   "result": null
+   "status": "reported",
+   "result": "largest change in the 12-month level +0.121 in 2019 to 2023 against -0.061 in 2024 to 2026, windows 12 months apart (VALIDATION.md 7B)"
   },
   {
    "id": "C1",

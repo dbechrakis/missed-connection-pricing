@@ -6,6 +6,10 @@ Numbers in Part A marked "review run" were computed once by the reviewer from th
 
 The plan for the other repositories of the portfolio is a separate file, `PORTFOLIO_PLAN.md`, on branch `claude/tender-hypatia-z5ndyk` of `dbechrakis/dbechrakis`.
 
+## Status (14 November 2026)
+
+T1, T2 and T3 are done (`VALIDATION.md` 7J, the scoreboard, the order guard in `mcp.v6`). The owner agreed to the forward addendum (O2), which is `PREREGISTRATION_V6_FORWARD_ADDENDUM.md`. T4 to T8 are open. Each task below keeps its text as written.
+
 ## Part A. Review
 
 ### A1. What the review confirms
