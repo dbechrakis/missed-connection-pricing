@@ -204,3 +204,17 @@ def test_the_exploratory_arms_leave_the_pandemic_out_of_the_fit_and_do_not_chang
     assert sum(1 for x in months if not B.is_pandemic(x)) == 24 and a == "2018-09"
     assert B.fit_bounds("D", "2019-04", "2018-01") == ("2018-01", "2019-04") == B.fit_bounds("B", "2019-04", "2018-01")
     assert B.fit_bounds("D", "2020-01", "2018-01") == B.fit_bounds("B", "2020-01", "2018-01")          # no pandemic month yet: the same window
+
+
+def test_arm_summary_reports_the_pooled_ratios_the_sold_loss_ratio_and_the_yearly_sold_over_all_ratio():
+    w = _weeks(seed=1)
+    r = B.arm_summary(w)
+    assert r["months"] == 44 and r["weeks"] > 0
+    allw = w[~w["ym"].map(B.is_pandemic)]
+    assert r["pooled_ratio_all"] == pytest.approx(allw["claims"].sum() / allw["expected"].sum())
+    sold = allw[allw["sold"]]
+    assert r["pooled_ratio_sold"] == pytest.approx(sold["claims"].sum() / sold["expected"].sum())
+    assert r["sold_loss_ratio"] == pytest.approx(sold["claims"].sum() / sold["premium"].sum())
+    assert set(r["sold_over_all_by_year"]) == {"2019", "2020", "2021", "2022", "2023"}
+    with_pandemic = pd.concat([w, w.assign(ym="2020-05", claims=w["claims"] * 50)])
+    assert B.arm_summary(with_pandemic)["pooled_ratio_all"] == pytest.approx(r["pooled_ratio_all"])          # pandemic months are left out

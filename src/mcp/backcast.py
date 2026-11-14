@@ -291,6 +291,33 @@ def read() -> dict:
     return res
 
 
+def arm_summary(weeks: pd.DataFrame) -> dict:
+    """Exploratory comparison of the four arms (VALIDATION.md 7I), outside the pandemic months. Nothing here is a pre-registered
+    expectation: pooled realized over expected, the sold loss ratio, weeks above 100%, and the sold-over-all ratio by year."""
+    w = weeks[~weeks["ym"].map(is_pandemic)]
+    mm_all, mm_sold = monthly(w, False), monthly(w, True)
+    wk = risk_weekly(w, True)
+    by_year = {}
+    for y, g in w.assign(year=w["ym"].str[:4]).groupby("year"):
+        a = g["claims"].sum() / g["expected"].sum()
+        s = g[g["sold"]]["claims"].sum() / g[g["sold"]]["expected"].sum()
+        by_year[y] = float(s / a)
+    return {"months": int(len(mm_all)), "pooled_ratio_all": float(mm_all["claims"].sum() / mm_all["expected"].sum()),
+            "pooled_ratio_sold": float(mm_sold["claims"].sum() / mm_sold["expected"].sum()),
+            "sold_loss_ratio": float(mm_sold["claims"].sum() / mm_sold["premium"].sum()), "monthly_ratio_sd": float(mm_all["ratio"].std(ddof=1)),
+            "weeks_above_100_sold": int((wk > 1).sum()), "weeks": int(len(wk)), "sold_over_all_by_year": by_year}
+
+
+def explore_arms() -> dict:
+    """Writes results/backcast_arms.json from the four weekly files (A and B are the pre-registered arms, C and D drop the pandemic
+    months from the fit). Run after all four exist."""
+    out = {"status": "exploratory, after the single read of the backcast (VALIDATION.md 7I)"}
+    for arm in ("A", "B", "C", "D"):
+        out[arm] = arm_summary(pd.read_csv(DATA / f"weeks_{arm}.csv"))
+    (ROOT / "results" / "backcast_arms.json").write_text(json.dumps(out, indent=1) + "\n", encoding="utf-8", newline="\n")
+    return out
+
+
 if __name__ == "__main__":
     cmd = sys.argv[1]
     if cmd == "run":
@@ -299,3 +326,5 @@ if __name__ == "__main__":
         print(sample_check(float(sys.argv[2])))
     elif cmd == "read":
         read()
+    elif cmd == "arms":
+        explore_arms()
