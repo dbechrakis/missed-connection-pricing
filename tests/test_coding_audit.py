@@ -167,3 +167,23 @@ def test_part_7e_quotes_the_numbers_in_the_results_file():
     assert not g["C1"]["pass"] and "C2" not in g                           # the placebo failed, so the effect is not graded
     m = d["materiality"]["claims_increase_at_estimate"]
     assert f"{100 * m['Y1']:.1f}% (Y1) and {100 * m['Y2']:.1f}% (Y2)" in part
+
+
+def test_the_placebo_distribution_peaks_at_a_planted_step_and_a_larger_real_effect_falls_outside_it():
+    p = panel(effect=10.0, break_ym="2019-09", seed=3)
+    dist = C.placebo_distribution({"Y1": p, "Y2": p}, ("weather", "faa"))
+    d = dist["Y1"]
+    assert d["n_breaks"] > 20
+    best = max(d["breaks"], key=lambda b: d["breaks"][b]["effect"])
+    assert best == "2019-09" and d["breaks"]["2019-09"]["effect"] == pytest.approx(10.0, abs=0.7)
+    assert all(v["effect"] < 10.0 for b, v in d["breaks"].items() if b != "2019-09")
+    placed = C.place_real_estimates(dist, {"Y1": {"effect": -30.0}, "Y2": {"effect": 0.5 * (d["p2_5"] + d["p97_5"])}})
+    assert placed["Y1"]["outside_central_95"] and placed["Y1"]["share_of_fake_at_or_below"] == 0.0 and not placed["Y2"]["outside_central_95"]
+
+
+def test_a_fake_break_needs_eight_observed_months_on_each_side_and_pandemic_months_do_not_count():
+    p = panel()
+    b = C.fake_breaks(p)
+    assert b[0] == "2018-09" and b[-1] == "2022-01"
+    assert "2020-04" not in b and all("2018-01" <= x <= "2022-08" for x in b)
+    assert min(sum(m < x for m in set(p["ym"]) if m >= "2018-01") for x in b) >= 8

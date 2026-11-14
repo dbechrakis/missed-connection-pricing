@@ -1128,3 +1128,25 @@ At the frozen multipliers of `models/v6_season.json`, with each month's sold pre
 **Limits.** One record of 306 weeks, four arms that share the same development weeks, and a seasonal price evaluated with the cap held fixed. The development weeks are the same in every row, so the arms differ only in 192 weeks. None of it has demand evidence behind it.
 
 **Process.** The forward test's `run` and `read` refuse to start until the scheduled reads of v3 and v4 and of v5.2 have written their results. The guard was added on 14 November 2026, before any month of 2027 existed, and changes no computation.
+
+### 7K. The schedule test over five seeds (exploratory, 14 November 2026)
+
+Written after the schedule test of 7H was read, so **none of this is a test and X1 is not regraded**. Code: `seeds` in `src/mcp/schedule_features.py`, tests: `tests/test_schedule_features.py`, results: `results/schedule_features_seeds.json`. The review of 7H (`docs/season3-plan.md` F5) noted that the tie band of X1 (0.0002) is below the difference of 0.000215 between two fits of the same information, so one pair of fits cannot say whether the gain is real. Here the base model and the model with the three features are each fitted with seeds 0 to 4 on the same fit window (January 2018 to December 2022 without the pandemic months, 3,000,654 rows) and scored on the same 2023 sample (20%, overnight-risk connections).
+
+| Seed | Base log loss | With the three features | Gain |
+| --- | --- | --- | --- |
+| 0 | 0.230548 | 0.230049 | 0.000500 |
+| 1 | 0.230226 | 0.230100 | 0.000126 |
+| 2 | 0.230496 | 0.230021 | 0.000475 |
+| 3 | 0.230455 | 0.229992 | 0.000463 |
+| 4 | 0.230646 | 0.230186 | 0.000461 |
+
+Mean gain **0.000405** with a standard deviation of the paired gains of 0.000157. The base model's log loss has a standard deviation of 0.000156 across seeds, and the mean gain is above twice that. 4 of the 5 paired gains are above the tie band of 0.0002.
+
+**What it says.**
+
+- **The features carry a small gain.** About 0.18% of the base log loss, against 0.32% in the pre-registered run. It is larger than the noise between seeds, so the null of X1 was not true, and it is smaller than the one pair of fits suggested. The verdict of X1 (failed) stands.
+- **Refitting the same specification does not reproduce it exactly.** Seed 0 here gives a gain of 0.000500, and the pre-registered run, which also used seed 0, gave 0.000734. The likely reason is that the rows reach the fit in a different order each time the data are read, which changes the early-stopping split. This was not checked. The spread between two such runs is as large as the spread between seeds, so the figures in 7H carry about 0.0002 of noise that the table there does not show.
+- **What would close it.** A later model version with its own pre-registration, fitted with several seeds and scored on a year the project has not read.
+
+**Limits.** One test year, already seen. Five seeds. The base and the feature models share each seed, so the paired gains remove part of the noise that the standard deviations of the two columns show.

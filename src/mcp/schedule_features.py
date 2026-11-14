@@ -133,5 +133,65 @@ def read() -> dict:
     return res
 
 
+SEEDS_RESULT = ROOT / "results" / "schedule_features_seeds.json"
+
+
+def seed_summary(log_loss: dict, n: int) -> dict:
+    """From the log loss of `base_<s>` and `all_<s>` for seeds 0 to n - 1: the mean and standard deviation of each model, the paired gains
+    (base minus all, same seed), their mean and standard deviation, and whether the mean gain exceeds twice the base model's spread."""
+    base = np.array([log_loss[f"base_{s}"] for s in range(n)])
+    allf = np.array([log_loss[f"all_{s}"] for s in range(n)])
+    gains = base - allf
+    sd = lambda x: float(x.std(ddof=1)) if len(x) > 1 else None
+    return {"seeds": n, "base_mean": float(base.mean()), "base_sd": sd(base), "all_mean": float(allf.mean()), "all_sd": sd(allf),
+            "paired_gains": [float(g) for g in gains], "mean_gain": float(gains.mean()), "gain_sd": sd(gains),
+            "mean_gain_above_twice_base_sd": bool(gains.mean() > 2 * sd(base)) if sd(base) is not None else None,
+            "gains_above_tie_band": int((gains > TIE_BAND).sum())}
+
+
+def seeds(n: int = 5) -> dict:
+    """The comparison of `read` repeated over `n` random seeds of the fit, on the same rows. Exploratory, after the read, and it does not
+    regrade X1 (VALIDATION.md 7K). Writes results/schedule_features_seeds.json and refuses a second run."""
+    from mcp.model import fit_gbm
+    from mcp.v2 import FEATURE_SETS, LEAVES
+    from mcp.v3 import claim_cost, gap_label_sql, gsa_table, labels, month_file, month_predicate
+    from mcp.variant import VARIANT
+    assert VARIANT == "hist", "run with MCP_VARIANT=hist"
+    if SEEDS_RESULT.exists():
+        raise SystemExit("results/schedule_features_seeds.json exists")
+    con = duckdb.connect()
+    con.execute(f"CREATE VIEW flights AS SELECT * FROM read_parquet('{F.FLIGHTS}')")
+    fit_fl, fit_as, pred = (B.fit_window("C", c, *FIT) for c in ("flight_date", "obs_utc", "r.out_sched_dep"))
+    F.create_stats(con, fit_flights=fit_fl, fit_asos=fit_as)
+    con.execute(f"CREATE TABLE slots AS {slot_counts_sql('flights')}")
+    con.execute(f"CREATE TABLE leg_hist AS {leg_history_sql('flights', fit_fl)}")
+    frame = lambda s, p, f: con.execute(gap_label_sql(F.feature_sql(s, p, f, B.SEVERITY_FULL.as_posix(), with_keys=True))).fetchdf()
+    src = f"read_parquet('{B.SOURCE_GLOB}')"
+    (total,) = con.execute(f"SELECT count(*) FROM {src} r WHERE {pred}").fetchone()
+    fit = attach(con, frame(src, pred, min(1.0, B.FIT_ROWS / total)))
+    fit = fit.assign(y=fit["y_gap"])
+    base_use = list(FEATURE_SETS["v1 set"])
+    models = {}
+    for s in range(n):
+        models[f"base_{s}"] = fit_gbm(fit, use=base_use, leaves=LEAVES, seed=s)
+        models[f"all_{s}"] = fit_gbm(fit, use=base_use + list(FEATURES), leaves=LEAVES, seed=s)
+    acc = {k: 0.0 for k in models}
+    wsum = 0.0
+    for y, m, lab in labels(*TEST):
+        df = frame(f"read_parquet('{month_file(y, m)}')", month_predicate(y, m), FRAC)
+        df = df[df["overnight"].notna() & df["fare"].notna() & (df["overnight"] == 1)].copy()
+        df = attach(con, df)
+        w, yv = df["weight"].to_numpy(float), df["y_gap"].to_numpy(float)
+        wsum += w.sum()
+        for k, g in models.items():
+            acc[k] += weighted_log_loss(yv, g(df), w) * w.sum()
+        print(f"  {lab}: {len(df):,} connections scored", flush=True)
+    ll = {k: v / wsum for k, v in acc.items()}
+    res = {"status": "exploratory replication of the schedule test over fit seeds, after the single read (VALIDATION.md 7K)", "log_loss": ll, **seed_summary(ll, n)}
+    SEEDS_RESULT.write_text(json.dumps(res, indent=1) + "\n", encoding="utf-8", newline="\n")
+    return res
+
+
 if __name__ == "__main__":
-    read()
+    import sys
+    seeds() if sys.argv[1:] == ["seeds"] else read()

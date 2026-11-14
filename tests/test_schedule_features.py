@@ -119,3 +119,32 @@ def test_part_7h_quotes_the_numbers_in_the_results_file_and_the_failure_is_grade
     assert f"{d['ratio']['base']:.3f} to {d['ratio']['all']:.3f}" in part and f"{d['fit_rows']:,}" in part and f"{d['test_rows']:,}" in part
     assert d["gain"] > S.TIE_BAND and not grade.grade_schedule(d)["X1"]["pass"]
     assert d["gain"] / d["seed_difference"] == pytest.approx(3.4, abs=0.1) and "about three times" in part
+
+
+def test_the_seed_summary_pairs_the_gains_by_seed_and_compares_the_mean_gain_with_the_fit_noise():
+    ll = {}
+    for s, (b, a) in enumerate([(0.2300, 0.2290), (0.2304, 0.2293), (0.2298, 0.2288)]):
+        ll[f"base_{s}"], ll[f"all_{s}"] = b, a
+    out = S.seed_summary(ll, 3)
+    assert out["paired_gains"] == pytest.approx([0.0010, 0.0011, 0.0010])
+    assert out["mean_gain"] == pytest.approx(0.0031 / 3)
+    assert out["base_sd"] == pytest.approx(np.std([0.2300, 0.2304, 0.2298], ddof=1))
+    assert out["mean_gain_above_twice_base_sd"] is True and out["gains_above_tie_band"] == 3
+    noisy = {f"base_{s}": 0.2300 + 0.002 * s for s in range(3)} | {f"all_{s}": 0.2290 + 0.002 * s for s in range(3)}
+    assert S.seed_summary(noisy, 3)["mean_gain_above_twice_base_sd"] is False
+
+
+def test_part_7k_quotes_the_numbers_in_the_seed_results():
+    import json
+    d = json.loads((ROOT / "results" / "schedule_features_seeds.json").read_text(encoding="utf-8"))
+    text = (ROOT / "VALIDATION.md").read_text(encoding="utf-8")
+    part = text[text.index("### 7K."):]
+    for s in range(5):
+        row = [l for l in part.splitlines() if l.startswith(f"| {s} | ")][0]
+        cells = [c.strip() for c in row.strip("|").split("|")]
+        assert cells[1:] == [f"{d['log_loss'][f'base_{s}']:.6f}", f"{d['log_loss'][f'all_{s}']:.6f}", f"{d['paired_gains'][s]:.6f}"]
+    assert f"**{d['mean_gain']:.6f}**" in part and f"{d['gain_sd']:.6f}" in part and f"{d['base_sd']:.6f}" in part
+    assert d["mean_gain_above_twice_base_sd"] is True and d["gains_above_tie_band"] == 4
+    assert "0.000734" in part and f"{d['paired_gains'][0]:.6f}" in part
+    sf = json.loads((ROOT / "results" / "schedule_features.json").read_text(encoding="utf-8"))
+    assert f"{sf['gain']:.6f}" == "0.000734"

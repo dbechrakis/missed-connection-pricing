@@ -243,5 +243,62 @@ def read() -> dict:
     return res
 
 
+PLACEBO_DISTRIBUTION = ROOT / "results" / "coding_placebo_distribution.json"
+MIN_MONTHS_EACH_SIDE = 8
+PRE_PERIOD = ("2018-01", "2022-08")
+
+
+def fake_breaks(panel: pd.DataFrame, window: tuple[str, str] = PRE_PERIOD, min_months: int = MIN_MONTHS_EACH_SIDE) -> list[str]:
+    """Months inside the window at which a fake break leaves at least `min_months` observed months on each side. Pandemic months are not in
+    the panels, so they are not counted."""
+    months = sorted(m for m in panel["ym"].unique() if window[0] <= m <= window[1])
+    return [b for b in months if sum(m < b for m in months) >= min_months and sum(m >= b for m in months) >= min_months]
+
+
+def placebo_distribution(panel_set: dict, covariates: tuple[str, ...], airlines=COMMITTING, window: tuple[str, str] = PRE_PERIOD) -> dict:
+    """The point estimate of the primary model for every fake break in the period before the real one, for each outcome. Fake breaks next to
+    each other share their data, so the distribution is a reference for the size of change this design finds when nothing happened, and not
+    a test."""
+    out = {}
+    for name, p in panel_set.items():
+        rows = {}
+        for b in fake_breaks(p, window):
+            air = eligible(panel_set, airlines, b, window)
+            q = p[p["carrier"].isin(air) & (p["ym"] >= window[0]) & (p["ym"] <= window[1])].reset_index(drop=True)
+            if len(air) and q["ym"].nunique() > 1 and (q["ym"] >= b).any() and (q["ym"] < b).any():
+                rows[b] = {"effect": post_effect(q, b, covariates), "airlines": air, "airline_months": int(len(q))}
+        eff = np.array([v["effect"] for v in rows.values()])
+        out[name] = {"breaks": rows, "n_breaks": int(len(eff)), "p2_5": float(np.percentile(eff, 2.5)), "p97_5": float(np.percentile(eff, 97.5)),
+                     "min": float(eff.min()), "max": float(eff.max())}
+    return out
+
+
+def place_real_estimates(dist: dict, real: dict) -> dict:
+    """For each outcome, the share of fake-break estimates at or below the real estimate and whether it lies outside the central 95%."""
+    out = {}
+    for name, d in dist.items():
+        eff = np.array([v["effect"] for v in d["breaks"].values()])
+        r = real[name]["effect"]
+        out[name] = {"real_effect": r, "share_of_fake_at_or_below": float((eff <= r).mean()), "outside_central_95": bool(r < d["p2_5"] or r > d["p97_5"])}
+    return out
+
+
+def read_placebo() -> dict:
+    if PLACEBO_DISTRIBUTION.exists():
+        raise SystemExit("results/coding_placebo_distribution.json exists")
+    import duckdb
+    flights = hub_hour(load_flights())
+    asos = duckdb.connect().execute(f"SELECT * FROM read_parquet('{ASOS_FILE.as_posix()}')").fetchdf()
+    programs = faa.programs("2018-01", "2026-08") if faa_usable() else None
+    panel_set = panels(add_conditions(flights, asos, programs))
+    covariates = ("weather", "faa") if programs is not None else ("weather",)
+    dist = placebo_distribution(panel_set, covariates)
+    real = json.loads(RESULT.read_text(encoding="utf-8"))["primary"]
+    res = {"status": "exploratory reference distribution of fake breaks, after the single read (VALIDATION.md 7L)", "window": list(PRE_PERIOD),
+           "min_months_each_side": MIN_MONTHS_EACH_SIDE, "distribution": dist, "real_break": BREAK, "real_in_distribution": place_real_estimates(dist, real)}
+    PLACEBO_DISTRIBUTION.write_text(json.dumps(res, indent=1) + "\n", encoding="utf-8", newline="\n")
+    return res
+
+
 if __name__ == "__main__":
-    read()
+    read_placebo() if sys.argv[1:] == ["placebo"] else read()
