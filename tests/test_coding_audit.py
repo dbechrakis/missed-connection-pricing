@@ -187,3 +187,20 @@ def test_a_fake_break_needs_eight_observed_months_on_each_side_and_pandemic_mont
     assert b[0] == "2018-09" and b[-1] == "2022-01"
     assert "2020-04" not in b and all("2018-01" <= x <= "2022-08" for x in b)
     assert min(sum(m < x for m in set(p["ym"]) if m >= "2018-01") for x in b) >= 8
+
+
+def test_part_7l_quotes_the_numbers_in_the_placebo_distribution_file():
+    import json
+    d = json.loads((ROOT / "results" / "coding_placebo_distribution.json").read_text(encoding="utf-8"))
+    real = json.loads((ROOT / "results" / "coding_audit.json").read_text(encoding="utf-8"))["primary"]
+    text = (ROOT / "VALIDATION.md").read_text(encoding="utf-8")
+    part = text[text.index("### 7L."):]
+    for key, name in (("Y1", "Y1, cancellations"), ("Y2", "Y2, long delays")):
+        x, r = d["distribution"][key], d["real_in_distribution"][key]
+        assert r["real_effect"] == pytest.approx(real[key]["effect"])
+        row = [l for l in part.splitlines() if l.startswith(f"| {name} |")][0]
+        cells = [c.strip() for c in row.strip("|").split("|")]
+        assert cells[1:] == [str(x["n_breaks"]), f"{x['p2_5']:+.1f} to {x['p97_5']:+.1f}", f"{x['min']:+.1f} to {x['max']:+.1f}",
+                             f"{r['real_effect']:+.1f}", f"{100 * r['share_of_fake_at_or_below']:.0f}%"]
+        assert r["outside_central_95"] and r["real_effect"] < x["min"]
+    assert d["distribution"]["Y2"]["min"] > 0

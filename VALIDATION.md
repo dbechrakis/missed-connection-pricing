@@ -1150,3 +1150,21 @@ Mean gain **0.000405** with a standard deviation of the paired gains of 0.000157
 - **What would close it.** A later model version with its own pre-registration, fitted with several seeds and scored on a year the project has not read.
 
 **Limits.** One test year, already seen. Five seeds. The base and the feature models share each seed, so the paired gains remove part of the noise that the standard deviations of the two columns show.
+
+### 7L. How large a change does the coding design find when nothing happened? (exploratory, 14 November 2026)
+
+Written after the coding audit of 7E was read, so **none of this is a test and C1 and C2 keep their status**. Code: `placebo_distribution` in `src/mcp/coding_audit.py`, tests: `tests/test_coding_audit.py`, results: `results/coding_placebo_distribution.json`. The placebo of C1 is one fake break on 1 September 2019 with three airlines and a window that ends in February 2020. The review of 7E (`docs/season3-plan.md` F6) asked what a fuller reference would show. Here the primary model of 7E is run for every fake break in the period before the real one (January 2018 to August 2022, pandemic months out) that leaves at least 8 observed months on each side, with the airlines that have enough volume on both sides of each fake break. Only point estimates are taken, in percentage points of the carrier-coded share.
+
+| Outcome | Fake breaks | Central 95% of fake estimates | Range of fake estimates | Real break, 1 September 2022 | Share of fake estimates at or below the real one |
+| --- | --- | --- | --- | --- | --- |
+| Y1, cancellations | 25 | +0.0 to +6.5 | -1.0 to +6.6 | -7.9 | 0% |
+| Y2, long delays | 25 | +2.7 to +4.3 | +2.5 to +4.4 | -2.6 | 0% |
+
+**What it says.**
+
+- **The real estimates lie below every fake one, for both outcomes.** The fake breaks give -1.0 to +6.6 for Y1 and +2.5 to +4.4 for Y2. The real estimates are -7.9 and -2.6. By this reference the fall at September 2022 is not the size of change the design finds by chance in the earlier years.
+- **The reference is not centred on zero.** Every fake break for Y2 gives a rise of 2 to 4 points and 24 of 25 for Y1 give a rise, so the carrier-coded share was already rising in the earlier years. That is what made the placebo of 7E fail, and it means a naive reading of "no change" would be a decline already relative to the earlier trend. It also means the design cannot separate a break from a trend.
+- **It does not say why the share fell.** A change in coding, a different mix of causes after the pandemic recovery and a change in how the airlines' hubs ran in 2022 all fit. Fake breaks next to each other share data, so the percentiles describe a reference and are not a significance test. The comparison with Frontier of 7E stays unusable.
+- **What would close it.** The test of `docs/season3-plan.md` T6 (cancellations on days with no adverse weather and no FAA program at either airport), which needs its own pre-registration.
+
+**Limits.** Point estimates without intervals. Three or four airlines. Twenty-five overlapping fake breaks, not twenty-five draws.
