@@ -137,3 +137,28 @@ def economics(pooled_lr_at_current: float, price_per_policy: float) -> dict:
         prem = lam * price_per_policy
         out[f"loading_{lam:.2f}"] = {f"expense{int(e * 100)}": prem - claims - e * prem for e in EXPENSES}
     return out
+
+
+# ---- would more hubs buy safety? (optional item 3 of the plan, answered by arithmetic) ----------------------------------
+
+def more_hubs_projection(mean_correlation: float, n_now: int = 5, candidates=(5, 10, 15, 30)) -> dict:
+    """The weekly spread of an equally spread book of n hubs relative to one hub, if every pair of hubs has the same correlation and
+    the same spread: sqrt((1 + (n - 1) rho) / n). It falls toward sqrt(rho) and cannot go below it."""
+    ratio = lambda n: float(np.sqrt((1 + (n - 1) * mean_correlation) / n))
+    return {"mean_correlation": mean_correlation, "floor": float(np.sqrt(mean_correlation)),
+            "ratio_by_hubs": {str(n): ratio(n) for n in candidates},
+            "reduction_vs_now": {str(n): 1 - ratio(n) / ratio(n_now) for n in candidates if n != n_now}}
+
+
+def yearly_loss_ratios(weeks, min_months: int = 10) -> dict:
+    """The sold and all-connections loss ratio of each calendar year that has at least `min_months` observed months, at the existing
+    price. A direct look at what the block bootstrap cannot carry: a level that differs from one year to the next."""
+    w = weeks.assign(year=weeks["ym"].str[:4])
+    months = w.groupby("year")["ym"].nunique()
+    out = {}
+    for y in months.index[months >= min_months]:
+        g = w[w["year"] == y]
+        s = g[g["sold"]]
+        out[y] = {"months": int(months[y]), "all": float(g["claims"].sum() / g["premium"].sum()), "sold": float(s["claims"].sum() / s["premium"].sum())}
+    sold = np.array([v["sold"] for v in out.values()])
+    return {"years": out, "sold_mean": float(sold.mean()), "sold_sd": float(sold.std(ddof=1)) if len(sold) > 1 else None}

@@ -123,3 +123,23 @@ def test_part_7c_quotes_the_numbers_in_the_results_file():
     eco = s["economics"]
     assert f"${eco['loading_1.00']['expense25']:.2f} a policy" in part and f"${eco['loading_1.16']['expense25']:.2f}" in part and f"${eco['loading_1.16']['expense35']:.2f}" in part
     assert eco["loading_1.00"]["expense35"] < 0 and f"**−${abs(eco['loading_1.00']['expense35']):.2f}**" in part
+
+
+def test_more_hubs_cannot_push_the_spread_below_the_square_root_of_the_correlation():
+    p = K.more_hubs_projection(0.25, n_now=5, candidates=(1, 5, 10, 1000))
+    assert p["ratio_by_hubs"]["1"] == pytest.approx(1.0) and p["ratio_by_hubs"]["5"] == pytest.approx(np.sqrt(0.4))
+    assert p["floor"] == pytest.approx(0.5) and p["ratio_by_hubs"]["1000"] == pytest.approx(0.5, abs=0.001)
+    assert K.more_hubs_projection(0.0, candidates=(4,))["ratio_by_hubs"]["4"] == pytest.approx(0.5)       # independent hubs: 1 / sqrt(n)
+    assert K.more_hubs_projection(1.0, candidates=(4,))["ratio_by_hubs"]["4"] == pytest.approx(1.0)       # identical hubs: no gain
+
+
+def test_yearly_loss_ratios_keep_only_years_with_enough_months():
+    import pandas as pd
+    rows = []
+    for ym, lr in [(f"2019-{m:02d}", 0.7) for m in range(1, 13)] + [(f"2020-{m:02d}", 0.5) for m in (1, 2)] + [(f"2022-{m:02d}", 0.6) for m in range(1, 11)]:
+        for sold in (False, True):
+            rows.append({"ym": ym, "sold": sold, "premium": 100.0, "claims": 100.0 * lr * (1.1 if sold else 1.0)})
+    r = K.yearly_loss_ratios(pd.DataFrame(rows))
+    assert set(r["years"]) == {"2019", "2022"} and r["years"]["2019"]["months"] == 12
+    assert r["years"]["2019"]["sold"] == pytest.approx(0.77) and r["years"]["2022"]["all"] == pytest.approx(0.6 * (1 + 1.1) / 2)
+    assert r["sold_mean"] == pytest.approx((0.77 + 0.66) / 2)

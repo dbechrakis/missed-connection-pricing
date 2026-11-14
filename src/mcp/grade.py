@@ -201,6 +201,11 @@ def grade_autumn(res: dict) -> dict:
     return {"Q1": {"pass": mean * (1 - hw) <= ratio <= mean * (1 + hw), "value": f"{ratio:.3f} against {mean * (1 - hw):.3f} to {mean * (1 + hw):.3f}"}}
 
 
+def grade_schedule(res: dict) -> dict:
+    """X1 from results/schedule_features.json (written by mcp.schedule_features), as in PREREGISTRATION_V6_SCHEDULE.md."""
+    return {"X1": {"pass": res["gain"] <= 0.0002, "value": f"gain in log loss {res['gain']:+.5f} ({res['gain_pct']:+.2f}%) against a tie band of 0.0002; two seeds differ by {res['seed_difference']:.5f}"}}
+
+
 def render(status: dict) -> str:
     """SCOREBOARD.md from the status file: one row per pre-registered prediction."""
     icon = {"pending": "pending", "pass": "**passed**", "fail": "**failed**"}
@@ -238,7 +243,7 @@ def main() -> None:
     status = load()
     for name, grader in (("holdout_v3_next.json", grade_v3), ("holdout_v4_next.json", grade_v4), ("v5_holdout.json", grade_v5),
                          ("v5_1_holdout.json", grade_v5_1),
-                         ("v5_2_holdout.json", grade_v5_2), ("backcast.json", grade_backcast), ("coding_audit.json", grade_coding), ("forecast.json", grade_forecast), ("holdout_v3_next.json", grade_autumn)):
+                         ("v5_2_holdout.json", grade_v5_2), ("backcast.json", grade_backcast), ("coding_audit.json", grade_coding), ("forecast.json", grade_forecast), ("holdout_v3_next.json", grade_autumn), ("schedule_features.json", grade_schedule)):
         path = ROOT / "results" / name
         if path.exists():
             apply(status, grader(json.loads(path.read_text(encoding="utf-8"))))

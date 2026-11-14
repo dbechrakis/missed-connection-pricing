@@ -55,8 +55,8 @@ def test_every_prediction_in_the_nine_documents_is_on_the_scoreboard_and_only_v5
         assert re.search(rf"^\| {e['id']} \|", text, flags=re.M), (e["id"], e["document"])
     in_docs = set()
     for doc in {e["document"] for e in on_board.values()}:
-        in_docs |= set(re.findall(r"^\| ([EAVLSRWBCFGHQ]\d+) \|", (ROOT / doc).read_text(encoding="utf-8"), flags=re.M))
-    assert in_docs == set(on_board) and len(on_board) == 57
+        in_docs |= set(re.findall(r"^\| ([EAVLSRWBCFGHQX]\d+) \|", (ROOT / doc).read_text(encoding="utf-8"), flags=re.M))
+    assert in_docs == set(on_board) and len(on_board) == 58
     assert all(e["status"] == "pending" and e["result"] is None for k, e in on_board.items() if not (k.startswith(("S", "F")) or k in GRADED_SEASON2))
     v5 = grade.grade_v5(json.loads((ROOT / "results" / "v5_holdout.json").read_text(encoding="utf-8")))
     assert all(on_board[k]["status"] == ("pass" if g["pass"] else "fail") and on_board[k]["result"] == g["value"] for k, g in v5.items())

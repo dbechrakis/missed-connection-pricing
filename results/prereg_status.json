@@ -456,6 +456,14 @@
    "tag": "prereg-v6-forward",
    "status": "pending",
    "result": null
+  },
+  {
+   "id": "X1",
+   "claim": "Three timetable features add at most 0.0002 to the log loss (they do not earn a place)",
+   "document": "PREREGISTRATION_V6_SCHEDULE.md",
+   "tag": "prereg-v6-schedule",
+   "status": "pending",
+   "result": null
   }
  ]
 }
