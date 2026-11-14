@@ -28,7 +28,7 @@ The code is written for Python 3.12 and also passes on 3.13. `pytest.ini` puts `
 
 | Path | What it holds |
 | --- | --- |
-| `src/mcp/` | One module per step. v1 and v2: `ingest`, `connections`, `features`, `model`, `calibration`, `pricing`, `backtest`, `holdout`, `v2`, `monitor`. v3 and v4, the gap cover: `variant`, `causes`, `costs`, `v3`, `v3_audit`, `v3_rolling`, `v3_loading`, `holdout_v3`, `holdout_v4`. v5, self-transfers: `v5`, `v5_1`, `v5_2`. Serving: `service`, `service_gap`, `api`, `score`, `demo`. Grading: `grade`. Season 2: `level`, `risk`, `capital`, `backcast`, `backcast_st`, `coding_audit`, `faa`, `forecast`, `trigger`, `v6`, `gsa_hist`, `demo_risk` |
+| `src/mcp/` | One module per step. v1 and v2: `ingest`, `connections`, `features`, `model`, `calibration`, `pricing`, `backtest`, `holdout`, `v2`, `monitor`. v3 and v4, the gap cover: `variant`, `causes`, `costs`, `v3`, `v3_audit`, `v3_rolling`, `v3_loading`, `holdout_v3`, `holdout_v4`. v5, self-transfers: `v5`, `v5_1`, `v5_2`. Serving: `service`, `service_gap`, `api`, `score`, `demo`. Grading: `grade`. Season 2: `level`, `risk`, `capital`, `backcast`, `backcast_st`, `coding_audit`, `faa`, `forecast`, `trigger`, `v6`, `gsa_hist`, `demo_risk`, `schedule_features` |
 | `tests/` | Hand-built tables with known answers, leakage guards, and checks that documents match `results/` |
 | `results/` | Every number quoted anywhere, as JSON or CSV produced by the code |
 | `models/` | Frozen artefacts, with hashes recorded in `VALIDATION.md` and the pre-registrations |

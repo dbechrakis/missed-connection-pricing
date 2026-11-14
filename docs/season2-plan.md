@@ -20,6 +20,7 @@ Written as the work went, so a reader can see where the executed work differs fr
 | WP9 | Done except the independent review | README round four, the memo's second edition, the decision log, the demo's risk section, the profile. The independent review is done on 14 November 2026 and is in `docs/season3-plan.md` |
 | Review | Done, `docs/season3-plan.md` Part A | Seven findings and five process findings. The main one is that 7C rests on arm A, which 7I showed to be the exception |
 | T1 to T3 of the review | Done, `VALIDATION.md` 7J | The technical price, the season and the reach under each arm. B9 and B10 are reported on the scoreboard. The forward test waits for the scheduled reads |
+| T4 and T5 of the review | Done, `VALIDATION.md` 7K and 7L | The schedule test over five seeds: the three features add 0.0004 in log loss, above twice the noise between seeds, X1 stays failed. The coding placebo distribution: both real estimates lie below every fake-break estimate, and the earlier years already show a rising carrier-coded share |
 | Forward addendum | Done, `PREREGISTRATION_V6_FORWARD_ADDENDUM.md` | A loaded series at a fixed 1.10, reported without an expectation, pushed before any 2027 month existed. The tag row is in the workflow |
 
 ## 1. Where the project stands, and what it has not answered
