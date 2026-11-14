@@ -15,7 +15,7 @@ import duckdb
 import yaml
 
 from mcp.ingest import HUBS, ROOT
-from mcp.variant import sfx
+from mcp.variant import HIST, sfx
 
 SRC = ROOT / "data" / "parquet" / sfx("ontime")
 OUT = ROOT / "data" / "parquet" / sfx("connections")
@@ -144,7 +144,7 @@ def _months(start, end):
 WEIGHTS = ROOT / "data" / "parquet" / "db1b" / f"{sfx('route_weights')}.parquet"
 
 
-def weighted_sql(connections_glob: str, weights_path: str = WEIGHTS.as_posix()) -> str:
+def weighted_sql(connections_glob: str, weights_path: str = WEIGHTS.as_posix(), by_year: bool = HIST) -> str:
     """Connections joined to DB1B route weights, with a per-connection weight.
 
     A route (carrier, A, hub, B) has many scheduled pairings; giving each one the
@@ -154,7 +154,10 @@ def weighted_sql(connections_glob: str, weights_path: str = WEIGHTS.as_posix()) 
     counts as much as one with 4. The split is per month, not over the whole period,
     so a row's weight never depends on schedules from later (test) months.
     Connections on routes absent from DB1B are dropped (reported as coverage).
+    With `by_year` (the 2018 to 2023 build) the weights table has one row per route and `weight_year`, the passengers of
+    the previous calendar year, and a connection takes the row of the year it departs in.
     """
+    year_join = " AND w.weight_year = year(k.out_sched_dep)" if by_year else ""
     return f"""
     SELECT k.*, w.passengers / count(*) OVER (
              PARTITION BY k.carrier, k.origin, k.hub, k.destination,
@@ -163,7 +166,7 @@ def weighted_sql(connections_glob: str, weights_path: str = WEIGHTS.as_posix()) 
     FROM read_parquet('{connections_glob}') k
     JOIN read_parquet('{weights_path}') w
       ON k.carrier = w.carrier AND k.origin = w.origin
-     AND k.hub = w.hub AND k.destination = w.destination
+     AND k.hub = w.hub AND k.destination = w.destination{year_join}
     WHERE k.status = '{OK}'
     """
 

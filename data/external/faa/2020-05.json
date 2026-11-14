@@ -1,0 +1,210 @@
+{
+"month": "2020-05",
+"days_done": [
+"2020-05-01",
+"2020-05-02",
+"2020-05-03",
+"2020-05-04",
+"2020-05-05",
+"2020-05-06",
+"2020-05-07",
+"2020-05-08",
+"2020-05-09",
+"2020-05-10",
+"2020-05-11",
+"2020-05-12",
+"2020-05-13",
+"2020-05-14",
+"2020-05-15",
+"2020-05-16",
+"2020-05-17",
+"2020-05-18",
+"2020-05-19",
+"2020-05-20",
+"2020-05-21",
+"2020-05-22",
+"2020-05-23",
+"2020-05-24",
+"2020-05-25",
+"2020-05-26",
+"2020-05-27",
+"2020-05-28",
+"2020-05-29",
+"2020-05-30",
+"2020-05-31"
+],
+"advisories": [
+{
+"title": "CDM GROUND STOP",
+"element": "DEN",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-05-14T21:38:00+00:00",
+"2020-05-14T22:45:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-05-14",
+"advn": 39,
+"kind": "gs",
+"list_element": "DEN/ZDV",
+"send": "05/14/20 21:51"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ORD",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-05-14T11:08:00+00:00",
+"2020-05-14T12:30:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-05-14",
+"advn": 12,
+"kind": "gs",
+"list_element": "ORD/ZAU",
+"send": "05/14/20 11:23"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ORD",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-05-23T19:27:00+00:00",
+"2020-05-23T20:45:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-05-23",
+"advn": 26,
+"kind": "gs",
+"list_element": "ORD/ZAU",
+"send": "05/23/20 19:37"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "CLT",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-05-24T22:19:00+00:00",
+"2020-05-24T23:30:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-05-24",
+"advn": 34,
+"kind": "gs",
+"list_element": "CLT/ZTL",
+"send": "05/24/20 22:34"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "CLT",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-05-24T21:51:00+00:00",
+"2020-05-24T22:45:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-05-24",
+"advn": 31,
+"kind": "gs",
+"list_element": "CLT/ZTL",
+"send": "05/24/20 22:07"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-05-24T21:10:00+00:00",
+"2020-05-24T22:30:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-05-24",
+"advn": 26,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "05/24/20 21:20"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-05-24T20:01:00+00:00",
+"2020-05-24T21:30:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-05-24",
+"advn": 23,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "05/24/20 20:15"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ORD",
+"impacting": "EQUIPMENT / OUTAGE",
+"period": [
+"2020-05-28T11:46:00+00:00",
+"2020-05-28T12:30:00+00:00"
+],
+"cause": "runway_equipment",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-05-28",
+"advn": 12,
+"kind": "gs",
+"list_element": "ORD/ZAU",
+"send": "05/28/20 12:02"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "CLT",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-05-29T15:14:00+00:00",
+"2020-05-29T16:15:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-05-29",
+"advn": 19,
+"kind": "gs",
+"list_element": "CLT/ZTL",
+"send": "05/29/20 15:27"
+}
+],
+"read": "2026-11-12"
+}

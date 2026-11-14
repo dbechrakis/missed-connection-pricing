@@ -1,5 +1,5 @@
 {
- "when": "v5 (S1 to S5) was read on 9 November 2026. The rows read when November 2026 is published (probably early February 2027) include v5.1 (R1 to R5). v5.2 (W1 to W5) is read when February 2027 is published (probably early May 2027). Every date was decided before the data exists.",
+ "when": "v5 (S1 to S5) was read on 9 November 2026. The rows read when November 2026 is published (probably early February 2027) include v5.1 (R1 to R5). v5.2 (W1 to W5) is read when February 2027 is published (probably early May 2027). Every date was decided before the data exists. The backcast (B1 to B10), the coding audit (C1, C2) and the schedule test (X1) were read once on 12 and 13 November 2026. B9 and B10 have no prediction and are reported. The seasonal price (G1 to G4, H1 to H4) is read when May 2027 and August 2027 are published (probably August and November 2027). Q1 is graded from the same file as V1 to V6.",
  "expectations": [
   {
    "id": "E1",
@@ -272,6 +272,198 @@
    "tag": "prereg-v5-2-loading",
    "status": "pending",
    "result": null
+  },
+  {
+   "id": "B1",
+   "claim": "Gap cover priced within 1 ± 2σ/√n_eff of expected claims on 2019 to 2023, outside the pandemic (σ = 0.241, ρ = 0.70)",
+   "document": "PREREGISTRATION_V6_BACKCAST.md",
+   "tag": "prereg-v6-backcast",
+   "status": "pass",
+   "result": "0.964 against 1 ± 0.173 (n = 44)"
+  },
+  {
+   "id": "B2",
+   "claim": "Monthly spread of the realized ratio between 0.19 and 0.33",
+   "document": "PREREGISTRATION_V6_BACKCAST.md",
+   "tag": "prereg-v6-backcast",
+   "status": "pass",
+   "result": "monthly sd 0.245 against 0.19 to 0.33"
+  },
+  {
+   "id": "B3",
+   "claim": "Connections within the 5% cap run worse than all overnight-risk connections",
+   "document": "PREREGISTRATION_V6_BACKCAST.md",
+   "tag": "prereg-v6-backcast",
+   "status": "fail",
+   "result": "within the cap 0.932, all 0.964"
+  },
+  {
+   "id": "B4",
+   "claim": "9% to 44% of months have a sold loss ratio above 100%",
+   "document": "PREREGISTRATION_V6_BACKCAST.md",
+   "tag": "prereg-v6-backcast",
+   "status": "fail",
+   "result": "2.3% of months above a 100% loss ratio as sold, against 9% to 44%"
+  },
+  {
+   "id": "B5",
+   "claim": "The refitted loading lowers the pooled sold loss ratio by at least 3.0 points",
+   "document": "PREREGISTRATION_V6_BACKCAST.md",
+   "tag": "prereg-v6-backcast",
+   "status": "fail",
+   "result": "loading lowers the sold loss ratio by 2.9 points (55.7% to 52.9%)"
+  },
+  {
+   "id": "B6",
+   "claim": "local has lower CRPS than none and than last12 over the months with a forecast (replaces local_season, see the addendum)",
+   "document": "PREREGISTRATION_V6_BACKCAST_ADDENDUM.md",
+   "tag": "prereg-v6-backcast-addendum",
+   "status": "fail",
+   "result": "CRPS local 0.199, none 0.156, last12 0.170 over 37 months"
+  },
+  {
+   "id": "B7",
+   "claim": "The 90% intervals of local cover within the central 95% binomial range (replaces local_season, see the addendum)",
+   "document": "PREREGISTRATION_V6_BACKCAST_ADDENDUM.md",
+   "tag": "prereg-v6-backcast-addendum",
+   "status": "pass",
+   "result": "30 of 37 months inside the 90% interval, range 29 to 36"
+  },
+  {
+   "id": "B8",
+   "claim": "The refitted loading brings the self-transfer ratio closer to 1",
+   "document": "PREREGISTRATION_V6_BACKCAST.md",
+   "tag": "prereg-v6-backcast",
+   "status": "fail",
+   "result": "loaded 0.912, unloaded 0.981"
+  },
+  {
+   "id": "B9",
+   "claim": "Arm A (all earlier months) against arm B (trailing 24): reported either way, no prediction",
+   "document": "PREREGISTRATION_V6_BACKCAST.md",
+   "tag": "prereg-v6-backcast",
+   "status": "reported",
+   "result": "as sold, arm A 0.932 and arm B 1.088 (VALIDATION.md 7B and 7I)"
+  },
+  {
+   "id": "B10",
+   "claim": "Largest earlier 24-month change in the 12-month level, reported next to 2024 to 2026, no prediction",
+   "document": "PREREGISTRATION_V6_BACKCAST.md",
+   "tag": "prereg-v6-backcast",
+   "status": "reported",
+   "result": "largest change in the 12-month level +0.121 in 2019 to 2023 against -0.061 in 2024 to 2026, windows 12 months apart (VALIDATION.md 7B)"
+  },
+  {
+   "id": "C1",
+   "claim": "The placebo break (September 2019) shows a change within ± 3 points for both outcomes",
+   "document": "PREREGISTRATION_V6_CODING.md",
+   "tag": "prereg-v6-coding",
+   "status": "fail",
+   "result": "placebo effects Y1 +3.4, Y2 +2.7 points against ± 3"
+  },
+  {
+   "id": "C2",
+   "claim": "No fall of 3 points or more in the carrier-coded share after the break",
+   "document": "PREREGISTRATION_V6_CODING.md",
+   "tag": "prereg-v6-coding",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "F1",
+   "claim": "The forecast gain is larger at lead 1 than at lead 7, and under 1% at lead 7",
+   "document": "PREREGISTRATION_V6_FORECAST.md",
+   "tag": "prereg-v6-forecast",
+   "status": "pass",
+   "result": "gain at lead 1 1.05%, at lead 7 0.06%"
+  },
+  {
+   "id": "F2",
+   "claim": "The sales rule lowers the weeks above a 100% loss ratio as sold (graded only if the gate passes)",
+   "document": "PREREGISTRATION_V6_FORECAST.md",
+   "tag": "prereg-v6-forecast",
+   "status": "pass",
+   "result": "weeks above 100% as sold: 14 with the rule, 15 without"
+  },
+  {
+   "id": "G1",
+   "claim": "Spring 2027: the seasonal price calibrates, within 1 ± 0.287",
+   "document": "PREREGISTRATION_V6_FORWARD.md",
+   "tag": "prereg-v6-forward",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "G2",
+   "claim": "Spring 2027: the season beats a constant level on absolute log error",
+   "document": "PREREGISTRATION_V6_FORWARD.md",
+   "tag": "prereg-v6-forward",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "G3",
+   "claim": "Spring 2027: no month above a 100% loss ratio as sold at the seasonal price",
+   "document": "PREREGISTRATION_V6_FORWARD.md",
+   "tag": "prereg-v6-forward",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "G4",
+   "claim": "Spring 2027: 20% to 55% of connections priced within the cap in every month",
+   "document": "PREREGISTRATION_V6_FORWARD.md",
+   "tag": "prereg-v6-forward",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "H1",
+   "claim": "Summer 2027: the seasonal price calibrates, within 1 ± 0.287",
+   "document": "PREREGISTRATION_V6_FORWARD.md",
+   "tag": "prereg-v6-forward",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "H2",
+   "claim": "Summer 2027: the season beats a constant level on absolute log error",
+   "document": "PREREGISTRATION_V6_FORWARD.md",
+   "tag": "prereg-v6-forward",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "H3",
+   "claim": "Summer 2027: no month above a 100% loss ratio as sold at the seasonal price",
+   "document": "PREREGISTRATION_V6_FORWARD.md",
+   "tag": "prereg-v6-forward",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "H4",
+   "claim": "Summer 2027: 20% to 55% of connections priced within the cap in every month",
+   "document": "PREREGISTRATION_V6_FORWARD.md",
+   "tag": "prereg-v6-forward",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "Q1",
+   "claim": "The v3 model runs 0.546 to 0.987 on September to November 2026 (the seasonal prediction)",
+   "document": "PREREGISTRATION_V6_FORWARD.md",
+   "tag": "prereg-v6-forward",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "X1",
+   "claim": "Three timetable features add at most 0.0002 to the log loss (they do not earn a place)",
+   "document": "PREREGISTRATION_V6_SCHEDULE.md",
+   "tag": "prereg-v6-schedule",
+   "status": "fail",
+   "result": "gain in log loss +0.00073 (+0.32%) against a tie band of 0.0002; two seeds differ by 0.00022"
   }
  ]
 }

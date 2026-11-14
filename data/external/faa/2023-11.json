@@ -1,0 +1,273 @@
+{
+"month": "2023-11",
+"days_done": [
+"2023-11-01",
+"2023-11-02",
+"2023-11-03",
+"2023-11-04",
+"2023-11-05",
+"2023-11-06",
+"2023-11-07",
+"2023-11-08",
+"2023-11-09",
+"2023-11-10",
+"2023-11-11",
+"2023-11-12",
+"2023-11-13",
+"2023-11-14",
+"2023-11-15",
+"2023-11-16",
+"2023-11-17",
+"2023-11-18",
+"2023-11-19",
+"2023-11-20",
+"2023-11-21",
+"2023-11-22",
+"2023-11-23",
+"2023-11-24",
+"2023-11-25",
+"2023-11-26",
+"2023-11-27",
+"2023-11-28",
+"2023-11-29",
+"2023-11-30"
+],
+"advisories": [
+{
+"title": "CDM GROUND STOP",
+"element": "ORD",
+"impacting": "OTHER / OTHER",
+"period": [
+"2023-11-05T13:00:00+00:00",
+"2023-11-05T14:00:00+00:00"
+],
+"cause": "other",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2023-11-05",
+"advn": 28,
+"kind": "gs",
+"list_element": "ORD/ZAU",
+"send": "11/05/23 13:31"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ORD",
+"impacting": "OTHER / OTHER",
+"period": [
+"2023-11-05T13:00:00+00:00",
+"2023-11-05T14:00:00+00:00"
+],
+"cause": "other",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2023-11-05",
+"advn": 26,
+"kind": "gs",
+"list_element": "ORD/ZAU",
+"send": "11/05/23 13:06"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ORD",
+"impacting": "OTHER / SECURITY",
+"period": [
+"2023-11-09T23:30:00+00:00",
+"2023-11-10T00:30:00+00:00"
+],
+"cause": "other",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2023-11-09",
+"advn": 47,
+"kind": "gs",
+"list_element": "ORD/ZAU",
+"send": "11/09/23 23:29"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ORD",
+"impacting": "OTHER / SECURITY",
+"period": [
+"2023-11-09T20:43:00+00:00",
+"2023-11-09T21:45:00+00:00"
+],
+"cause": "other",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2023-11-09",
+"advn": 40,
+"kind": "gs",
+"list_element": "ORD/ZAU",
+"send": "11/09/23 20:44"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DEN",
+"impacting": "WEATHER / LOW VISIBILITY",
+"period": [
+"2023-11-17T14:23:00+00:00",
+"2023-11-17T15:45:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2023-11-17",
+"advn": 40,
+"kind": "gs",
+"list_element": "DEN/ZDV",
+"send": "11/17/23 14:36"
+},
+{
+"title": "DEN CAT I & CAT II GROUND STOP",
+"element": null,
+"impacting": null,
+"period": null,
+"cause": "none",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2023-11-17",
+"advn": 36,
+"kind": "gs",
+"list_element": "DEN/ZDV",
+"send": "11/17/23 14:21"
+},
+{
+"title": "DEN CAT I & CAT II GROUND STOP",
+"element": null,
+"impacting": null,
+"period": null,
+"cause": "none",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2023-11-17",
+"advn": 31,
+"kind": "gs",
+"list_element": "DEN/ZDV",
+"send": "11/17/23 13:47"
+},
+{
+"title": "CDM GROUND DELAY PROGRAM",
+"element": "CLT",
+"impacting": "WEATHER / LOW CEILINGS",
+"period": [
+"2023-11-21T20:54:00+00:00",
+"2023-11-22T03:59:00+00:00"
+],
+"cause": "weather",
+"period_key": "CUMULATIVE PROGRAM PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2023-11-21",
+"advn": 58,
+"kind": "gdp",
+"list_element": "CLT/ZTL",
+"send": "11/21/23 20:56"
+},
+{
+"title": "CDM PROPOSED GROUND DELAY PROGRAM",
+"element": "CLT",
+"impacting": "WEATHER / LOW CEILINGS",
+"period": [
+"2023-11-21T20:39:00+00:00",
+"2023-11-22T03:59:00+00:00"
+],
+"cause": "weather",
+"period_key": "ARRIVALS ESTIMATED FOR",
+"cnx": false,
+"proposed": true,
+"carrier_specific": false,
+"day": "2023-11-21",
+"advn": 57,
+"kind": "gdp",
+"list_element": "CLT/ZTL",
+"send": "11/21/23 20:41"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "CLT",
+"impacting": "WEATHER / LOW CEILINGS",
+"period": [
+"2023-11-21T19:53:00+00:00",
+"2023-11-21T21:15:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2023-11-21",
+"advn": 54,
+"kind": "gs",
+"list_element": "CLT/ZTL",
+"send": "11/21/23 20:09"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "CLT",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2023-11-22T19:46:00+00:00",
+"2023-11-22T21:15:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2023-11-22",
+"advn": 65,
+"kind": "gs",
+"list_element": "CLT/ZTL",
+"send": "11/22/23 20:46"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "CLT",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2023-11-22T19:46:00+00:00",
+"2023-11-22T20:45:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2023-11-22",
+"advn": 62,
+"kind": "gs",
+"list_element": "CLT/ZTL",
+"send": "11/22/23 20:05"
+},
+{
+"title": "CDM GROUND DELAY PROGRAM CNX",
+"element": "CLT",
+"impacting": null,
+"period": null,
+"cause": "none",
+"cnx": true,
+"proposed": false,
+"carrier_specific": false,
+"day": "2023-11-22",
+"advn": 5,
+"kind": "gdp",
+"list_element": "CLT/ZTL",
+"send": "11/22/23 01:43"
+}
+],
+"read": "2026-11-12"
+}

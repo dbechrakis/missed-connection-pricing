@@ -22,12 +22,13 @@ import urllib.error
 import urllib.request
 
 from mcp.connections import ROOT
+from mcp.variant import HIST
 
 RAW = ROOT / "data" / "external" / "gsa"
-RESULTS = ROOT / "results" / "gsa_costs.json"
+RESULTS = ROOT / "results" / ("gsa_costs_hist.json" if HIST else "gsa_costs.json")
 # ZIP codes of the airports themselves (rates are set by county, so the airport's ZIP gives the airport-area rate)
 HUB_ZIP = {"ATL": "30320", "ORD": "60666", "DFW": "75261", "DEN": "80249", "CLT": "28208"}
-FISCAL_YEARS = (2024, 2025, 2026, 2027)   # a federal fiscal year runs October to September
+FISCAL_YEARS = tuple(range(2018, 2025)) if HIST else (2024, 2025, 2026, 2027)   # a federal fiscal year runs October to September
 API = "https://api.gsa.gov/travel/perdiem/v2/rates/zip/{zip}/year/{year}?api_key=" + os.environ.get("GSA_API_KEY", "DEMO_KEY")
 PAGE = "https://www.gsa.gov/travel/plan-book/per-diem-rates/per-diem-rates-results?action=perdiems_report&fiscal_year={year}&zip={zip}"
 FY_MONTHS = (10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9)      # column order of GSA's lodging table

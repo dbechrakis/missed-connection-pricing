@@ -1,0 +1,1101 @@
+{
+"month": "2018-12",
+"days_done": [
+"2018-12-01",
+"2018-12-02",
+"2018-12-03",
+"2018-12-04",
+"2018-12-05",
+"2018-12-06",
+"2018-12-07",
+"2018-12-08",
+"2018-12-09",
+"2018-12-10",
+"2018-12-11",
+"2018-12-12",
+"2018-12-13",
+"2018-12-14",
+"2018-12-15",
+"2018-12-16",
+"2018-12-17",
+"2018-12-18",
+"2018-12-19",
+"2018-12-20",
+"2018-12-21",
+"2018-12-22",
+"2018-12-23",
+"2018-12-24",
+"2018-12-25",
+"2018-12-26",
+"2018-12-27",
+"2018-12-28",
+"2018-12-29",
+"2018-12-30",
+"2018-12-31"
+],
+"advisories": [
+{
+"title": "CDM GROUND DELAY PROGRAM",
+"element": "ORD",
+"impacting": "EQUIPMENT / OUTAGE",
+"period": [
+"2018-12-01T22:00:00+00:00",
+"2018-12-02T02:59:00+00:00"
+],
+"cause": "runway_equipment",
+"period_key": "CUMULATIVE PROGRAM PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-01",
+"advn": 60,
+"kind": "gdp",
+"list_element": "ORD/ZAU",
+"send": "12/01/18 21:17"
+},
+{
+"title": "CDM PROPOSED GROUND DELAY PROGRAM",
+"element": "ORD",
+"impacting": "WEATHER / LOW CEILINGS",
+"period": [
+"2018-12-01T22:00:00+00:00",
+"2018-12-02T02:59:00+00:00"
+],
+"cause": "weather",
+"period_key": "ARRIVALS ESTIMATED FOR",
+"cnx": false,
+"proposed": true,
+"carrier_specific": false,
+"day": "2018-12-01",
+"advn": 59,
+"kind": "gdp",
+"list_element": "ORD/ZAU",
+"send": "12/01/18 21:03"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2018-12-01T02:49:00+00:00",
+"2018-12-01T04:00:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-01",
+"advn": 18,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "12/01/18 03:01"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2018-12-01T02:15:00+00:00",
+"2018-12-01T03:00:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-01",
+"advn": 16,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "12/01/18 02:26"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2018-12-01T01:04:00+00:00",
+"2018-12-01T02:30:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-01",
+"advn": 8,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "12/01/18 01:15"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ORD",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2018-12-02T03:42:00+00:00",
+"2018-12-02T05:00:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-02",
+"advn": 9,
+"kind": "gs",
+"list_element": "ORD/ZAU",
+"send": "12/02/18 03:56"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ORD",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2018-12-02T02:42:00+00:00",
+"2018-12-02T04:00:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-02",
+"advn": 7,
+"kind": "gs",
+"list_element": "ORD/ZAU",
+"send": "12/02/18 03:02"
+},
+{
+"title": "CDM GROUND DELAY PROGRAM CNX",
+"element": "ORD",
+"impacting": null,
+"period": null,
+"cause": "none",
+"cnx": true,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-02",
+"advn": 2,
+"kind": "gdp",
+"list_element": "ORD/ZAU",
+"send": "12/02/18 00:32"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ORD",
+"impacting": "OTHER / OTHER",
+"period": [
+"2018-12-04T15:31:00+00:00",
+"2018-12-04T17:00:00+00:00"
+],
+"cause": "other",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-04",
+"advn": 48,
+"kind": "gs",
+"list_element": "ORD/ZAU",
+"send": "12/04/18 15:46"
+},
+{
+"title": "CDM PROPOSED GROUND DELAY PROGRAM",
+"element": "ORD",
+"impacting": "EQUIPMENT / OUTAGE",
+"period": [
+"2018-12-10T00:00:00+00:00",
+"2018-12-10T02:59:00+00:00"
+],
+"cause": "runway_equipment",
+"period_key": "ARRIVALS ESTIMATED FOR",
+"cnx": false,
+"proposed": true,
+"carrier_specific": false,
+"day": "2018-12-09",
+"advn": 48,
+"kind": "gdp",
+"list_element": "ORD/ZAU",
+"send": "12/09/18 21:33"
+},
+{
+"title": "CDM GROUND DELAY PROGRAM",
+"element": "ORD",
+"impacting": "EQUIPMENT / OUTAGE",
+"period": [
+"2018-12-10T22:00:00+00:00",
+"2018-12-11T02:59:00+00:00"
+],
+"cause": "runway_equipment",
+"period_key": "CUMULATIVE PROGRAM PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-10",
+"advn": 45,
+"kind": "gdp",
+"list_element": "ORD/ZAU",
+"send": "12/10/18 20:35"
+},
+{
+"title": "CDM PROPOSED GROUND DELAY PROGRAM",
+"element": "ORD",
+"impacting": "EQUIPMENT / OUTAGE",
+"period": [
+"2018-12-10T22:00:00+00:00",
+"2018-12-11T02:59:00+00:00"
+],
+"cause": "runway_equipment",
+"period_key": "ARRIVALS ESTIMATED FOR",
+"cnx": false,
+"proposed": true,
+"carrier_specific": false,
+"day": "2018-12-10",
+"advn": 41,
+"kind": "gdp",
+"list_element": "ORD/ZAU",
+"send": "12/10/18 19:54"
+},
+{
+"title": "CDM GROUND DELAY PROGRAM CNX",
+"element": "ORD",
+"impacting": null,
+"period": null,
+"cause": "none",
+"cnx": true,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-11",
+"advn": 4,
+"kind": "gdp",
+"list_element": "ORD/ZAU",
+"send": "12/11/18 02:01"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2018-12-13T13:58:00+00:00",
+"2018-12-13T15:00:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-13",
+"advn": 30,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "12/13/18 14:13"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2018-12-13T13:15:00+00:00",
+"2018-12-13T14:30:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-13",
+"advn": 27,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "12/13/18 13:33"
+},
+{
+"title": "CDM GROUND DELAY PROGRAM",
+"element": "ORD",
+"impacting": "WEATHER / LOW CEILINGS",
+"period": [
+"2018-12-15T00:00:00+00:00",
+"2018-12-15T02:59:00+00:00"
+],
+"cause": "weather",
+"period_key": "CUMULATIVE PROGRAM PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-14",
+"advn": 88,
+"kind": "gdp",
+"list_element": "ORD/ZAU",
+"send": "12/14/18 22:51"
+},
+{
+"title": "CDM PROPOSED GROUND DELAY PROGRAM",
+"element": "ORD",
+"impacting": "WEATHER / LOW CEILINGS",
+"period": [
+"2018-12-15T00:00:00+00:00",
+"2018-12-15T02:59:00+00:00"
+],
+"cause": "weather",
+"period_key": "ARRIVALS ESTIMATED FOR",
+"cnx": false,
+"proposed": true,
+"carrier_specific": false,
+"day": "2018-12-14",
+"advn": 84,
+"kind": "gdp",
+"list_element": "ORD/ZAU",
+"send": "12/14/18 22:20"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ORD",
+"impacting": "WEATHER / LOW VISIBILITY",
+"period": [
+"2018-12-14T19:30:00+00:00",
+"2018-12-14T20:30:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-14",
+"advn": 72,
+"kind": "gs",
+"list_element": "ORD/ZAU",
+"send": "12/14/18 19:34"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ORD",
+"impacting": "WEATHER / LOW VISIBILITY",
+"period": [
+"2018-12-14T17:42:00+00:00",
+"2018-12-14T19:00:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-14",
+"advn": 62,
+"kind": "gs",
+"list_element": "ORD/ZAU",
+"send": "12/14/18 17:56"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ORD",
+"impacting": "WEATHER / LOW VISIBILITY",
+"period": [
+"2018-12-14T13:50:00+00:00",
+"2018-12-14T15:15:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-14",
+"advn": 40,
+"kind": "gs",
+"list_element": "ORD/ZAU",
+"send": "12/14/18 14:07"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ORD",
+"impacting": "WEATHER / LOW CEILINGS",
+"period": [
+"2018-12-14T11:59:00+00:00",
+"2018-12-14T13:00:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-14",
+"advn": 26,
+"kind": "gs",
+"list_element": "ORD/ZAU",
+"send": "12/14/18 12:10"
+},
+{
+"title": "CDM GROUND DELAY PROGRAM CNX",
+"element": "ORD",
+"impacting": null,
+"period": null,
+"cause": "none",
+"cnx": true,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-15",
+"advn": 20,
+"kind": "gdp",
+"list_element": "ORD/ZAU",
+"send": "12/15/18 02:23"
+},
+{
+"title": "ORD CAT I AND CAT II GROUND STOP CANCELATION",
+"element": "ORD",
+"impacting": null,
+"period": null,
+"cause": "none",
+"cnx": true,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-16",
+"advn": 20,
+"kind": "gs",
+"list_element": "ORD/ZAU",
+"send": "12/16/18 12:11"
+},
+{
+"title": "ORD GROUND STOP CAT I AND CAT II ACFT ONLY",
+"element": null,
+"impacting": null,
+"period": null,
+"cause": "none",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-16",
+"advn": 18,
+"kind": "gs",
+"list_element": "ORD/ZAU",
+"send": "12/16/18 11:39"
+},
+{
+"title": "ORD GROUND STOP CAT I AND CAT II ACFT ONLY",
+"element": null,
+"impacting": null,
+"period": null,
+"cause": "none",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-16",
+"advn": 15,
+"kind": "gs",
+"list_element": "ORD/ZAU",
+"send": "12/16/18 10:34"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "WEATHER / FOG",
+"period": [
+"2018-12-19T13:38:00+00:00",
+"2018-12-19T15:00:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-19",
+"advn": 20,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "12/19/18 13:52"
+},
+{
+"title": "CDM GROUND DELAY PROGRAM CNX",
+"element": "ORD",
+"impacting": null,
+"period": null,
+"cause": "none",
+"cnx": true,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-21",
+"advn": 125,
+"kind": "gdp",
+"list_element": "ORD/ZAU",
+"send": "12/21/18 21:01"
+},
+{
+"title": "CDM GROUND DELAY PROGRAM",
+"element": "ORD",
+"impacting": "WEATHER / WIND",
+"period": [
+"2018-12-21T17:19:00+00:00",
+"2018-12-22T00:59:00+00:00"
+],
+"cause": "weather",
+"period_key": "CUMULATIVE PROGRAM PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-21",
+"advn": 103,
+"kind": "gdp",
+"list_element": "ORD/ZAU",
+"send": "12/21/18 17:25"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ORD",
+"impacting": "WEATHER / WIND",
+"period": [
+"2018-12-21T16:46:00+00:00",
+"2018-12-21T18:00:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-21",
+"advn": 101,
+"kind": "gs",
+"list_element": "ORD/ZAU",
+"send": "12/21/18 16:58"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ORD",
+"impacting": "WEATHER / WIND",
+"period": [
+"2018-12-21T12:02:00+00:00",
+"2018-12-21T14:30:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-21",
+"advn": 77,
+"kind": "gs",
+"list_element": "ORD/ZAU",
+"send": "12/21/18 13:16"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ATL",
+"impacting": "WEATHER / LOW VISIBILITY",
+"period": [
+"2018-12-21T00:22:00+00:00",
+"2018-12-21T01:30:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-21",
+"advn": 24,
+"kind": "gs",
+"list_element": "ATL/ZTL",
+"send": "12/21/18 00:32"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2018-12-26T22:58:00+00:00",
+"2018-12-27T00:15:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-26",
+"advn": 114,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "12/26/18 23:10"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2018-12-26T22:13:00+00:00",
+"2018-12-26T23:15:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-26",
+"advn": 105,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "12/26/18 22:27"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2018-12-26T21:09:00+00:00",
+"2018-12-26T22:30:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-26",
+"advn": 96,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "12/26/18 21:23"
+},
+{
+"title": "CDM GROUND DELAY PROGRAM",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2018-12-26T19:00:00+00:00",
+"2018-12-27T03:59:00+00:00"
+],
+"cause": "weather",
+"period_key": "CUMULATIVE PROGRAM PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-26",
+"advn": 56,
+"kind": "gdp",
+"list_element": "DFW/ZFW",
+"send": "12/26/18 16:54"
+},
+{
+"title": "CDM PROPOSED GROUND DELAY PROGRAM",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2018-12-26T19:00:00+00:00",
+"2018-12-27T03:59:00+00:00"
+],
+"cause": "weather",
+"period_key": "ARRIVALS ESTIMATED FOR",
+"cnx": false,
+"proposed": true,
+"carrier_specific": false,
+"day": "2018-12-26",
+"advn": 52,
+"kind": "gdp",
+"list_element": "DFW/ZFW",
+"send": "12/26/18 16:33"
+},
+{
+"title": "CDM GROUND DELAY PROGRAM CNX",
+"element": "ORD",
+"impacting": null,
+"period": null,
+"cause": "none",
+"cnx": true,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-27",
+"advn": 147,
+"kind": "gdp",
+"list_element": "ORD/ZAU",
+"send": "12/27/18 21:28"
+},
+{
+"title": "CDM GROUND DELAY PROGRAM",
+"element": "ORD",
+"impacting": "WEATHER / WIND",
+"period": [
+"2018-12-27T22:00:00+00:00",
+"2018-12-28T01:59:00+00:00"
+],
+"cause": "weather",
+"period_key": "CUMULATIVE PROGRAM PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-27",
+"advn": 128,
+"kind": "gdp",
+"list_element": "ORD/ZAU",
+"send": "12/27/18 19:52"
+},
+{
+"title": "CDM PROPOSED GROUND DELAY PROGRAM",
+"element": "ORD",
+"impacting": "WEATHER / WIND",
+"period": [
+"2018-12-27T22:00:00+00:00",
+"2018-12-28T01:59:00+00:00"
+],
+"cause": "weather",
+"period_key": "ARRIVALS ESTIMATED FOR",
+"cnx": false,
+"proposed": true,
+"carrier_specific": false,
+"day": "2018-12-27",
+"advn": 116,
+"kind": "gdp",
+"list_element": "ORD/ZAU",
+"send": "12/27/18 18:59"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ORD",
+"impacting": "EQUIPMENT / OUTAGE",
+"period": [
+"2018-12-27T17:10:00+00:00",
+"2018-12-27T18:15:00+00:00"
+],
+"cause": "runway_equipment",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-27",
+"advn": 102,
+"kind": "gs",
+"list_element": "ORD/ZAU",
+"send": "12/27/18 17:27"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "OTHER / OTHER",
+"period": [
+"2018-12-27T14:35:00+00:00",
+"2018-12-27T15:30:00+00:00"
+],
+"cause": "other",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-27",
+"advn": 85,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "12/27/18 14:47"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "OTHER / OTHER",
+"period": [
+"2018-12-27T13:28:00+00:00",
+"2018-12-27T15:00:00+00:00"
+],
+"cause": "other",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-27",
+"advn": 79,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "12/27/18 13:45"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "OTHER / OTHER",
+"period": [
+"2018-12-27T11:27:00+00:00",
+"2018-12-27T13:00:00+00:00"
+],
+"cause": "other",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-27",
+"advn": 57,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "12/27/18 11:43"
+},
+{
+"title": "CDM GROUND DELAY PROGRAM CNX",
+"element": "DFW",
+"impacting": null,
+"period": null,
+"cause": "none",
+"cnx": true,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-27",
+"advn": 40,
+"kind": "gdp",
+"list_element": "DFW/ZFW",
+"send": "12/27/18 03:58"
+},
+{
+"title": "CDM GROUND DELAY PROGRAM",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2018-12-26T19:00:00+00:00",
+"2018-12-27T03:59:00+00:00"
+],
+"cause": "weather",
+"period_key": "CUMULATIVE PROGRAM PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-27",
+"advn": 30,
+"kind": "gdp",
+"list_element": "DFW/ZFW",
+"send": "12/27/18 02:27"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2018-12-27T01:48:00+00:00",
+"2018-12-27T02:30:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-27",
+"advn": 28,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "12/27/18 02:00"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2018-12-27T00:34:00+00:00",
+"2018-12-27T02:00:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-27",
+"advn": 9,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "12/27/18 00:48"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2018-12-26T23:55:00+00:00",
+"2018-12-27T01:00:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-27",
+"advn": 1,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "12/27/18 00:09"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "CLT",
+"impacting": "WEATHER / LOW CEILINGS",
+"period": [
+"2018-12-28T17:50:00+00:00",
+"2018-12-28T18:45:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-28",
+"advn": 89,
+"kind": "gs",
+"list_element": "CLT/ZTL",
+"send": "12/28/18 18:03"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "CLT",
+"impacting": "WEATHER / LOW CEILINGS",
+"period": [
+"2018-12-28T17:14:00+00:00",
+"2018-12-28T18:30:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-28",
+"advn": 86,
+"kind": "gs",
+"list_element": "CLT/ZTL",
+"send": "12/28/18 17:30"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ATL",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2018-12-28T13:44:00+00:00",
+"2018-12-28T15:00:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-28",
+"advn": 53,
+"kind": "gs",
+"list_element": "ATL/ZTL",
+"send": "12/28/18 13:58"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ATL",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2018-12-28T12:57:00+00:00",
+"2018-12-28T14:00:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-28",
+"advn": 46,
+"kind": "gs",
+"list_element": "ATL/ZTL",
+"send": "12/28/18 13:09"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ATL",
+"impacting": "WEATHER / LOW VISIBILITY",
+"period": [
+"2018-12-29T13:43:00+00:00",
+"2018-12-29T14:30:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-29",
+"advn": 53,
+"kind": "gs",
+"list_element": "ATL/ZTL",
+"send": "12/29/18 13:55"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ATL",
+"impacting": "WEATHER / LOW VISIBILITY",
+"period": [
+"2018-12-29T12:55:00+00:00",
+"2018-12-29T14:00:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-29",
+"advn": 47,
+"kind": "gs",
+"list_element": "ATL/ZTL",
+"send": "12/29/18 12:58"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ORD",
+"impacting": "WEATHER / SNOW-ICE",
+"period": [
+"2018-12-30T01:23:00+00:00",
+"2018-12-30T02:30:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-30",
+"advn": 23,
+"kind": "gs",
+"list_element": "ORD/ZAU",
+"send": "12/30/18 01:28"
+},
+{
+"title": "CDM PROPOSED GROUND DELAY PROGRAM",
+"element": "CLT",
+"impacting": "RWY-TAXI / OBSTRUCTION",
+"period": [
+"2018-12-31T20:00:00+00:00",
+"2019-01-01T00:59:00+00:00"
+],
+"cause": "unknown",
+"period_key": "ARRIVALS ESTIMATED FOR",
+"cnx": false,
+"proposed": true,
+"carrier_specific": false,
+"day": "2018-12-31",
+"advn": 43,
+"kind": "gdp",
+"list_element": "CLT/ZTL",
+"send": "12/31/18 19:05"
+},
+{
+"title": "CDM GROUND DELAY PROGRAM CNX",
+"element": "DEN",
+"impacting": null,
+"period": null,
+"cause": "none",
+"cnx": true,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-31",
+"advn": 39,
+"kind": "gdp",
+"list_element": "DEN/ZDV",
+"send": "12/31/18 17:59"
+},
+{
+"title": "CDM GROUND DELAY PROGRAM",
+"element": "DEN",
+"impacting": "WEATHER / SNOW-ICE",
+"period": [
+"2018-12-31T17:00:00+00:00",
+"2018-12-31T19:59:00+00:00"
+],
+"cause": "weather",
+"period_key": "CUMULATIVE PROGRAM PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2018-12-31",
+"advn": 35,
+"kind": "gdp",
+"list_element": "DEN/ZDV",
+"send": "12/31/18 15:55"
+}
+],
+"read": "2026-11-12"
+}

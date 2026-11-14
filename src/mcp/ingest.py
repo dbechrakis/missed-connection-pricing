@@ -24,7 +24,7 @@ from pathlib import Path
 
 import duckdb
 
-from mcp.variant import MARKETING, sfx
+from mcp.variant import HIST, MARKETING, sfx
 
 HUBS = ("ATL", "ORD", "DFW", "DEN", "CLT")
 
@@ -158,8 +158,8 @@ def to_parquet(zip_path: Path, y: int, m: int) -> int:
     return n
 
 
-ASOS_RAW = ROOT / "data" / "raw" / "asos"
-ASOS_OUT = ROOT / "data" / "parquet" / "asos" / "hourly.parquet"
+ASOS_RAW = ROOT / "data" / "raw" / ("asos_hist" if HIST else "asos")
+ASOS_OUT = ROOT / "data" / "parquet" / "asos" / ("hourly_hist.parquet" if HIST else "hourly.parquet")
 
 
 def ingest_asos(raw_dir: Path = ASOS_RAW, out: Path = ASOS_OUT) -> int:
@@ -273,6 +273,9 @@ def ingest_db1b(year: int, q: int, raw_dir: Path = DB1B_RAW, out_dir: Path = DB1
 
 
 TRAIN_QUARTERS = ("2024Q1", "2024Q2", "2024Q3", "2024Q4", "2025Q1", "2025Q2")  # Jan 2024 - Jun 2025
+# The 2018 to 2023 build prices each month from the previous calendar year's quarters, so 2017 to 2022 are needed.
+HIST_QUARTERS = tuple(f"{y}Q{q}" for y in range(2017, 2023) for q in range(1, 5))
+QUARTERS = HIST_QUARTERS if HIST else TRAIN_QUARTERS
 
 
 def build_route_weights(out_dir: Path = DB1B_OUT, quarters=TRAIN_QUARTERS) -> int:
@@ -289,6 +292,29 @@ def build_route_weights(out_dir: Path = DB1B_OUT, quarters=TRAIN_QUARTERS) -> in
         f"""
         COPY (
           SELECT carrier, origin, hub, destination,
+                 sum(passengers) AS passengers,
+                 sum(passengers * fare_mean) / sum(passengers) AS fare_mean
+          FROM read_parquet('{src}')
+          WHERE quarter IN ({qs})
+          GROUP BY ALL
+        ) TO '{out.as_posix()}' (FORMAT parquet, COMPRESSION zstd)
+        """
+    )
+    (n,) = con.execute(f"SELECT count(*) FROM '{out.as_posix()}'").fetchone()
+    return n
+
+
+def build_route_weights_by_year(out_dir: Path = DB1B_OUT, quarters=HIST_QUARTERS) -> int:
+    """One weight per (carrier, A, hub, B) and `weight_year`: the passengers of the four quarters of the PREVIOUS calendar
+    year, to be applied to the months of weight_year. No month's weight depends on that month or on a later one."""
+    src = (out_dir / sfx("routes") / "*" / "*.parquet").as_posix()
+    out = out_dir / f"{sfx('route_weights')}.parquet"
+    qs = ", ".join(f"'{q}'" for q in quarters)
+    con = duckdb.connect()
+    con.execute(
+        f"""
+        COPY (
+          SELECT carrier, origin, hub, destination, CAST(left(quarter, 4) AS INTEGER) + 1 AS weight_year,
                  sum(passengers) AS passengers,
                  sum(passengers * fare_mean) / sum(passengers) AS fare_mean
           FROM read_parquet('{src}')
@@ -319,7 +345,7 @@ def main(argv=None):
         return
     if a.source == "db1b":
         entry = manifest.setdefault(sfx("db1b"), {})
-        for q in TRAIN_QUARTERS:
+        for q in QUARTERS:
             y, qn = int(q[:4]), int(q[-1])
             out = DB1B_OUT / sfx("routes") / f"year={y}" / f"quarter={qn}.parquet"
             if out.exists() and q in entry and not a.force:
@@ -331,7 +357,7 @@ def main(argv=None):
                            for k in ("Coupon", "Market")}}
             MANIFEST.write_text(json.dumps(manifest, indent=2, sort_keys=True))
             print(f"{q}: {n:,} route rows")
-        print(f"route_weights: {build_route_weights():,} rows")
+        print(f"route_weights: {(build_route_weights_by_year() if HIST else build_route_weights()):,} rows")
         MANIFEST.write_text(json.dumps(manifest, indent=2, sort_keys=True))
         return
 

@@ -754,3 +754,436 @@ Pre-registered in `PREREGISTRATION_V5_2_LOADING.md` (commit `6444e22`, pushed wh
 - **The read:** December 2026 to February 2027, once, when February 2027 is published in both BTS files (probably early May 2027). Expectations W1 to W5 are on the scoreboard. Winter is the hard season: last December ran 1.34 unloaded on the same walk-forward.
 
 **Tags for v5 to v5.2.** The session that wrote these pre-registrations could push branches but not tags. `.github/workflows/preregistration-tags.yml` creates `prereg-v5-self-transfer`, `prereg-v5-1-level` and `prereg-v5-2-loading` with the repository's token, each at the commit that added its document (`48b2dd2`, `46055a6`, `6444e22`), and only after checking that the commit adds that file. The tags are created after the fact. What dates each document is the push of its commit to GitHub, before the data existed, which the branch's push history records.
+
+
+## Part 7: Season 2
+
+Written from 12 November 2026. The plan is `docs/season2-plan.md`. Earlier parts are not edited. Nothing in this part reads, builds or scores any BTS month from September 2026 on, and nothing here changes a frozen file or a pre-registered test.
+
+### 7A. A model of the claims level, and what 26 months can say about it (development data, July 2024 to August 2026)
+
+Code: `src/mcp/level.py` and `src/mcp/risk.py`. Tests: `tests/test_level.py` and `tests/test_risk.py`. Results: `results/level_dev.json`.
+
+**The idea.** Every repair so far (a recalibration, a level shift, the loading of 1.16) treated the ratio of realized to expected claims as a constant to be estimated late. Here the monthly log ratio is a series with a level that may move, and each candidate forecasts a month from the months that would be known when it is priced, which is every month up to two months earlier for the gap cover (`lag` 2) and five for self-transfers (`lag` 5, as v5.1). Each forecast is a normal distribution for the log ratio, so it can be scored as a distribution and its intervals can be checked. The candidates were fixed before the run and none was added or dropped after it:
+
+| Candidate | What it does |
+| --- | --- |
+| `none` | Level 1. What v3 and v5.1 use. Its spread is the mean squared log ratio of the known months |
+| `last12` | The mean of the last 12 known months |
+| `cred` | Buhlmann-Straub credibility across the five hubs: each hub's recent mean shrunk toward the all-hub recent mean |
+| `local` | A local-level state-space model (random walk plus noise), Kalman filter, forecast `lag` months ahead, one variance ratio chosen by maximum likelihood on known months only |
+| `local_season` | `local` plus a month-of-year effect shrunk toward zero, used only once 48 months are known and otherwise equal to `local` |
+
+**One departure from the plan, recorded here.** The plan describes `cred` as a shrinkage of the recent mean toward a hub's own long-run mean. With 26 months that needs variance components that cannot be estimated, so `cred` shrinks toward the all-hub mean instead, which is the classical Buhlmann-Straub form and needs only the five hubs. The time-series version of the idea is the `local` model.
+
+**The run.** The 26 out-of-sample months of the gap cover from `results/v3_rolling_weeks.csv`, at the weekly file's own monthly sums, as all overnight-risk connections and as sold within the 5% cap. A forecast needs six known months, so 19 months are forecast (February 2025 to August 2026), 95 hub-months in the panel. CRPS is in log-ratio units, lower is better. Coverage is the share of months inside the 90% interval. "Repriced" is the pooled realized/expected ratio had the expected claims been multiplied by the forecast level, over the same months, where 1 is on target.
+
+| View and series | Candidate | CRPS | Coverage | Unadjusted | Repriced |
+| --- | --- | --- | --- | --- | --- |
+| All, pooled | `none` | 0.125 | 0.89 | 1.089 | 1.058 |
+| All, pooled | `last12` | 0.145 | 0.89 | 1.089 | 1.047 |
+| All, pooled | `local` | 0.143 | 0.89 | 1.089 | 0.999 |
+| All, hub panel | `none` | 0.160 | 0.91 | 1.089 | 1.041 |
+| All, hub panel | `last12` | 0.174 | 0.87 | 1.089 | 1.040 |
+| All, hub panel | `cred` | 0.172 | 0.88 | 1.089 | 1.045 |
+| All, hub panel | `local` | 0.193 | 0.92 | 1.089 | 0.976 |
+| Sold, pooled | `none` | 0.212 | 1.00 | 1.200 | 1.107 |
+| Sold, pooled | `last12` | 0.223 | 1.00 | 1.200 | 1.035 |
+| Sold, pooled | `local` | 0.277 | 0.89 | 1.200 | 0.909 |
+| Sold, hub panel | `none` | 0.273 | 0.92 | 1.200 | 1.039 |
+| Sold, hub panel | `last12` | 0.299 | 0.86 | 1.200 | 1.019 |
+| Sold, hub panel | `cred` | 0.284 | 0.92 | 1.200 | 1.050 |
+| Sold, hub panel | `local` | 0.367 | 0.89 | 1.200 | 0.825 |
+
+`local_season` equals `local` in every month and is not listed again, because no month has 48 known months.
+
+**What it says.**
+
+- **No candidate beats `none` on CRPS, in any of the four views.** The monthly ratio has a standard deviation of 0.24 around its level, which is larger than the movement of the level that a model could learn from 19 forecast months. A model that follows the level also follows the noise, and pays for it: `local` is closest to 1 on the repriced ratio (0.999 pooled, all connections) and still scores worse than `none` on CRPS (0.143 against 0.125). Being closer to 1 on one pooled number is not evidence of a better forecast.
+- **The hubs are not distinguishable from one another beyond noise.** The credibility factor averaged 0.21 for all connections and 0.02 as sold. At 0.02 each hub is pooled almost entirely with the other four, so `cred` becomes the all-hub mean, which is why it sits next to `last12`.
+- **The intervals are about right.** Coverage runs from 0.86 to 1.00 against a nominal 0.90 over 19 or 95 forecasts, which is inside what that many forecasts allow. A pooled interval that never misses (1.00 as sold for `none` and `last12`) is a sign the intervals are wide, not that they are good.
+- **The repriced ratio for `none` is not 1.0 because the forecast carries its variance.** The forecast level is the mean of a lognormal, so a noisy series loads the price by about half its variance even when the log level is 0.
+
+**What this does not show.** Nineteen forecast months cannot separate a moving level from noise, and cannot run the seasonal candidate at all. That is the reason for WP3, which adds six years the project has never loaded. The result here is a baseline to beat and not a verdict on any candidate. It also says what the backcast must show to justify season 2's central claim: that following the level beats not following it, on months this analysis has not seen.
+
+**Not done in this section, and why.**
+
+- *The self-transfer series.* The committed results hold the pooled walk-forward ratio for v5.1 (1.159) and the eight spent months of v5's holdout, but no monthly series for the fourteen development months. It needs the pairings and is graded as expectation B8 of the backcast. The code already takes `lag` 5.
+- *The sample check.* The plan asks that a 20% uniform hash sample of pairings reproduce the published pooled ratios (1.04 all, 1.15 as sold) within 0.02. The stored rows are a 10% sample, so the check needs a new build from the BTS files and belongs at the start of WP3, before any 2018 to 2023 month is read.
+
+**Reproducing.**
+
+```bash
+cd src && python -m mcp.level dev     # about a second, reads results/v3_rolling_weeks.csv, writes results/level_dev.json
+```
+
+
+### 7F. What a late buyer can know: forecasts as issued and a stop-selling rule (read once, 12 November 2026)
+
+Pre-registered in `PREREGISTRATION_V6_FORECAST.md` (tag `prereg-v6-forecast`) before any forecast was joined to a connection. Code: `src/mcp/forecast.py`, tests: `tests/test_forecast.py`, result: `results/forecast.json`. The booking-time model and a forecast model for each lead were fitted on February 2024 to August 2025 and scored once on September 2025 to August 2026 (12 months, a 10% hash sample of overnight-risk connections, the gap label). The forecasts are the Open-Meteo Previous Runs values, hourly at each hub, as the forecast issued 1, 2, 3, 5 and 7 days earlier said them. A dry run on months of the fit window (not the test window) found one thing before the read: snowfall and weather code at lead 7 exist in the archive only from 12 December 2024, so earlier values are missing values, which the gradient-boosting model reads as such.
+
+| Lead (days) | Gain in log loss over the booking-time price | 95% interval (months resampled) | Spread of log(p forecast ÷ p booking) | Net of the noise floor | Exposure at θ = 1 |
+| --- | --- | --- | --- | --- | --- |
+| 1 | 1.05% | 0.62% to 1.57% | 0.302 | 0.259 | 1.10 |
+| 2 | 1.59% | 1.25% to 1.91% | 0.357 | 0.321 | 1.14 |
+| 3 | 1.13% | 0.71% to 1.55% | 0.373 | 0.338 | 1.15 |
+| 5 | 0.56% | 0.20% to 0.93% | 0.310 | 0.267 | 1.10 |
+| 7 | 0.06% | −0.39% to 0.54% | 0.279 | 0.231 | 1.08 |
+
+The noise floor is the spread between two fits of the same booking-time information with different seeds, 0.156 (reported next to the pre-registered measure, which does not remove it). The exposure column is exp(θκ²) with the spread as measured, not net.
+
+**Gate and expectations.** The gain is at least 1% at leads 1, 2 and 3, so the gate passes and the rule was evaluated. **F1 passed**: the gain at lead 1 (1.05%) is larger than at lead 7 (0.06%), and the gain at lead 7 is under 1%. It is not monotone: lead 2 is better than lead 1. **F2 passed, by one week**: at s = 20% and θ = 1 the number of weeks above a 100% loss ratio as sold is 14 with the rule and 15 without, out of 53.
+
+**The sales rule (stop selling where the forecast-informed risk at lead 3 is more than 1.5 times the priced risk).** Sold loss ratio, with and without the rule, by the share s of buyers who book within three days and the strength θ with which they pick connections by the forecast. The target is 65%.
+
+| s, θ | Without the rule | With the rule | Share of sales lost | Weeks above 100% (of 53), without and with |
+| --- | --- | --- | --- | --- |
+| 10%, 0 | 72.7% | 71.7% | 1.2% | 13 and 13 |
+| 10%, 1 | 76.4% | 72.2% | 2.8% | 14 and 14 |
+| 20%, 0 | 72.7% | 70.8% | 2.4% | 13 and 13 |
+| 20%, 1 | 80.1% | 71.7% | 5.6% | 15 and 14 |
+| 30%, 0 | 72.7% | 69.9% | 3.7% | 13 and 12 |
+| 30%, 1 | 83.8% | 71.2% | 8.5% | 16 and 14 |
+
+**What it says.**
+
+- **A forecast helps a little, and mostly one to three days out.** The gain is about one percent of the log loss, which is the same order as everything else this project could add at booking time (`VALIDATION.md` Part 4). It fades to nothing at a week. An archive built by a vendor is not proof that a traveller saw the same numbers, and this one is the vendor's, not a government source.
+- **The exposure it opens is real and modest.** A buyer who picks by the forecast with θ = 1 and books late raises the sold loss ratio from 72.7% to 76% to 84%, depending on how many buy late. Those are the figures the hidden-information simulation of 4C only gave as a formula. They rest on an assumed share of late buyers, which public data cannot give.
+- **The rule recovers the average and does very little for the bad weeks.** It brings the loss ratio back to about 71% to 72% where late buyers select. The count of weeks above 100% moves by zero to two weeks. Weather moves whole weeks and the rule removes only the connections whose forecast was clearly worse than the price. F2 was passed by a single week and should not be read as more than that.
+- **The rule costs sales.** Between 1% and 9% of sold weight, rising with the late share and the selection.
+
+**What this does not show.** How travellers really choose, how many book late, whether a rule like this is practical to run (it needs a forecast feed and a decision per connection), and anything about demand. The grid is a range, not an estimate.
+
+
+### 7E. Did airlines change how they code delays? The coding audit (read once, 12 November 2026)
+
+Pre-registered in `PREREGISTRATION_V6_CODING.md` (tag `prereg-v6-coding`) before any cause code from before 2024 was loaded. Code: `src/mcp/coding_audit.py`, tests: `tests/test_coding_audit.py`, result: `results/coding_audit.json`. Outcomes are shares of carrier-coded events by airline and month at the five hubs, January 2018 to August 2026, outside the pandemic months. Y1 is the share of cancellations coded to the carrier among those coded carrier, weather or national air system. Y2 is the share of the delay minutes of flights that arrived three hours or more late that BTS codes to carrier delay. The model is a weighted regression on airline effects, month-of-year effects, the share of the airline's flights in the denominator that were at the hub under adverse weather (ASOS), the share under an FAA ground stop or ground delay program (`mcp.faa`, which passed its parse gate), and a post-break indicator for 1 September 2022. Intervals resample calendar quarters (2,000 draws).
+
+The committing airlines with enough volume at these hubs are American, Delta, United and Southwest (Alaska, JetBlue, Allegiant and Hawaiian fly too few cancelled or late flights there). The comparison, Frontier, is one airline. The placebo has three (American, Delta, United), because Southwest has too little volume in 2018 to 2019. Effects are in percentage points of the carrier-coded share. A negative effect is a fall.
+
+| Estimate | Outcome | Effect | 95% interval | Airline-months |
+| --- | --- | --- | --- | --- |
+| Placebo, break 1 September 2019 | Y1 | +3.4 | −4.8 to +10.5 | 62 |
+| Placebo, break 1 September 2019 | Y2 | +2.7 | +0.7 to +4.7 | 78 |
+| Break 1 September 2022 | Y1 | −7.9 | −13.5 to −3.0 | 261 |
+| Break 1 September 2022 | Y2 | −2.6 | −4.4 to −0.8 | 285 |
+| Break 1 June 2022 | Y1 | −7.3 | −13.1 to −2.4 | 261 |
+| Break 1 June 2022 | Y2 | −1.8 | −3.6 to +0.2 | 285 |
+| Break 1 January 2023 | Y1 | −7.9 | −13.1 to −2.7 | 261 |
+| Break 1 January 2023 | Y2 | −3.1 | −4.8 to −1.2 | 285 |
+| Committing airlines against Frontier | Y1 | −23.1 | −28.6 to −17.6 | 281 |
+| Committing airlines against Frontier | Y2 | −14.2 | −16.2 to −12.2 | 304 |
+
+By airline, break 1 September 2022, Y1 and Y2: American −14.9 and −5.0, Delta +4.5 and +5.9, United +0.4 and −3.8, Southwest −11.4 and −4.8.
+
+**C1 failed, so C2 is not graded.** The pre-registered placebo rule is that a break on 1 September 2019, three years before the dashboard, must show a change within ±3 points for both outcomes. It showed +3.4 for Y1 and +2.7 for Y2. Y1 is outside the band, and the rule says the design then finds changes that are not there, and that nothing below is read as an effect. C2 (no fall of 3 points or more) stays pending on the scoreboard. A strict reading of the placebo interval says otherwise for Y1 (−4.8 to +10.5 includes zero), but the rule was written on the point estimate and is applied as written.
+
+**What can and cannot be said.**
+
+- **The data do not show that airlines moved their coding, and they do not show that they did not.** The post-break estimates are negative, and their intervals exclude zero in five of the six rows for the three break dates. The Y1 estimates (7 to 8 points) are well above the 3-point materiality threshold, and the Y2 estimates (2 to 3 points) sit around it. But the same design returns a placebo of the same sign and of comparable size, Y2's placebo interval excludes zero, and the three airlines' own estimates disagree (American and Southwest fall, Delta rises, United is flat on Y1).
+- **The comparison with Frontier is not usable.** Frontier's carrier-coded share moved the other way by a large amount, so the difference is −23 and −14 points. With one comparison airline, and one that is not like the others in network, this says more about Frontier than about the committing airlines.
+- **The conversion the pre-registration fixed**, for reference and not as a finding: a fall of 3 points in the carrier-coded share raises gap-cover claims by 4.1%. The point estimates of the primary break would correspond to 11.0% (Y1) and 3.6% (Y2), under the strict reading of who is in the gap.
+- **What it means for the cover.** The risk the README names, that airlines code toward weather once a carrier code costs them a hotel, is neither confirmed nor ruled out. A launched cover would still need its own check of the coding against a second source, which the trigger of 7D is a first step toward.
+
+**Limits.** Four airlines at five hubs, 261 to 304 airline-months. The weather covariate is each flight's own hub hour, not the pre-registered "flight-hours" taken literally. Whether a given hub hour was stormy is a coarse stand-in for what the airline faced. The FAA programs are the ones the FAA's database lists, and revised programs keep their first end time. BTS coding of late-arriving aircraft, which does not say why an aircraft was late, is outside Y2's carrier share and is not examined.
+
+
+### 7B. The backcast: the pricing procedures on January 2019 to December 2023 (read once, 12 November 2026)
+
+Pre-registered in `PREREGISTRATION_V6_BACKCAST.md` and its addendum (tags `prereg-v6-backcast`, `prereg-v6-backcast-addendum`) before any 2018 to 2023 outcome existed. Code: `src/mcp/backcast.py` and `src/mcp/backcast_st.py`, tests: `tests/test_backcast.py`, results: `results/backcast.json`, `results/backcast_weeks_A.csv` and `results/backcast_weeks_B.csv`. Nothing was changed after the read. Sixty months were scored, 16 pandemic months (March 2020 to June 2021) are reported separately, so every figure below is over **44 months**. The gap cover is v3's procedure refitted at 20 quarterly origins, each month priced by a model that had not seen it. Arm A fits on everything from January 2018, arm B on the trailing 24 months. The sample is 20%, fixed by the sample check (`results/sample_check.json`: 1.047 against 1.045 published, and 1.138 against 1.151 as sold, both within 0.02).
+
+**Two departures from the pre-registered order, recorded here.** The 2018 to 2023 on-time ingest (counts only) had begun before the sample check finished, which section 7 of the pre-registration did not allow. The check passed at the first fraction, so nothing depended on it. And B6 and B7 were amended before any outcome existed by the addendum, because the 44 observed months can never reach the 48 that `local_season` needed.
+
+| # | Expectation | Result | Verdict |
+| --- | --- | --- | --- |
+| B1 | Gap cover within 1 ± 0.173 of expected claims | **0.964** | Passed |
+| B2 | Monthly spread of the ratio 0.19 to 0.33 | **0.245** | Passed |
+| B3 | As sold within the cap runs worse than all connections | 0.932 as sold, 0.964 all | **Failed** |
+| B4 | 9% to 44% of months above a 100% loss ratio as sold | 2.3% (1 of 44 months) | **Failed** |
+| B5 | The refitted loading lowers the sold loss ratio by at least 3.0 points | 2.9 points (55.7% to 52.9%) | **Failed** |
+| B6 | `local` has lower CRPS than `none` and `last12` | 0.199, against 0.156 and 0.170 | **Failed** |
+| B7 | The 90% intervals of `local` cover within the binomial range | 30 of 37 months, range 29 to 36 | Passed |
+| B8 | The loading brings the self-transfer ratio closer to 1 | loaded 0.912, unloaded 0.981 | **Failed** |
+| B9 | Arm A against arm B, no prediction | see below | Reported |
+| B10 | Largest earlier change in the 12-month level, no prediction | see below | Reported |
+
+**What held.** The pricing procedure priced the earlier years on target: **0.964** against a band of 0.83 to 1.17 (a realized loss ratio of 62.7% against 65%), and the month-to-month spread, 0.245, is what 26 months had said, 0.241. The procedure was designed on 2024 to 2026 and is not contradicted by 2019 to 2023.
+
+**What did not, and what it changes.**
+
+- **The sold cover was not worse than the average cover.** Within the 5% cap the ratio was 0.932, below the 0.964 of all connections, and the sold loss ratio over the 37 months that have a loading was 55.7%. Only **1 of 44 months** ran above a 100% loss ratio as sold, against 6 of 26 in 2024 to 2026. The finding of the audit, that the cover as sold lost money in bad months and the cap selected connections the model under-prices, **did not appear in these five years**. 23 of 192 weeks were above 100% as sold, worst week 197%.
+- **The loading was not needed, and it did little.** The refitted loading (mean 1.08, from 1.00 to 1.42) lowered the sold loss ratio by 2.9 points, 0.1 short of the line, in years when the sold cover already ran under target.
+- **Following the level did not pay.** `local` scored worse than a constant level (CRPS 0.199 against 0.156) and worse than the last 12 months (0.170). This is the same answer as the 26 development months (7A), now on 37 months it had not seen. By the rule fixed in the pre-registration, **v6 uses no level model**. `local_season` was never active, as the addendum said it would not be. The intervals of `local` do cover (30 of 37 months).
+- **The loading hurt the self-transfer cover.** The table priced 2019 to 2023 within 2% on average (0.981 over the 37 months compared, 1.024 over all 44), and adding a loading re-estimated from earlier months moved it to 0.912. The mechanism of the 2026 failure of v5 (a level that kept rising) was not present in these years.
+
+**B9, arm A against arm B (no prediction).** Arm B, which sees only the last 24 months, ran 1.012 on all connections and **1.088 as sold**, a sold loss ratio of 67.6% (58.9% loaded), and 43 of 192 weeks above 100%. Arm A ran 0.964, 0.932, 55.7% and 23 of 192. The longer the model's history, the better the cover did as sold.
+
+**B10, was 2024 to 2026 unusual (no prediction).** The log of the 12-month level (claims over expected, all overnight-risk connections) ranged from −0.099 to +0.036 across the 22 windows in which all 12 months were observed, and the largest change between two windows 12 months apart was +0.121 (window ending October 2023 against October 2022). The development years offer only three comparable windows and a change of −0.061. The pre-registration asked for windows 24 months apart, and no two valid windows are that far apart once the pandemic is removed.
+
+**By hub and year (arm A), realized over expected.**
+
+| Hub | 2019 | 2020 (Jan, Feb) | 2021 (Jul to Dec) | 2022 | 2023 |
+| --- | --- | --- | --- | --- | --- |
+| ATL | 0.91 | 0.82 | 0.77 | 0.95 | 1.00 |
+| CLT | 1.03 | 1.00 | 0.76 | 1.08 | 1.09 |
+| DEN | 1.08 | 0.71 | 0.92 | 0.92 | 1.04 |
+| DFW | 1.05 | 0.86 | 0.84 | 0.97 | 0.94 |
+| ORD | 1.05 | 0.71 | 0.84 | 0.88 | 0.85 |
+
+**The pandemic months, separately.** Over the 16 months the pooled ratio was 1.043, and single months ran from 0.37 to 5.14 (April 2020, when a handful of connections carried the claims). They are in no headline.
+
+**Exploratory, after the read, and not pre-registered: the winner's curse and the length of history.** Arm A's ratio as sold, divided by its ratio on all connections, by year: 1.09 (2019, the first model had 12 to 24 months), 1.03, 0.84, 0.98, 0.87 (2023, five years of history). Arm B, with 24 months throughout: 1.10, 1.05, 0.98, 1.18, 0.98. The cap selected connections the model under-rated when the model had little history, and stopped doing so as the history grew. That fits how 2024 to 2026 looked (a model with 6 to 30 months of history) and would make the 75% loss ratio as sold a property of a young model, and not of the cover. Five years do not prove it, and it is one reading among others.
+
+[Corrected in 7I.]
+
+**What this does and does not show.** It shows that the pricing procedure travels to earlier years on average and in its monthly spread, that the loading and the level models should not be built on the strength of 2024 to 2026 alone, and that the "sold loses money" finding was period or model-age specific. It does not show that 2024 to 2026 is the unusual period. The pandemic years, a different airline mix (Virgin America had just merged into Alaska) and no published hotel commitments before September 2022 all limit what 2019 to 2023 says about the cover as it would be sold today.
+
+
+### 7C. What the margin has to carry: the technical price on eight years of weeks (development evidence)
+
+Code: `src/mcp/capital.py` and `src/mcp/risk.py`, tests: `tests/test_capital.py` and `tests/test_risk.py`, results: `results/risk_v6.json` and the weekly record `results/risk_weeks_2019_2026.csv`. The record joins the 192 weeks of the backcast (2019 to 2023, outside the pandemic, 7B) to the 114 development weeks (July 2024 to August 2026), **306 weeks**, from two different fit windows. January to June 2024 and the pandemic months are missing. It is development evidence, and eight years cannot give a 1-in-100 year. The annual figures come from a season block bootstrap of the weeks (runs of four neighbouring weeks drawn quarter by quarter), which keeps the week-to-week weather but **cannot** carry a level that persists from one year to the next, so the annual tail is probably understated.
+
+**The record at the existing price** (expected claims over the 65% target).
+
+| | All overnight-risk connections | Sold within the 5% cap |
+| --- | --- | --- |
+| Pooled loss ratio | 64.7% | 65.8% |
+| Weeks above a 100% loss ratio | 16 of 306 | 51 of 306 |
+| Worst week | 127% | 248% |
+| Annual loss ratio, mean, 90th and 95th percentile | 65.0%, 69.0%, 70.2% | 66.0%, 73.8%, 76.1% |
+| Cost of a weekly stop-loss per unit of premium at 90%, 100%, 120% attachment | 1.5%, 0.6%, 0.0% | 7.3%, 5.1%, 2.8% |
+| Standard deviation of the five-hub weekly ratio against the average single hub | 0.73 | 0.67 |
+
+**The technical price.** Premium that equals expected claims realized on this record, plus the cost of a weekly stop-loss at the attachment, plus a cost of capital (10%) on the tail value at risk of the annual loss ratio beyond its mean, divided by one minus an expense ratio. It is stated as a multiple of the existing price (expected claims over 65%). The existing price pays a 35% share that must cover expenses, commissions and any margin, so 35% is the expense ratio at which a multiple of 1 is expected.
+
+| Expense ratio | All connections | Sold within the cap | Sold, weekly stop-loss at 100% |
+| --- | --- | --- | --- |
+| 10% | 0.73 | 0.75 | 0.74 |
+| 25% | 0.87 | 0.89 | 0.89 |
+| 35% | 1.00 | 1.03 | 1.03 |
+
+**What it says.**
+
+[Qualified in 7J.]
+
+- **On this record the existing price is about right, and the 1.16 loading is not a requirement.** At a 35% expense share the price needed is 1.00 to 1.03 times the existing one, and below that at lower expense shares. The 1.16 loading answers 2024 to 2026 alone (a sold ratio of 1.15), and the earlier years ran under target (0.93). Over all eight years the record averages out to about on target.
+- **The margin for the weather is small in the annual sense, and the weeks are not.** The capital term is 0.3% to 2.5% of premium across costs of capital of 6% to 15%, because the bootstrap's annual loss ratio stays within 66% to 76% in 19 of 20 years. The weeks are another matter: 51 of 306 weeks as sold (17%) ran above a 100% loss ratio, the worst at 248%. A cover that cannot absorb a bad week needs a weekly stop-loss, which costs 5.1% of premium at a 100% attachment as sold, or reserves that do. The capital term does not price that.
+- **More hubs would buy some safety.** The five-hub weekly ratio varies 0.67 to 0.73 as much as the average single hub (mean correlation between hubs 0.32 as sold, 0.42 for all connections), so volume at one hub is riskier per dollar than the same volume spread over five. The roadmap's "more hubs" is worth something, not much: hubs share a good part of their weather.
+- **The annual tail is probably understated.** The bootstrap treats years as independent draws of quarters. The level persisted across years in 2024 to 2026 (the monthly ratios have a lag-1 correlation of 0.70), and a persistent level is exactly what an annual capital figure should carry.
+
+**Margin per policy.** At the sold book's realized loss ratio of 65.8% and the average premium of $10.01 a policy (`VALIDATION.md` 5J), a 1.00 loading leaves $0.92 a policy after claims at a 25% expense share and **−$0.08** at 35%. A 1.16 loading leaves $2.12 at 25% and $0.96 at 35%. This holds the claims fixed when the price rises, which flatters it (fewer connections would pass the cap).
+
+**What this does not do.** It does not say what the cover costs to run, what a reinsurer would quote, or what a traveller would pay.
+
+
+### 7D. A trigger that can settle the same night, and how far it sits from the one the cover was priced on (development data and the backcast years)
+
+Code: `src/mcp/trigger.py`, tests: `tests/test_trigger.py`, results: `results/trigger.json`. The two triggers were fixed in the module's docstring before either was scored. **T1** pays when the connection is missed overnight and an FAA ground stop or ground delay program (not a proposal, not one airline's own stop, `mcp.faa`) was in effect at the hub at some moment between three hours before the inbound flight's scheduled arrival and its actual arrival (three hours after the schedule for a cancelled or diverted inbound flight). **T2** is T1 or adverse hub weather in the same window (ASOS thunder, snow, freezing weather, visibility under one mile, wind of 25 knots or a gust of 35). Both pay the hub's GSA night, weighted by the route weight. They are compared with what the cover was priced on: the BTS-coded gap payout, where the inbound delay is not coded to the airline.
+
+| Period | Trigger | Share of the BTS-coded gap payouts it also pays | Share of its payouts that BTS codes to the airline | Its payouts over the gap payouts | Correlation of monthly payouts with the gap's |
+| --- | --- | --- | --- | --- | --- |
+| 2024 to August 2026 (32 months) | T1 | 29.2% | 11.4% | 0.33 | 0.89 |
+| 2024 to August 2026 (32 months) | T2 | 36.5% | 13.6% | 0.42 | 0.95 |
+| 2019 to 2023, outside the pandemic (44 months) | T1 | 25.6% | 11.2% | 0.29 | 0.78 |
+| 2019 to 2023, outside the pandemic (44 months) | T2 | 34.4% | 14.2% | 0.40 | 0.88 |
+
+The BTS-coded gap is 80.3% of the payouts on missed overnight connections in 2024 to 2026 and 78.3% in 2019 to 2023. The share of all missed-overnight payouts that T1 pays is 26.4% and 22.6%, and T2's is 33.9% and 31.3%.
+
+**What it says.**
+
+- **A trigger of this kind is a narrower cover, not the same one paid earlier.** It pays a quarter to a third of the payouts the BTS-coded cover pays (0.29 to 0.42 of the dollars). Most of the gap, misses after late-arriving aircraft, air-traffic delay with no ground stop and delays at hubs with no flagged weather, would pay nothing. A traveller whose connection was missed for those reasons receives nothing at all, which is the basis risk.
+- **It is closely tied to the same months.** Monthly payouts of the trigger and of the BTS-coded cover move together (0.78 to 0.95), so a trigger priced on the model, with a margin that carries the same weather, would carry about the same monthly shape.
+- **It pays the airline's own delays much less than the BTS code would.** Only 11% to 14% of what the triggers pay is coded to the airline, against 20% to 22% of missed-overnight payouts overall. An FAA program is an independent record of a system-wide problem, which is exactly what an airline cannot write. That is the useful property for the coding risk of 7E: a same-night trigger cannot be moved by coding.
+- **The two periods agree.** The coverage and leakage figures are within a few points between 2019 to 2023 and 2024 to 2026, so the relation did not change with the airlines' commitments in September 2022.
+
+**What stays outside.** A same-night settlement needs the inbound flight's actual arrival that night, which a flight-status feed has and BTS, published two months late, does not. The FAA database keeps a program's first end time when it was revised, so intervals can be too long, and a weather flag at the airport is a coarse stand-in for what stopped a flight. A trigger that pays less is also a different product to price and to sell, and its price and its demand are untested.
+
+
+### 7G. A calendar pattern in the claims level (exploratory, on the 70 months already seen)
+
+Written after the backcast was read, so **none of this is a test**. Code: `src/mcp/v6.py` (`season_report`), tests: `tests/test_v6.py`, results: `results/v6_season_dev.json`. The monthly ratio of realized to expected claims (all overnight-risk connections) for the 70 observed months of 2019 to 2023 (outside the pandemic) and July 2024 to August 2026, from `results/risk_weeks_2019_2026.csv`, averaged by calendar month. The log ratio is the quantity the level models of 7A and 7B tried to follow over time. By calendar month it is far steadier than over time.
+
+| Month | Jan | Feb | Mar | Apr | May | Jun | Jul | Aug | Sep | Oct | Nov | Dec |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Mean log ratio | −0.03 | −0.05 | −0.07 | +0.02 | +0.05 | +0.30 | +0.28 | +0.19 | −0.22 | −0.33 | −0.37 | −0.19 |
+| Observed months | 6 | 6 | 5 | 5 | 5 | 5 | 7 | 7 | 6 | 6 | 6 | 6 |
+
+Predicting each year's months from a season fitted on the other six or seven years (leave one year out) gives a mean absolute error of the monthly log ratio of **0.125** with the season (deviations shrunk by n ÷ (n + 1)), against **0.206** with no adjustment (level 1) and 0.210 with a constant level fitted on the other years. The error falls by about 40%, and shrinking harder only makes it worse (0.129 at κ = 2, 0.140 at κ = 4). The residual spread is 0.1585 and its lag-1 autocorrelation 0.423.
+
+**Summer, by year.** Realized over expected on all connections for June to August, and the sold loss ratio at the existing price: 2019 1.36 and 105%, 2022 1.19 and 72%, 2023 1.32 and 85%, 2025 1.42 and 106%, 2026 1.30 and 95%. In every one of the five summers the cover ran above its expected claims by 19% to 42%, and in two of them above a 100% loss ratio as sold.
+
+**What it suggests.**
+
+- **The model's missing month feature costs a third of the claims in summer and gives a third back in autumn.** The cover is under-priced in June to August and over-priced in September to December, and the average over the year hides both. The project had dropped a month term in 2025 because one year of data memorised that year's events (decision log, step 5). With seven years of each month the pattern is no longer one year's events.
+- **It explains what the level models could not.** A level that moves over time cannot beat a constant level, but a level that depends on the calendar does. The seasonal candidate of 7A could not run on 26 months and the backcast could not test it on 44, which is why this had to be found on the whole record.
+- **It re-reads two earlier findings.** The "calm season" warning of `PREREGISTRATION_2026H2_V4.md` (September to November are the easiest months) is this pattern, and the 2024 to 2026 sold results, which were worst in July and August, were summers.
+- **It is a prediction, and the project's way of testing a prediction is the one it already has.** The multipliers are frozen in `models/v6_season.json` and tested forward in `PREREGISTRATION_V6_FORWARD.md` on March to August 2027, with one prediction about the sealed autumn of 2026.
+
+**Limits.** Seven years of a pattern in months that are also the weather of those years. The multipliers are in-sample for the record they were fitted on. A seasonal price raises summer prices by up to 27% and lowers autumn prices, which changes what can be offered within the cap and has no demand evidence behind it. The record joins two different fit windows.
+
+
+### 7H. Do three features of the timetable earn a place? The schedule-structure test (read once, 13 November 2026)
+
+Pre-registered in `PREREGISTRATION_V6_SCHEDULE.md` (tag `prereg-v6-schedule`) before any of the features was built. Code: `src/mcp/schedule_features.py`, tests: `tests/test_schedule_features.py`, result: `results/schedule_features.json`. The three features are the number of flights scheduled into the inbound flight's quarter-hour at the hub (`hub_arr_15`), the number scheduled out in the onward flight's quarter-hour (`hub_dep_15`), and the inbound flight's scheduled time minus the median time flown by the same network on the same leg in the fit window (`in_block_pad`). Fit on January 2018 to December 2022 without the pandemic months (3,000,654 rows), scored once on 2023 (5,497,858 overnight-risk connections, a 20% sample, the gap label, the v1 feature set plus the three).
+
+| Model | Weighted log loss | Difference from the base |
+| --- | --- | --- |
+| Base (v1 feature set) | 0.230573 | |
+| Base, another random seed | 0.230358 | 0.000215 |
+| Base plus `hub_arr_15` alone | 0.230255 | 0.000318 |
+| Base plus `hub_dep_15` alone | 0.230521 | 0.000052 |
+| Base plus `in_block_pad` alone | 0.230358 | 0.000215 |
+| **Base plus all three** | **0.229839** | **0.000734** |
+
+**X1 failed.** The expectation was that the three features add at most 0.0002 to the log loss, the project's tie band. They added **0.00073**, which is 0.32% of the base log loss. By the rule written before the read, the features carry information the model lacks.
+
+**How to read a failure of this size.**
+
+- **It is small.** A third of one percent of the log loss, against 1% to 2% for everything the model already uses over a connection-time table (Part 2). The pooled realized over expected ratio moves from 1.006 to 1.002.
+- **It is only about three times the noise between two fits.** Refitting the base model with another seed moves the log loss by 0.000215, which is as much as `in_block_pad` adds alone. So `hub_dep_15` and `in_block_pad` are indistinguishable from fit noise here, and `hub_arr_15` (0.000318) is not far above it.
+- **Most of the gain is `hub_arr_15`.** How crowded the hub is when the inbound flight lands carries some risk that connection time and the route's history do not. That is a scheduled field known at booking.
+- **The project's prior was a null, and the rule says the null did not hold.** The pre-registration says such a failure sends the features to a later model version under its own pre-registration, and changes nothing already frozen. Nothing frozen changes. The three-month forward test of the seasonal price (`PREREGISTRATION_V6_FORWARD.md`) does not use them.
+
+**Limits.** One year (2023), whose monthly ratios were already seen. Three features out of many possible timetable features. A gain in log loss is not a gain in margin, and the price cap would change which connections are sold. The comparison uses two fits with different features, and the seed difference shows a fit alone moves the score by a fifth of the gain.
+
+
+### 7I. Four arms, and a correction to the exploratory reading in 7B (exploratory, 13 November 2026)
+
+Written after the backcast was read, so **none of this is a test**. Code: `explore_arms` in `src/mcp/backcast.py`, results: `results/backcast_arms.json`. Two arms were added to the two pre-registered ones. Arm C fits on every earlier month like arm A, but leaves the pandemic months (March 2020 to June 2021) out of the fit. Arm D does the same for arm B: it reaches back until it holds 24 months that are not pandemic months. Each month is priced by a model that had not seen it, as before. All four are over the same 44 scored months.
+
+| Arm | Fit | Pooled ratio, all connections | Pooled ratio, sold | Sold loss ratio | Weeks above 100% as sold (of 192) |
+| --- | --- | --- | --- | --- | --- |
+| A | All earlier months (pre-registered) | 0.964 | 0.932 | 60.6% | 23 |
+| B | Last 24 months (pre-registered) | 1.012 | 1.088 | 70.7% | 43 |
+| C | All earlier months, no pandemic months | 0.979 | 1.045 | 67.9% | 42 |
+| D | Last 24 non-pandemic months | 0.997 | 1.070 | 69.6% | 41 |
+
+Sold ratio divided by the all-connections ratio, by year (a value above 1 means the cap selected connections the model under-rated):
+
+| Arm | 2019 | 2020 | 2021 | 2022 | 2023 |
+| --- | --- | --- | --- | --- | --- |
+| A | 1.09 | 1.03 | 0.84 | 0.98 | 0.87 |
+| B | 1.10 | 1.05 | 0.98 | 1.18 | 0.98 |
+| C | 1.10 | 1.04 | 1.06 | 1.16 | 0.98 |
+| D | 1.11 | 1.02 | 1.03 | 1.14 | 0.99 |
+
+**Correction.** The exploratory paragraph of 7B read the difference between arms A and B as the winner's curse shrinking as the model's history grew, and called the 75% loss ratio as sold of 2024 to 2026 "a property of a young model". **The new arms do not support that reading.** Arm C has the same long history as arm A and runs 1.045 as sold, 67.9%, 42 weeks above 100%, as bad as arm B and arm D. What separates arm A from the rest is that its fit contains the pandemic months. Leaving them out removes A's advantage in 2021 (0.84 to 1.06) and in 2022 (0.98 to 1.16). The length of history is not what mattered.
+
+**What can and cannot be said.**
+
+- **The pre-registered result stands as written.** Arm A, as pre-registered, ran 60.6% as sold. That number and the verdicts of B1 to B8 are unchanged.
+- **The advantage of arm A is fragile.** It depends on training months in which schedules had collapsed and cancellations dominated. Whether those months teach the model something useful about which connections are safe, or only make it less sure of itself so that the cap selects differently, cannot be told from this record. Either way it is not a property of a long history.
+- **The sold cover without that fit looks like 2024 to 2026.** Arms B, C and D run 68% to 71% as sold with 41 to 43 bad weeks, close to the 75% and 28 of 114 weeks of the development years. The "as sold, it runs above its target and has bad weeks" finding of season 1 is therefore the usual outcome, and arm A's 60.6% is the exception that needs explaining.
+- **What it changes elsewhere.** The README and the memo no longer say the history explains the difference. The seasonal price (7G) and the forward test (`PREREGISTRATION_V6_FORWARD.md`) are unaffected: they fit the model on months from January 2024, with no pandemic months in them.
+
+**Limits.** One backcast, four arms, 44 months. The two new arms were run after the result of the first two was known, and the comparison is descriptive.
+
+
+### 7J. The technical price, the season and the reach under each arm (exploratory, 14 November 2026)
+
+Written after the backcast was read, so **none of this is a test**. It repeats 7C and 7G with the weekly record built from each of the four arms of 7I in turn, so that the answer does not depend on one way of fitting the model. Code: `arm_sensitivity` in `src/mcp/capital.py`, tests: `tests/test_capital.py`, results: `results/arm_sensitivity.json`, inputs: `results/backcast_weeks_A.csv` to `_D.csv`, `results/risk_weeks_2019_2026.csv` and `models/v6_season.json`. Each record is the arm's 44 scored months of 2019 to 2023 joined to the 114 development weeks, 306 weeks as in 7C. The technical price is as in 7C, at a 35% expense share, a 10% cost of capital and no weekly stop-loss, as a multiple of the existing price.
+
+| Arm | Pooled sold loss ratio | Weeks above 100% as sold (of 306) | Technical price as sold | With a stop-loss at 100% | Technical price, all connections |
+| --- | --- | --- | --- | --- | --- |
+| A | 65.8% | 51 | 1.032 | 1.027 | 1.005 |
+| B | 72.2% | 71 | 1.130 | 1.127 | 1.035 |
+| C | 70.5% | 70 | 1.103 | 1.098 | 1.014 |
+| D | 71.5% | 69 | 1.118 | 1.114 | 1.026 |
+
+Share of overnight-risk connections that pass the 5% cap, by year of the backcast:
+
+| Arm | 2019 | 2020 | 2021 | 2022 | 2023 |
+| --- | --- | --- | --- | --- | --- |
+| A | 0.459 | 0.472 | 0.263 | 0.325 | 0.466 |
+| B | 0.460 | 0.470 | 0.269 | 0.405 | 0.524 |
+| C | 0.460 | 0.470 | 0.355 | 0.413 | 0.509 |
+| D | 0.461 | 0.472 | 0.351 | 0.410 | 0.528 |
+
+The calendar pattern of 7G under each arm, and its error in leave-one-year-out prediction against no adjustment (level 1):
+
+| Arm | June | July | November | Error with the season | Error with no adjustment |
+| --- | --- | --- | --- | --- | --- |
+| A | 1.27 | 1.27 | 0.72 | 0.125 | 0.206 |
+| B | 1.31 | 1.32 | 0.75 | 0.134 | 0.207 |
+| C | 1.29 | 1.28 | 0.73 | 0.123 | 0.205 |
+| D | 1.31 | 1.29 | 0.73 | 0.125 | 0.209 |
+
+At the frozen multipliers of `models/v6_season.json`, with each month's sold premium multiplied by its multiplier and the cap not applied again (so reach is held fixed, which flatters the price), months above a 100% loss ratio as sold out of 70, and the pooled sold loss ratio:
+
+| Arm | Months above 100% at the existing price | Months above 100% at the seasonal price | Pooled sold loss ratio, seasonal price |
+| --- | --- | --- | --- |
+| A | 7 | 3 | 67.3% |
+| B | 12 | 5 | 73.8% |
+| C | 8 | 5 | 72.0% |
+| D | 11 | 5 | 73.1% |
+
+**Correction to 7C.** 7C reads the record of arm A and concludes that the existing price is about right as sold and that the loading of 1.16 is not a requirement. **That holds under arm A only.** Under arms B, C and D the technical price as sold is 1.10 to 1.13 times the existing one, the pooled sold loss ratio is 70.5% to 72.2% and 69 to 71 of 306 weeks are above 100%, against 51 under arm A. A loading of that size is nearer to what the record asks for than 7C said. The finding about all connections is less sensitive (1.005 to 1.035).
+
+**Why arm A differs.** In 2021 and 2022 arm A sells 26% and 33% of overnight-risk connections where arms C and D sell 35% and 41%. In 2019 and 2020 every arm sells the same share. A model that has seen the pandemic months prices higher afterwards, so fewer connections pass the cap and those that do are safer. Arm A's sold loss ratio came with about nine points less reach in two of the five years. This is a reading of the table and not a test. 7I says why the mechanism cannot be told from the record.
+
+**What it means for the forward test.** `PREREGISTRATION_V6_FORWARD.md` fits its model on months from January 2024, which have no pandemic months in them, and has no loading. It resembles arms B, C and D more than arm A. At its frozen multipliers those arms put 5 months in 70 above a 100% loss ratio as sold, and a pooled sold loss ratio of 72% to 74%. This is written before any month of 2027 exists. If G3 or H3 (no month above 100% as sold) fails, it is what this record suggested, and not a surprise. The reach band of G4 and H4 (20% to 55%) was set at the price without multipliers. In June and July the multiplier of 1.27 raises every price, so reach may fall below the band for that reason alone. Nothing in the pre-registration is changed. `PREREGISTRATION_V6_FORWARD_ADDENDUM.md` adds a second series, reported without an expectation, so that both readings can be compared on the same months.
+
+**What does not depend on the arm.** The multipliers move by at most 0.05 between arms and the leave-one-year-out error with the season stays between 0.123 and 0.134 against 0.205 to 0.209 without it. The calendar pattern of 7G is not a property of one way of fitting the model.
+
+**Limits.** One record of 306 weeks, four arms that share the same development weeks, and a seasonal price evaluated with the cap held fixed. The development weeks are the same in every row, so the arms differ only in 192 weeks. None of it has demand evidence behind it.
+
+**Process.** The forward test's `run` and `read` refuse to start until the scheduled reads of v3 and v4 and of v5.2 have written their results. The guard was added on 14 November 2026, before any month of 2027 existed, and changes no computation.
+
+### 7K. The schedule test over five seeds (exploratory, 14 November 2026)
+
+Written after the schedule test of 7H was read, so **none of this is a test and X1 is not regraded**. Code: `seeds` in `src/mcp/schedule_features.py`, tests: `tests/test_schedule_features.py`, results: `results/schedule_features_seeds.json`. The review of 7H (`docs/season3-plan.md` F5) noted that the tie band of X1 (0.0002) is below the difference of 0.000215 between two fits of the same information, so one pair of fits cannot say whether the gain is real. Here the base model and the model with the three features are each fitted with seeds 0 to 4 on the same fit window (January 2018 to December 2022 without the pandemic months, 3,000,654 rows) and scored on the same 2023 sample (20%, overnight-risk connections).
+
+| Seed | Base log loss | With the three features | Gain |
+| --- | --- | --- | --- |
+| 0 | 0.230548 | 0.230049 | 0.000500 |
+| 1 | 0.230226 | 0.230100 | 0.000126 |
+| 2 | 0.230496 | 0.230021 | 0.000475 |
+| 3 | 0.230455 | 0.229992 | 0.000463 |
+| 4 | 0.230646 | 0.230186 | 0.000461 |
+
+Mean gain **0.000405** with a standard deviation of the paired gains of 0.000157. The base model's log loss has a standard deviation of 0.000156 across seeds, and the mean gain is above twice that. 4 of the 5 paired gains are above the tie band of 0.0002.
+
+**What it says.**
+
+- **The features carry a small gain.** About 0.18% of the base log loss, against 0.32% in the pre-registered run. It is larger than the noise between seeds, so the null of X1 was not true, and it is smaller than the one pair of fits suggested. The verdict of X1 (failed) stands.
+- **Refitting the same specification does not reproduce it exactly.** Seed 0 here gives a gain of 0.000500, and the pre-registered run, which also used seed 0, gave 0.000734. The likely reason is that the rows reach the fit in a different order each time the data are read, which changes the early-stopping split. This was not checked. The spread between two such runs is as large as the spread between seeds, so the figures in 7H carry about 0.0002 of noise that the table there does not show.
+- **What would close it.** A later model version with its own pre-registration, fitted with several seeds and scored on a year the project has not read.
+
+**Limits.** One test year, already seen. Five seeds. The base and the feature models share each seed, so the paired gains remove part of the noise that the standard deviations of the two columns show.
+
+### 7L. How large a change does the coding design find when nothing happened? (exploratory, 14 November 2026)
+
+Written after the coding audit of 7E was read, so **none of this is a test and C1 and C2 keep their status**. Code: `placebo_distribution` in `src/mcp/coding_audit.py`, tests: `tests/test_coding_audit.py`, results: `results/coding_placebo_distribution.json`. The placebo of C1 is one fake break on 1 September 2019 with three airlines and a window that ends in February 2020. The review of 7E (`docs/season3-plan.md` F6) asked what a fuller reference would show. Here the primary model of 7E is run for every fake break in the period before the real one (January 2018 to August 2022, pandemic months out) that leaves at least 8 observed months on each side, with the airlines that have enough volume on both sides of each fake break. Only point estimates are taken, in percentage points of the carrier-coded share.
+
+| Outcome | Fake breaks | Central 95% of fake estimates | Range of fake estimates | Real break, 1 September 2022 | Share of fake estimates at or below the real one |
+| --- | --- | --- | --- | --- | --- |
+| Y1, cancellations | 25 | +0.0 to +6.5 | -1.0 to +6.6 | -7.9 | 0% |
+| Y2, long delays | 25 | +2.7 to +4.3 | +2.5 to +4.4 | -2.6 | 0% |
+
+**What it says.**
+
+- **The real estimates lie below every fake one, for both outcomes.** The fake breaks give -1.0 to +6.6 for Y1 and +2.5 to +4.4 for Y2. The real estimates are -7.9 and -2.6. By this reference the fall at September 2022 is not the size of change the design finds by chance in the earlier years.
+- **The reference is not centred on zero.** Every fake break for Y2 gives a rise of 2 to 4 points and 24 of 25 for Y1 give a rise, so the carrier-coded share was already rising in the earlier years. That is what made the placebo of 7E fail, and it means a naive reading of "no change" would be a decline already relative to the earlier trend. It also means the design cannot separate a break from a trend.
+- **It does not say why the share fell.** A change in coding, a different mix of causes after the pandemic recovery and a change in how the airlines' hubs ran in 2022 all fit. Fake breaks next to each other share data, so the percentiles describe a reference and are not a significance test. The comparison with Frontier of 7E stays unusable.
+- **What would close it.** The test of `docs/season3-plan.md` T6 (cancellations on days with no adverse weather and no FAA program at either airport), which needs its own pre-registration.
+
+**Limits.** Point estimates without intervals. Three or four airlines. Twenty-five overlapping fake breaks, not twenty-five draws.
+
+### 7M. Is there enough clear-day data for a sharper coding test? Counts only, and the answer is no (14 November 2026)
+
+This is the first step of task T6 of `docs/season3-plan.md`, which proposed testing the coding of cancellations on days when nothing outside the airline could explain them. Code: `src/mcp/clear_day_counts.py`, tests: `tests/test_clear_day_counts.py`, results: `results/clear_day_counts.json`. **No cause code was read.** A cancelled flight between two of the five hubs counts as on a clear window when no adverse ASOS hour and no FAA ground stop or ground delay program touched the origin within three hours of the scheduled departure or the destination within three hours of the scheduled arrival. The count is by airline and calendar quarter, January 2018 to August 2026, pandemic months out.
+
+There are 13,174 cancelled flights between two hubs outside the pandemic months. **4,242 of them (32.2%) are on clear windows.** For the committing airlines of 7E:
+
+| Airline | Quarters | Cancelled hub-to-hub flights | On clear windows | Quarters with at least 100 on clear windows |
+| --- | --- | --- | --- | --- |
+| AA | 30 | 7336 | 2,271 | 8 |
+| DL | 28 | 1361 | 496 | 0 |
+| UA | 30 | 2331 | 697 | 0 |
+| WN | 30 | 819 | 274 | 0 |
+
+**The gate of the plan was 40 airline-quarters of committing airlines with at least 100 clear-window cancellations. The data give 8, all of them American. The gate is not met, so the clear-day test is not built and no pre-registration was written for it.** The threshold was not lowered, as the plan said. Counted this way, only American flies enough hub-to-hub flights at these five hubs for the design to have power, and one airline cannot separate a change in coding from a change in that airline's operations.
+
+**What would close it.** More hubs, which means more airports with weather and traffic-management data and a larger project, or a design that does not need clear windows, such as comparing cancellations coded to the airline against an independent record of the same flight's cause. Neither is started here.
+
+**Limits.** The window is a count of hours with a flag in ASOS and in the FAA advisories, so it is conservative about what counts as clear. The FAA database keeps a program's first end time when it was revised.

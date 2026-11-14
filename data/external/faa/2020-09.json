@@ -1,0 +1,755 @@
+{
+"month": "2020-09",
+"days_done": [
+"2020-09-01",
+"2020-09-02",
+"2020-09-03",
+"2020-09-04",
+"2020-09-05",
+"2020-09-06",
+"2020-09-07",
+"2020-09-08",
+"2020-09-09",
+"2020-09-10",
+"2020-09-11",
+"2020-09-12",
+"2020-09-13",
+"2020-09-14",
+"2020-09-15",
+"2020-09-16",
+"2020-09-17",
+"2020-09-18",
+"2020-09-19",
+"2020-09-20",
+"2020-09-21",
+"2020-09-22",
+"2020-09-23",
+"2020-09-24",
+"2020-09-25",
+"2020-09-26",
+"2020-09-27",
+"2020-09-28",
+"2020-09-29",
+"2020-09-30"
+],
+"advisories": [
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-09-01T23:36:00+00:00",
+"2020-09-02T01:00:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-01",
+"advn": 82,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "09/01/20 23:48"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-09-01T22:44:00+00:00",
+"2020-09-02T00:00:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-01",
+"advn": 74,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "09/01/20 22:55"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-09-01T22:39:00+00:00",
+"2020-09-02T00:00:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-01",
+"advn": 73,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "09/01/20 22:50"
+},
+{
+"title": "CDM GROUND DELAY PROGRAM",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-09-01T16:00:00+00:00",
+"2020-09-02T03:59:00+00:00"
+],
+"cause": "weather",
+"period_key": "CUMULATIVE PROGRAM PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-01",
+"advn": 68,
+"kind": "gdp",
+"list_element": "DFW/ZFW",
+"send": "09/01/20 20:58"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-09-01T19:36:00+00:00",
+"2020-09-01T21:00:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-01",
+"advn": 65,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "09/01/20 19:53"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-09-01T18:24:00+00:00",
+"2020-09-01T20:00:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-01",
+"advn": 57,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "09/01/20 18:40"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-09-01T18:08:00+00:00",
+"2020-09-01T19:30:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-01",
+"advn": 56,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "09/01/20 18:24"
+},
+{
+"title": "DFW GROUND STOP CANCELLATION",
+"element": "DFW",
+"impacting": null,
+"period": null,
+"cause": "none",
+"cnx": true,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-01",
+"advn": 54,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "09/01/20 17:58"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-09-01T16:59:00+00:00",
+"2020-09-01T18:00:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-01",
+"advn": 49,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "09/01/20 17:13"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-09-01T16:07:00+00:00",
+"2020-09-01T17:15:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-01",
+"advn": 47,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "09/01/20 16:19"
+},
+{
+"title": "CDM GROUND DELAY PROGRAM",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-09-01T16:00:00+00:00",
+"2020-09-01T23:59:00+00:00"
+],
+"cause": "weather",
+"period_key": "CUMULATIVE PROGRAM PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-01",
+"advn": 38,
+"kind": "gdp",
+"list_element": "DFW/ZFW",
+"send": "09/01/20 13:57"
+},
+{
+"title": "CDM PROPOSED GROUND DELAY PROGRAM",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-09-01T16:00:00+00:00",
+"2020-09-01T23:59:00+00:00"
+],
+"cause": "weather",
+"period_key": "ARRIVALS ESTIMATED FOR",
+"cnx": false,
+"proposed": true,
+"carrier_specific": false,
+"day": "2020-09-01",
+"advn": 37,
+"kind": "gdp",
+"list_element": "DFW/ZFW",
+"send": "09/01/20 13:43"
+},
+{
+"title": "CDM GROUND DELAY PROGRAM CNX",
+"element": "DFW",
+"impacting": null,
+"period": null,
+"cause": "none",
+"cnx": true,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-02",
+"advn": 4,
+"kind": "gdp",
+"list_element": "DFW/ZFW",
+"send": "09/02/20 00:45"
+},
+{
+"title": "CDM GROUND DELAY PROGRAM CNX",
+"element": "DFW",
+"impacting": null,
+"period": null,
+"cause": "none",
+"cnx": true,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-03",
+"advn": 58,
+"kind": "gdp",
+"list_element": "DFW/ZFW",
+"send": "09/03/20 21:42"
+},
+{
+"title": "CDM GROUND DELAY PROGRAM",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-09-03T20:00:00+00:00",
+"2020-09-04T00:59:00+00:00"
+],
+"cause": "weather",
+"period_key": "CUMULATIVE PROGRAM PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-03",
+"advn": 40,
+"kind": "gdp",
+"list_element": "DFW/ZFW",
+"send": "09/03/20 17:08"
+},
+{
+"title": "CDM PROPOSED GROUND DELAY PROGRAM",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-09-03T20:00:00+00:00",
+"2020-09-03T23:59:00+00:00"
+],
+"cause": "weather",
+"period_key": "ARRIVALS ESTIMATED FOR",
+"cnx": false,
+"proposed": true,
+"carrier_specific": false,
+"day": "2020-09-03",
+"advn": 38,
+"kind": "gdp",
+"list_element": "DFW/ZFW",
+"send": "09/03/20 16:50"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-09-05T20:39:00+00:00",
+"2020-09-05T22:45:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-05",
+"advn": 26,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "09/05/20 21:57"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-09-05T20:39:00+00:00",
+"2020-09-05T22:00:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-05",
+"advn": 22,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "09/05/20 21:06"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-09-05T20:39:00+00:00",
+"2020-09-05T22:00:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-05",
+"advn": 19,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "09/05/20 20:52"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ORD",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-09-07T11:14:00+00:00",
+"2020-09-07T12:30:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-07",
+"advn": 12,
+"kind": "gs",
+"list_element": "ORD/ZAU",
+"send": "09/07/20 11:28"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-09-08T20:22:00+00:00",
+"2020-09-08T21:45:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-08",
+"advn": 52,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "09/08/20 20:34"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ORD",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-09-08T17:24:00+00:00",
+"2020-09-08T18:45:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-08",
+"advn": 32,
+"kind": "gs",
+"list_element": "ORD/ZAU",
+"send": "09/08/20 17:37"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ORD",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-09-08T16:03:00+00:00",
+"2020-09-08T17:45:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-08",
+"advn": 29,
+"kind": "gs",
+"list_element": "ORD/ZAU",
+"send": "09/08/20 17:19"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "ORD",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-09-08T16:45:00+00:00",
+"2020-09-08T17:45:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-08",
+"advn": 28,
+"kind": "gs",
+"list_element": "ORD/ZAU",
+"send": "09/08/20 16:53"
+},
+{
+"title": "DFW GROUND STOP CANCELLATION",
+"element": "DFW",
+"impacting": null,
+"period": null,
+"cause": "none",
+"cnx": true,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-09",
+"advn": 66,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "09/09/20 22:57"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-09-09T21:53:00+00:00",
+"2020-09-09T23:15:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-09",
+"advn": 62,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "09/09/20 22:11"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-09-09T21:17:00+00:00",
+"2020-09-09T22:30:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-09",
+"advn": 59,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "09/09/20 21:32"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-09-09T21:01:00+00:00",
+"2020-09-09T22:00:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-09",
+"advn": 56,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "09/09/20 21:12"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-09-09T20:26:00+00:00",
+"2020-09-09T21:15:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-09",
+"advn": 47,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "09/09/20 20:41"
+},
+{
+"title": "CDM GROUND DELAY PROGRAM",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-09-09T22:00:00+00:00",
+"2020-09-10T01:59:00+00:00"
+],
+"cause": "weather",
+"period_key": "CUMULATIVE PROGRAM PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-09",
+"advn": 35,
+"kind": "gdp",
+"list_element": "DFW/ZFW",
+"send": "09/09/20 18:56"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DEN",
+"impacting": "WEATHER / LOW CEILINGS",
+"period": [
+"2020-09-09T14:25:00+00:00",
+"2020-09-09T15:15:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-09",
+"advn": 23,
+"kind": "gs",
+"list_element": "DEN/ZDV",
+"send": "09/09/20 14:42"
+},
+{
+"title": "CDM GROUND DELAY PROGRAM CNX",
+"element": "DFW",
+"impacting": null,
+"period": null,
+"cause": "none",
+"cnx": true,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-10",
+"advn": 4,
+"kind": "gdp",
+"list_element": "DFW/ZFW",
+"send": "09/10/20 00:24"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-09-16T21:01:00+00:00",
+"2020-09-16T22:15:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-16",
+"advn": 31,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "09/16/20 21:13"
+},
+{
+"title": "CDM GROUND DELAY PROGRAM CNX",
+"element": "DFW",
+"impacting": null,
+"period": null,
+"cause": "none",
+"cnx": true,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-22",
+"advn": 36,
+"kind": "gdp",
+"list_element": "DFW/ZFW",
+"send": "09/22/20 22:41"
+},
+{
+"title": "CDM GROUND DELAY PROGRAM",
+"element": "DFW",
+"impacting": "RWY-TAXI / CONSTRUCTION",
+"period": [
+"2020-09-22T22:00:00+00:00",
+"2020-09-22T22:59:00+00:00"
+],
+"cause": "unknown",
+"period_key": "CUMULATIVE PROGRAM PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-22",
+"advn": 32,
+"kind": "gdp",
+"list_element": "DFW/ZFW",
+"send": "09/22/20 19:29"
+},
+{
+"title": "CDM PROPOSED GROUND DELAY PROGRAM",
+"element": "DFW",
+"impacting": "RWY-TAXI / CONSTRUCTION",
+"period": [
+"2020-09-22T22:00:00+00:00",
+"2020-09-22T22:59:00+00:00"
+],
+"cause": "unknown",
+"period_key": "ARRIVALS ESTIMATED FOR",
+"cnx": false,
+"proposed": true,
+"carrier_specific": false,
+"day": "2020-09-22",
+"advn": 30,
+"kind": "gdp",
+"list_element": "DFW/ZFW",
+"send": "09/22/20 18:54"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "DFW",
+"impacting": "RWY-TAXI / CONSTRUCTION",
+"period": [
+"2020-09-22T15:05:00+00:00",
+"2020-09-22T16:00:00+00:00"
+],
+"cause": "unknown",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-22",
+"advn": 22,
+"kind": "gs",
+"list_element": "DFW/ZFW",
+"send": "09/22/20 15:16"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "CLT",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-09-29T18:41:00+00:00",
+"2020-09-29T20:00:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-29",
+"advn": 25,
+"kind": "gs",
+"list_element": "CLT/ZTL",
+"send": "09/29/20 18:53"
+},
+{
+"title": "CDM GROUND STOP",
+"element": "CLT",
+"impacting": "WEATHER / THUNDERSTORMS",
+"period": [
+"2020-09-29T17:54:00+00:00",
+"2020-09-29T19:00:00+00:00"
+],
+"cause": "weather",
+"period_key": "GROUND STOP PERIOD",
+"cnx": false,
+"proposed": false,
+"carrier_specific": false,
+"day": "2020-09-29",
+"advn": 22,
+"kind": "gs",
+"list_element": "CLT/ZTL",
+"send": "09/29/20 18:11"
+}
+],
+"read": "2026-11-12"
+}

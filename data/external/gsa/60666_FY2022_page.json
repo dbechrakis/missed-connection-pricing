@@ -1,0 +1,22 @@
+{
+ "source": "https://www.gsa.gov/system/files/FY2022_PerDiemMasterRatesFile.xlsx",
+ "retrieved": "2026-11-12",
+ "mie": 79.0,
+ "county": "Cook / Lake",
+ "city": "Chicago",
+ "standard_rate": false,
+ "lodging": {
+  "10": 218.0,
+  "11": 218.0,
+  "12": 134.0,
+  "1": 134.0,
+  "2": 134.0,
+  "3": 134.0,
+  "4": 216.0,
+  "5": 216.0,
+  "6": 216.0,
+  "7": 187.0,
+  "8": 187.0,
+  "9": 218.0
+ }
+}

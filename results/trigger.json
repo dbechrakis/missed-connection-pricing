@@ -1,0 +1,54 @@
+{
+ "development_2024_2026": {
+  "period": [
+   "2024-01",
+   "2026-08"
+  ],
+  "label": "development_2024_2026",
+  "connections_weighted": 6371371.583763612,
+  "T1": {
+   "coverage": 0.29158063957489416,
+   "leakage": 0.11387842132526335,
+   "ratio": 0.32905263407643853,
+   "monthly_ratio_sd": 0.14118402382015882,
+   "monthly_correlation": 0.8900597467836677,
+   "share_of_missed_overnight_paid": 0.2640935587103411
+  },
+  "T2": {
+   "coverage": 0.3648067403006116,
+   "leakage": 0.1361006404947381,
+   "ratio": 0.4222792114460291,
+   "monthly_ratio_sd": 0.12656435757929418,
+   "monthly_correlation": 0.95137465252669,
+   "share_of_missed_overnight_paid": 0.3389160522394487
+  },
+  "gap_share_of_missed_overnight": 0.8025875843588978,
+  "months": 32
+ },
+ "backcast_2019_2023": {
+  "period": [
+   "2019-01",
+   "2023-12"
+  ],
+  "label": "backcast_2019_2023",
+  "connections_weighted": 4340189.705887073,
+  "T1": {
+   "coverage": 0.25592316686727834,
+   "leakage": 0.1118322806658615,
+   "ratio": 0.28814734120166463,
+   "monthly_ratio_sd": 0.14369684727098755,
+   "monthly_correlation": 0.7801405755355368,
+   "share_of_missed_overnight_paid": 0.2255400670336493
+  },
+  "T2": {
+   "coverage": 0.3435926487964205,
+   "leakage": 0.14159987027886034,
+   "ratio": 0.4002709656020674,
+   "monthly_ratio_sd": 0.1288239172641442,
+   "monthly_correlation": 0.8810798589877429,
+   "share_of_missed_overnight_paid": 0.3133020073585613
+  },
+  "gap_share_of_missed_overnight": 0.7827247896616939,
+  "months": 44
+ }
+}

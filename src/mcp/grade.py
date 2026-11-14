@@ -11,6 +11,7 @@ The original expectations (E1 to E6) and the monitoring addendum (A1 to A3) are 
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -93,16 +94,137 @@ def grade_v5_2(res: dict) -> dict:
     }
 
 
+# ---- season 2: the backcast and the coding audit (written before 2018 to 2023 is downloaded) -------------------------
+B_SIGMA, B_RHO = 0.241, 0.70     # spread and lag-1 autocorrelation of the 26 development monthly ratios (PREREGISTRATION_V6_BACKCAST.md, section 6)
+B2_BAND = (0.19, 0.33)           # 95% chi-square interval for an sd of 0.241 from 26 months
+B4_BAND = (0.09, 0.44)           # exact 95% interval for 6 of 26 months above a 100% loss ratio
+B5_POINTS = 0.03
+C_POINTS = 3.0
+SHARE_FORWARD = (0.20, 0.55)
+SIGMA_FORWARD, RHO_FORWARD = 0.1585, 0.423   # the leave-one-year-out residual spread and its lag-1 autocorrelation (models/v6_season.json)
+
+
+def binomial_central_range(n: int, p: float = 0.90, tail: float = 0.025) -> tuple[int, int]:
+    """Smallest k with P(X <= k) >= tail, and smallest k with P(X <= k) >= 1 - tail, for X ~ Binomial(n, p)."""
+    cdf, lo, hi = 0.0, None, None
+    for k in range(n + 1):
+        cdf += math.comb(n, k) * p ** k * (1 - p) ** (n - k)
+        if lo is None and cdf >= tail:
+            lo = k
+        if hi is None and cdf >= 1 - tail:
+            hi = k
+            break
+    return lo, hi
+
+
+def b1_band(n: int) -> float:
+    return 2 * B_SIGMA / math.sqrt(n * (1 - B_RHO) / (1 + B_RHO))
+
+
+def grade_backcast(res: dict) -> dict:
+    """B1 to B8 from results/backcast.json (written by mcp.backcast), thresholds as in PREREGISTRATION_V6_BACKCAST.md.
+    B9 and B10 are reported without a prediction and stay pending. Months are the scored months outside the pandemic.
+
+    Expected keys: n_months; gap.{pooled_ratio_all, monthly_ratio_all, pooled_ratio_sold, monthly_sold_loss_ratio,
+    sold_loss_ratio_unloaded, sold_loss_ratio_loaded}; level.{months_scored, crps.{none,last12,local}, interval_hits};
+    self_transfer.{ratio_unloaded, ratio_loaded}. B6 and B7 are on the `local` level model (PREREGISTRATION_V6_BACKCAST_ADDENDUM.md)."""
+    g, lv, st = res["gap"], res["level"], res["self_transfer"]
+    n = res["n_months"]
+    band = b1_band(n)
+    ratios = list(g["monthly_ratio_all"].values())
+    mean = sum(ratios) / len(ratios)
+    sd = math.sqrt(sum((r - mean) ** 2 for r in ratios) / (len(ratios) - 1))
+    lrs = list(g["monthly_sold_loss_ratio"].values())
+    above = sum(1 for x in lrs if x > 1.0) / len(lrs)
+    lo, hi = binomial_central_range(lv["months_scored"])
+    c = lv["crps"]
+    gain = g["sold_loss_ratio_unloaded"] - g["sold_loss_ratio_loaded"]
+    return {
+        "B1": {"pass": abs(g["pooled_ratio_all"] - 1) <= band, "value": f"{g['pooled_ratio_all']:.3f} against 1 ± {band:.3f} (n = {n})"},
+        "B2": {"pass": B2_BAND[0] <= sd <= B2_BAND[1], "value": f"monthly sd {sd:.3f} against {B2_BAND[0]:.2f} to {B2_BAND[1]:.2f}"},
+        "B3": {"pass": g["pooled_ratio_sold"] > g["pooled_ratio_all"], "value": f"within the cap {g['pooled_ratio_sold']:.3f}, all {g['pooled_ratio_all']:.3f}"},
+        "B4": {"pass": B4_BAND[0] <= above <= B4_BAND[1], "value": f"{above:.1%} of months above a 100% loss ratio as sold, against {B4_BAND[0]:.0%} to {B4_BAND[1]:.0%}"},
+        "B5": {"pass": gain >= B5_POINTS, "value": f"loading lowers the sold loss ratio by {gain * 100:.1f} points ({g['sold_loss_ratio_unloaded']:.1%} to {g['sold_loss_ratio_loaded']:.1%})"},
+        "B6": {"pass": c["local"] < c["none"] and c["local"] < c["last12"],
+               "value": f"CRPS local {c['local']:.3f}, none {c['none']:.3f}, last12 {c['last12']:.3f} over {lv['months_scored']} months"},
+        "B7": {"pass": lo <= lv["interval_hits"] <= hi, "value": f"{lv['interval_hits']} of {lv['months_scored']} months inside the 90% interval, range {lo} to {hi}"},
+        "B8": {"pass": abs(st["ratio_loaded"] - 1) < abs(st["ratio_unloaded"] - 1), "value": f"loaded {st['ratio_loaded']:.3f}, unloaded {st['ratio_unloaded']:.3f}"},
+    }
+
+
+def grade_coding(res: dict) -> dict:
+    """C1 and C2 from results/coding_audit.json (written by mcp.coding_audit), as in PREREGISTRATION_V6_CODING.md.
+    Effects are in percentage points, negative meaning a fall in the carrier-coded share. If C1 fails, C2 is not graded."""
+    pl, pr = res["placebo"], res["primary"]
+    c1 = all(abs(pl[k]["effect"]) <= C_POINTS for k in ("Y1", "Y2"))
+    out = {"C1": {"pass": c1, "value": f"placebo effects Y1 {pl['Y1']['effect']:+.1f}, Y2 {pl['Y2']['effect']:+.1f} points against ± {C_POINTS:.0f}"}}
+    if c1:
+        out["C2"] = {"pass": all(pr[k]["effect"] > -C_POINTS for k in ("Y1", "Y2")),
+                     "value": f"effects Y1 {pr['Y1']['effect']:+.1f}, Y2 {pr['Y2']['effect']:+.1f} points against a fall of {C_POINTS:.0f}"}
+    return out
+
+
+def grade_forecast(res: dict) -> dict:
+    """F1 and F2 from results/forecast.json (written by mcp.forecast), thresholds as in PREREGISTRATION_V6_FORECAST.md.
+    F2 is graded only if the gate passed (a gain of 1% or more at some lead)."""
+    g = res["gain_pct"]
+    out = {"F1": {"pass": g["1"] > g["7"] and g["7"] < 1.0, "value": f"gain at lead 1 {g['1']:.2f}%, at lead 7 {g['7']:.2f}%"}}
+    if res["gate_passed"]:
+        w = res["rule"]["s20_theta1"]
+        out["F2"] = {"pass": w["weeks_above_100_with_rule"] < w["weeks_above_100_without_rule"],
+                     "value": f"weeks above 100% as sold: {w['weeks_above_100_with_rule']} with the rule, {w['weeks_above_100_without_rule']} without"}
+    return out
+
+
+def grade_forward(res: dict, window: str) -> dict:
+    """G1 to G4 (spring 2027) or H1 to H4 (summer 2027) from results/v6_forward_<window>.json (written by mcp.v6 read), as in
+    PREREGISTRATION_V6_FORWARD.md. `window` is 'spring2027' or 'summer2027'."""
+    g = "G" if window == "spring2027" else "H"
+    hw, r = res["band_half_width"], res["pooled_adjusted_ratio"]
+    months = res["months"]
+    lr = {k: v["sold_loss_ratio"] for k, v in months.items()}
+    lo, hi = res["share_sold_range"]
+    return {
+        f"{g}1": {"pass": abs(r - 1) <= hw, "value": f"{r:.3f} against 1 ± {hw:.3f}"},
+        f"{g}2": {"pass": res["mae_season"] < res["mae_none"], "value": f"mean absolute log error {res['mae_season']:.3f} with the multipliers, {res['mae_none']:.3f} without"},
+        f"{g}3": {"pass": all(v is not None and v <= 1.0 for v in lr.values()), "value": "sold loss ratio by month " + ", ".join(f"{k} {v:.0%}" for k, v in lr.items())},
+        f"{g}4": {"pass": SHARE_FORWARD[0] <= lo and hi <= SHARE_FORWARD[1], "value": f"share sold {lo:.1%} to {hi:.1%} against {SHARE_FORWARD[0]:.0%} to {SHARE_FORWARD[1]:.0%}"},
+    }
+
+
+def grade_autumn(res: dict) -> dict:
+    """Q1 from results/holdout_v3_next.json: the v3 ratio on September to November 2026 against the seasonal prediction."""
+    season = json.loads((ROOT / "models" / "v6_season.json").read_text(encoding="utf-8"))["multiplier"]
+    mean = (season["09"] + season["10"] + season["11"]) / 3
+    hw = 2 * SIGMA_FORWARD / math.sqrt(3 * (1 - RHO_FORWARD) / (1 + RHO_FORWARD))
+    ratio = res["results"]["primary"]["overall"]["ratio"]
+    return {"Q1": {"pass": mean * (1 - hw) <= ratio <= mean * (1 + hw), "value": f"{ratio:.3f} against {mean * (1 - hw):.3f} to {mean * (1 + hw):.3f}"}}
+
+
+def report_backcast(res: dict) -> dict:
+    """B9 and B10 from results/backcast.json. Their document gives no prediction, so they are reported and never pass or fail."""
+    a, b = res["gap"], res["arm_B"]
+    ch = res["level_change"]
+    return {"B9": {"value": f"as sold, arm A {a['pooled_ratio_sold']:.3f} and arm B {b['pooled_ratio_sold']:.3f} (VALIDATION.md 7B and 7I)"},
+            "B10": {"value": f"largest change in the 12-month level {ch['largest_12_month_change']:+.3f} in 2019 to 2023 against {ch['development_2024_2026']['largest_12_month_change']:+.3f} in 2024 to 2026, windows 12 months apart (VALIDATION.md 7B)"}}
+
+
+def grade_schedule(res: dict) -> dict:
+    """X1 from results/schedule_features.json (written by mcp.schedule_features), as in PREREGISTRATION_V6_SCHEDULE.md."""
+    return {"X1": {"pass": res["gain"] <= 0.0002, "value": f"gain in log loss {res['gain']:+.5f} ({res['gain_pct']:+.2f}%) against a tie band of 0.0002; two seeds differ by {res['seed_difference']:.5f}"}}
+
+
 def render(status: dict) -> str:
     """SCOREBOARD.md from the status file: one row per pre-registered prediction."""
-    icon = {"pending": "pending", "pass": "**passed**", "fail": "**failed**"}
+    icon = {"pending": "pending", "pass": "**passed**", "fail": "**failed**", "reported": "reported"}
     rows = "\n".join(f"| {e['id']} | {e['claim']} | [{e['tag']}]({e['document']}) | {icon[e['status']]} | {e['result'] or ''} |" for e in status["expectations"])
-    done = sum(1 for e in status["expectations"] if e["status"] != "pending")
+    done = sum(1 for e in status["expectations"] if e["status"] in ("pass", "fail"))
+    reported = sum(1 for e in status["expectations"] if e["status"] == "reported")
     return f"""# Scoreboard: every pre-registered prediction and how it turned out
 
-Each prediction was written, hashed and tagged **before** its data existed, so each is judged by the rule it was written with. Nothing here is edited by hand once a result is in: `python -m mcp.grade` grades from the result files with thresholds copied from the documents (`src/mcp/grade.py`), except E1 to E6 and A1 to A3, which their documents say are graded by hand.
+Each prediction was written, hashed and tagged **before** its data existed, so each is judged by the rule it was written with. Nothing here is edited by hand once a result is in: `python -m mcp.grade` grades from the result files with thresholds copied from the documents (`src/mcp/grade.py`), except E1 to E6, A1 to A3, B9, B10 and the sizes of F3, which their documents say are graded by hand.
 
-**{done} of {len(status['expectations'])} graded.** {status['when']}
+**{done} of {len(status['expectations'])} graded, {reported} reported without a prediction.** {status['when']}
 
 | # | Prediction | Document (tag) | Status | Result |
 | --- | --- | --- | --- | --- |
@@ -126,14 +248,29 @@ def apply(status: dict, grades: dict) -> dict:
     return status
 
 
+def apply_reported(status: dict, reports: dict) -> dict:
+    for e in status["expectations"]:
+        if e["id"] in reports:
+            e["status"] = "reported"
+            e["result"] = reports[e["id"]]["value"]
+    return status
+
+
 def main() -> None:
     status = load()
     for name, grader in (("holdout_v3_next.json", grade_v3), ("holdout_v4_next.json", grade_v4), ("v5_holdout.json", grade_v5),
                          ("v5_1_holdout.json", grade_v5_1),
-                         ("v5_2_holdout.json", grade_v5_2)):
+                         ("v5_2_holdout.json", grade_v5_2), ("backcast.json", grade_backcast), ("coding_audit.json", grade_coding), ("forecast.json", grade_forecast), ("holdout_v3_next.json", grade_autumn), ("schedule_features.json", grade_schedule)):
         path = ROOT / "results" / name
         if path.exists():
             apply(status, grader(json.loads(path.read_text(encoding="utf-8"))))
+    path = ROOT / "results" / "backcast.json"
+    if path.exists():
+        apply_reported(status, report_backcast(json.loads(path.read_text(encoding="utf-8"))))
+    for window in ("spring2027", "summer2027"):
+        path = ROOT / "results" / f"v6_forward_{window}.json"
+        if path.exists():
+            apply(status, grade_forward(json.loads(path.read_text(encoding="utf-8")), window))
     STATUS.write_text(json.dumps(status, indent=1, ensure_ascii=False) + chr(10), encoding="utf-8", newline=chr(10))
     SCOREBOARD.write_text(render(status), encoding="utf-8", newline=chr(10))
     print(render(status).split("| # |")[0].strip().splitlines()[-1])

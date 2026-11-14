@@ -18,3 +18,4 @@ models/*
 !models/v5_table.json
 !models/v5_1_prices.json
 !models/v5_2_prices.json
+!models/v6_season.json

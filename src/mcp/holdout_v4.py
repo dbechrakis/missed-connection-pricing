@@ -26,7 +26,7 @@ from mcp.model import _codes
 from mcp.split import where
 from mcp.v3 import BUNDLE, claim_cost, frame_sql, gsa_table, month_file
 from mcp.v3_loading import FROZEN, measure, weekly_loss_ratio
-from mcp.variant import MARKETING
+from mcp.variant import MARKETING, VARIANT
 
 RESULTS = ROOT / "results" / "holdout_v4_next.json"
 SENSITIVITY = (1.0, 1.10, 1.16, 1.21, 1.30)
@@ -63,7 +63,7 @@ def summarise(months: dict, lam: float, sensitivity=SENSITIVITY) -> dict:
 
 
 def run(months=(9, 10, 11), year: int = 2026, predicate: str | None = None) -> dict:
-    assert MARKETING, "run with MCP_VARIANT=v3"
+    assert VARIANT == "v3", "run with MCP_VARIANT=v3"
     bundle, table = joblib.load(BUNDLE), gsa_table()
     lam = float(json.loads(FROZEN.read_text(encoding="utf-8"))["lambda"])
     con = duckdb.connect()

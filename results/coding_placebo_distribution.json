@@ -1,0 +1,541 @@
+{
+ "status": "exploratory reference distribution of fake breaks, after the single read (VALIDATION.md 7L)",
+ "window": [
+  "2018-01",
+  "2022-08"
+ ],
+ "min_months_each_side": 8,
+ "distribution": {
+  "Y1": {
+   "breaks": {
+    "2018-09": {
+     "effect": 0.7246681820219435,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 126
+    },
+    "2018-10": {
+     "effect": 1.1538713029394052,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 126
+    },
+    "2018-11": {
+     "effect": 2.4424278238236745,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 126
+    },
+    "2018-12": {
+     "effect": 3.0973626536517687,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 126
+    },
+    "2019-01": {
+     "effect": 4.418774157311665,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 126
+    },
+    "2019-02": {
+     "effect": 5.159554703250877,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 126
+    },
+    "2019-03": {
+     "effect": 4.601948184741063,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 126
+    },
+    "2019-04": {
+     "effect": 2.6757409248914543,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 126
+    },
+    "2019-05": {
+     "effect": 2.0048809104150593,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 126
+    },
+    "2019-06": {
+     "effect": 2.456046109032194,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 126
+    },
+    "2019-07": {
+     "effect": 4.920385204851538,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 126
+    },
+    "2019-08": {
+     "effect": 4.805264608346415,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 126
+    },
+    "2019-09": {
+     "effect": 4.589468039942785,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 126
+    },
+    "2019-10": {
+     "effect": 4.476907754104246,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 126
+    },
+    "2019-11": {
+     "effect": 5.078759439423483,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 126
+    },
+    "2019-12": {
+     "effect": 5.66607916268286,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 126
+    },
+    "2020-01": {
+     "effect": 6.435874354405469,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 126
+    },
+    "2020-02": {
+     "effect": 5.60933081803807,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 126
+    },
+    "2021-07": {
+     "effect": 5.692658064030924,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 126
+    },
+    "2021-08": {
+     "effect": 6.566945545490974,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 126
+    },
+    "2021-09": {
+     "effect": 6.196159462221097,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 126
+    },
+    "2021-10": {
+     "effect": 6.300019481882513,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 126
+    },
+    "2021-11": {
+     "effect": 3.995353982001283,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 126
+    },
+    "2021-12": {
+     "effect": 2.339657141695302,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 126
+    },
+    "2022-01": {
+     "effect": -1.0455300984889777,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 126
+    }
+   },
+   "n_breaks": 25,
+   "p2_5": 0.016588869817575125,
+   "p97_5": 6.488302830839671,
+   "min": -1.0455300984889777,
+   "max": 6.566945545490974
+  },
+  "Y2": {
+   "breaks": {
+    "2018-09": {
+     "effect": 3.1358269107016246,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 125
+    },
+    "2018-10": {
+     "effect": 2.9453100907051533,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 125
+    },
+    "2018-11": {
+     "effect": 3.448402115558154,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 125
+    },
+    "2018-12": {
+     "effect": 3.512338618058169,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 125
+    },
+    "2019-01": {
+     "effect": 3.293273982661694,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 125
+    },
+    "2019-02": {
+     "effect": 2.946768432569807,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 125
+    },
+    "2019-03": {
+     "effect": 3.079989338513777,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 125
+    },
+    "2019-04": {
+     "effect": 2.9435098731925313,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 125
+    },
+    "2019-05": {
+     "effect": 3.026133613062095,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 125
+    },
+    "2019-06": {
+     "effect": 3.5200510963398726,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 125
+    },
+    "2019-07": {
+     "effect": 3.585083543819465,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 125
+    },
+    "2019-08": {
+     "effect": 3.726342181438037,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 125
+    },
+    "2019-09": {
+     "effect": 3.662631473790865,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 125
+    },
+    "2019-10": {
+     "effect": 3.7842521453147966,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 125
+    },
+    "2019-11": {
+     "effect": 3.61592493048896,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 125
+    },
+    "2019-12": {
+     "effect": 3.7385267118331047,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 125
+    },
+    "2020-01": {
+     "effect": 4.271444810349278,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 125
+    },
+    "2020-02": {
+     "effect": 4.413828851542265,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 125
+    },
+    "2021-07": {
+     "effect": 4.1825089431579565,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 125
+    },
+    "2021-08": {
+     "effect": 3.84478549864946,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 125
+    },
+    "2021-09": {
+     "effect": 3.712798602410087,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 125
+    },
+    "2021-10": {
+     "effect": 3.577245110425542,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 125
+    },
+    "2021-11": {
+     "effect": 3.2632959370429515,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 125
+    },
+    "2021-12": {
+     "effect": 2.9567742265769708,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 125
+    },
+    "2022-01": {
+     "effect": 2.456463633783029,
+     "airlines": [
+      "AA",
+      "DL",
+      "UA",
+      "WN"
+     ],
+     "airline_months": 125
+    }
+   },
+   "n_breaks": 25,
+   "p2_5": 2.7486913774287305,
+   "p97_5": 4.328398426826473,
+   "min": 2.456463633783029,
+   "max": 4.413828851542265
+  }
+ },
+ "real_break": "2022-09",
+ "real_in_distribution": {
+  "Y1": {
+   "real_effect": -7.949766591795433,
+   "share_of_fake_at_or_below": 0.0,
+   "outside_central_95": true
+  },
+  "Y2": {
+   "real_effect": -2.6038481170281327,
+   "share_of_fake_at_or_below": 0.0,
+   "outside_central_95": true
+  }
+ }
+}
