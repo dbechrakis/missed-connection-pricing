@@ -264,4 +264,4 @@ One line per decision: what, why, and what it costs. Raw material for `method.md
 | Found the calendar pattern after the backcast, froze the multipliers and pre-registered a forward test | A pattern found on seen data is a hypothesis, and the clean test is months that do not exist yet | The multipliers are in-sample for the record, and the forward test needs until November 2027 |
 | Did not add a level model to v6 | The pre-registered rule: B6 failed, so no level model | The seasonal price is a calendar effect, not a level that moves |
 | Did not add the 1.16 loading to v6 | It did not reach its line in the backcast and hurt the self-transfer cover | The 2024 to 2026 under-pricing is carried by the season and the longer history, if they are right |
-
+| A season by hub: tested with partial pooling and not kept | The idea was recorded in the season 3 plan, and five to seven observations per hub and month is where partial pooling either earns its place or shows that it does not. It did not (`VALIDATION.md` 7O) | The frozen calendar stays the same for all hubs, and a frozen hub-level predictor exists in `models/v7_hub_season.json` for an optional forward test |

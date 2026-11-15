@@ -1209,3 +1209,41 @@ Both periods were already read, so **this is development evidence and not a test
 - **In the later period it paid 7.0 points of premium more than it cost.** The pooled loss ratio falls from 74.8% to 67.9% because the index ran higher in 2024 to 2026 than in the years the cost was set on. A seller who priced at the burning cost of 2019 to 2023 would have lost that. It is the same level shift that the loading of season 1 was fitted to, and it would be priced into a renewal.
 
 **Limits.** One fit period and one later period, both already seen. The fit uses arm A, which 7I and 7J show to be the favourable arm as sold. The two sources of the weekly record are hash samples of different size (20% and 10%) and are put on one scale by those fractions, which a test checks against the trigger files. No seller's margin, no attachment, no limit. A parametric cover on FAA programs and airport weather does not exist as a quoted product for this risk as far as this project knows.
+
+### 7O. A season by hub, with partial pooling (exploratory, on the months already seen, 15 November 2026)
+
+Written after the backcast and the calendar of 7G were read, so **none of this is a test**. It takes up the idea recorded in `docs/season3-plan.md` ("a season by hub"), as set out in a handoff plan (`plans/05-pricing-bayesian-hub-season.md` on branch `claude/funny-pasteur-cdi67q` of `dbechrakis/dbechrakis`, written 15 November 2026) and asks whether the ratio of realized to expected claims follows a different calendar at each hub, and whether a model that says so predicts a year it has not seen better than the single frozen calendar. Code: `src/mcp/hub_season.py` (numpy only) and `src/mcp/hub_season_fit.py` (PyMC, in its own environment, `requirements-bayes.txt`). Tests: `tests/test_hub_season.py` and `tests/test_hub_season_fit.py`. Results: `results/hub_season_dev.json`, `results/hub_season_sensitivity.json`, `results/hub_season_arm_c.json` and `results/hub_season_fits/`.
+
+**The panel.** The weeks of `results/risk_weeks_2019_2026.csv`, summed over weeks and over both values of `sold`, by hub and month, outside the pandemic months. It has 350 hub-months over 70 months and 5 hubs. Summed over hubs and put through `fit_season`, it reproduces the twelve `effects_log` of `models/v6_season.json` to six decimals, and a test pins that. **The folds.** A fold is a calendar year with at least 10 observed months, the floor of `yearly_loss_ratios`. There are **4 folds** (2019, 2022, 2023, 2025), not the six or seven that the plan expected. 2024 has six observed months, 2026 has eight and the pandemic leaves 2020 and 2021 almost empty.
+
+**The model.** z = log(claims over expected) of a hub and month equals a level, a hub level, a calendar pattern shared by all hubs, a departure of each hub from that pattern, a shock shared by all hubs in the same month, and a Student t residual. The scale of the departures, tau_d, is the quantity of interest. The shared shock is in the model because the hubs are hit by the same storms in the same month, and a test shows what happens to the interval of the hub average without it. Priors were fixed in the plan before any fit. Four chains of 2,000 draws after 2,000 of tuning, seed 20261115, accepted only with every R-hat below 1.01, every effective sample size above 400 and no divergences. The prior predictive check, 1,000 panels drawn from the priors, spans -1.001 to 0.976 in z between its 5% and 95% points, as the plan expected.
+
+**The fixed rule.** `hier` earns its place over `pooled` if its ranked probability score is lower in at least all folds but one and the mean gain is above 0.005. The same rule is applied to `by_hub` against `pooled`. It was written before any fit.
+
+| Candidate | Mean absolute error | Ranked probability score | Coverage of the 90% interval | Score in 2019 | 2022 | 2023 | 2025 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `none` | 0.2331 | 0.1646 | 90.0% | 0.1667 | 0.1449 | 0.1887 | 0.1583 |
+| `pooled` | 0.1795 | 0.1256 | 87.1% | 0.1216 | 0.1191 | 0.1278 | 0.1337 |
+| `by_hub` | 0.1851 | 0.1299 | 82.5% | 0.1239 | 0.1227 | 0.1281 | 0.1448 |
+| `hier` | 0.1800 | 0.1257 | 91.2% | 0.1204 | 0.1226 | 0.1237 | 0.1361 |
+
+- **`hier` does not earn its place.** It has the lower score in 2 of 4 folds and the mean gain over `pooled` is -0.0001. **One calendar for all hubs is enough.** Its error and its score are the same as the frozen rule's to three decimals.
+- **`by_hub` does not earn its place either.** It has the lower score in 0 of 4 folds and the mean gain is -0.0043. Not pooling across hubs costs a little, which is what pooling is worth here.
+- **The hierarchical interval is better calibrated.** It covers 91.2% of the hub-months at a nominal 90%, against 87.1% for `pooled` and 82.5% for `by_hub`. The point predictions are no better.
+- **The scale of the hub departures is small.** The posterior of tau_d on the full record has mean 0.038 and a 90% interval of 0.006 to 0.070, so a hub departs from the shared calendar by about 4% of a ratio, against a shared calendar of about 23%. The posterior probability that a hub-month departs from the shared calendar exceeds 0.9 in either direction for **0** of the 60 hub-months.
+- **The reading does not depend on the prior of tau_d.** Sensitivity, with the plan's scales of 0.05 and 0.2 next to the one used. The table reports and does not choose.
+
+| Prior scale of tau_d | Posterior mean of tau_d | 90% interval | Folds won against `pooled` | Mean gain |
+| --- | --- | --- | --- | --- |
+| 0.05 | 0.034 | 0.004 to 0.064 | 2 of 4 | -0.0004 |
+| 0.1 (the fit used throughout) | 0.038 | 0.006 to 0.070 | 2 of 4 | -0.0001 |
+| 0.2 | 0.040 | 0.006 to 0.070 | 2 of 4 | -0.0002 |
+
+- **The reading does not depend on the arm.** With the arm C backcast weeks in place of arm A, `hier` wins 2 of 4 folds with a mean gain of -0.0005, and `by_hub` wins 1 of 4. The verdict is the same.
+- **Sampler checks.** Over the 5 fits of the record, the largest R-hat is 1.0026, the smallest effective sample size is 1,477 and there are 0 divergences. 0 of them needed `target_accept` 0.99. The rule raised it once for 4 of the 5 arm C fits and for 2 and 2 of the sensitivity fits, and every fit passed after that.
+
+**What it says.** The project's history predicted a small gain or none, as for the level models of 7A. None. The frozen calendar of `models/v6_season.json` does not hide hub patterns that the data can find, with five hubs and about 70 months. This is not evidence that hubs have no patterns. It says that five to seven observations per hub and month cannot separate them from noise, even with partial pooling.
+
+**The frozen forward predictor.** One fit on the full record, `models/v7_hub_season.json`, SHA-256 `c5bcc13461979c6a8eab499679ad7e23ae60bd2f40fd099d4e85b24ae09e3aa6`. It holds the predictive mean and standard deviation of z for each hub and month of March to August, the posterior probability that each hub's multiplier is above the frozen pooled multiplier, the scales and the diagnostics. It is frozen like every other file in `models/`. No hub-level forward test is registered by this section. Whether to register one is the owner's decision.
+
+**Limits.** About 350 values from 70 months, and months are shared by all hubs, so the effective number of independent observations is nearer 70. The record joins two fit windows, and 7I showed that the backcast arm matters, which the arm C line above checks for this question. With four folds the rule can be passed or failed by one fold. The multipliers are in-sample for the record they were fitted on. A hub-level price has no demand evidence behind it and is not proposed.

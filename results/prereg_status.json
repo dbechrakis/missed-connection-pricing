@@ -1,5 +1,5 @@
 {
- "when": "v5 (S1 to S5) was read on 9 November 2026. The rows read when November 2026 is published (probably early February 2027) include v5.1 (R1 to R5). v5.2 (W1 to W5) is read when February 2027 is published (probably early May 2027). Every date was decided before the data exists. The backcast (B1 to B10), the coding audit (C1, C2) and the schedule test (X1) were read once on 12 and 13 November 2026. B9 and B10 have no prediction and are reported. The seasonal price (G1 to G4, H1 to H4) is read when May 2027 and August 2027 are published (probably August and November 2027). Q1 is graded from the same file as V1 to V6.",
+ "when": "v5 (S1 to S5) was read on 9 November 2026. The rows read when November 2026 is published (probably early February 2027) include v5.1 (R1 to R5). v5.2 (W1 to W5) is read when February 2027 is published (probably early May 2027). Every date was decided before the data exists. The backcast (B1 to B10), the coding audit (C1, C2) and the schedule test (X1) were read once on 12 and 13 November 2026. B9 and B10 have no prediction and are reported. The seasonal price (G1 to G4, H1 to H4) is read when May 2027 and August 2027 are published (probably August and November 2027). Q1 is graded from the same file as V1 to V6. The hub-level test (K1 to K4) is read right after each v6 read, on the same windows.",
  "expectations": [
   {
    "id": "E1",
@@ -464,6 +464,38 @@
    "tag": "prereg-v6-schedule",
    "status": "fail",
    "result": "gain in log loss +0.00073 (+0.32%) against a tie band of 0.0002; two seeds differ by 0.00022"
+  },
+  {
+   "id": "K1",
+   "claim": "Spring and summer 2027, 30 hub-months: the mean absolute errors of hier and pooled differ by less than 0.02",
+   "document": "PREREGISTRATION_V7_HUB_SEASON.md",
+   "tag": "prereg-v7-hub-season",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "K2",
+   "claim": "Spring and summer 2027: the 90% predictive intervals of hier cover between 21 and 30 of the 30 hub-months",
+   "document": "PREREGISTRATION_V7_HUB_SEASON.md",
+   "tag": "prereg-v7-hub-season",
+   "status": "pending",
+   "result": null
+  },
+  {
+   "id": "K3",
+   "claim": "No prediction: 7O lists no hub-month whose multiplier differs from the shared calendar, so there is nothing to predict (reported)",
+   "document": "PREREGISTRATION_V7_HUB_SEASON.md",
+   "tag": "prereg-v7-hub-season",
+   "status": "reported",
+   "result": null
+  },
+  {
+   "id": "K4",
+   "claim": "No prediction on whether any hub-level pattern would have changed a price (reported)",
+   "document": "PREREGISTRATION_V7_HUB_SEASON.md",
+   "tag": "prereg-v7-hub-season",
+   "status": "reported",
+   "result": null
   }
  ]
 }

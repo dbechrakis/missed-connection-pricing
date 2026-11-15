@@ -39,4 +39,6 @@ jobs:
           prereg-v6-forward 4b2c8dc4b322ff937eda6df77cc17b24b996d790 PREREGISTRATION_V6_FORWARD.md
           prereg-v6-schedule 3868d0cc39a7f19eed4268947bff5465b944f306 PREREGISTRATION_V6_SCHEDULE.md
           prereg-v6-forward-addendum 67cc5f6c85ab6105dec11950e6b7b8e31549326a PREREGISTRATION_V6_FORWARD_ADDENDUM.md
+          prereg-v7-hub-season 3745c2098a8a6b442372ab010e618c3c80386c3b PREREGISTRATION_V7_HUB_SEASON.md
+          prereg-v7-hub-season-addendum 7d124589c5283b3dbadc374a2224f530f77fa787 PREREGISTRATION_V7_HUB_SEASON_ADDENDUM.md
           EOF

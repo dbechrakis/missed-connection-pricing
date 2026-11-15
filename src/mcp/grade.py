@@ -214,6 +214,18 @@ def grade_schedule(res: dict) -> dict:
     return {"X1": {"pass": res["gain"] <= 0.0002, "value": f"gain in log loss {res['gain']:+.5f} ({res['gain_pct']:+.2f}%) against a tie band of 0.0002; two seeds differ by {res['seed_difference']:.5f}"}}
 
 
+def grade_hub_season(results: list[dict]) -> dict:
+    """K1 and K2 from results/v7_hub_season_<window>.json (both windows), as in PREREGISTRATION_V7_HUB_SEASON.md and its addendum. K3 and K4 have no prediction.
+    A hub-month without a finite z is left out. With fewer than 24 of the 30 left, nothing is graded."""
+    rows = [r for res in results for r in res["rows"] if math.isfinite(r["z"])]
+    if len(rows) < 24:
+        return {k: {"pass": False, "value": f"only {len(rows)} of 30 hub-months can be scored, so K1 and K2 are not graded"} for k in ("K1", "K2")}
+    mae = {k: sum(abs(r["z"] - r[f"{k}_mean"]) for r in rows) / len(rows) for k in ("hier", "pooled")}
+    covered = sum(abs(r["z"] - r["hier_mean"]) <= 1.6449 * r["hier_sd"] for r in rows)
+    return {"K1": {"pass": abs(mae["hier"] - mae["pooled"]) < 0.02, "value": f"mean absolute error {mae['hier']:.3f} for hier and {mae['pooled']:.3f} for pooled over {len(rows)} hub-months"},
+            "K2": {"pass": 21 / 30 <= covered / len(rows) <= 1.0, "value": f"{covered} of {len(rows)} hub-months inside the 90% interval of hier"}}
+
+
 def render(status: dict) -> str:
     """SCOREBOARD.md from the status file: one row per pre-registered prediction."""
     icon = {"pending": "pending", "pass": "**passed**", "fail": "**failed**", "reported": "reported"}
@@ -271,6 +283,9 @@ def main() -> None:
         path = ROOT / "results" / f"v6_forward_{window}.json"
         if path.exists():
             apply(status, grade_forward(json.loads(path.read_text(encoding="utf-8")), window))
+    paths = [ROOT / "results" / f"v7_hub_season_{w}.json" for w in ("spring2027", "summer2027")]
+    if all(p.exists() for p in paths):
+        apply(status, grade_hub_season([json.loads(p.read_text(encoding="utf-8")) for p in paths]))
     STATUS.write_text(json.dumps(status, indent=1, ensure_ascii=False) + chr(10), encoding="utf-8", newline=chr(10))
     SCOREBOARD.write_text(render(status), encoding="utf-8", newline=chr(10))
     print(render(status).split("| # |")[0].strip().splitlines()[-1])

@@ -20,6 +20,19 @@ jobs:
       - run: pip install -r requirements.lock
       - run: python -m pytest -q
 
+  # The hierarchical model of a season by hub (VALIDATION.md 7O). PyMC is installed here and nowhere else, so the main job and
+  # requirements.lock stay as they were.
+  bayes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.lock -r requirements-bayes.txt
+      - run: python -m pytest -q tests/test_hub_season_fit.py
+
   # The API in its container must answer exactly what the code answers (750 quotes, both products), refuse bad input,
   # run as a non-root user on a read-only filesystem, and report the model hashes frozen in VALIDATION.md.
   container:
