@@ -101,7 +101,7 @@ These are limits, not footnotes. Of the 14 limits this project started with, **5
 
 ## How it was validated
 
-**[Scoreboard](SCOREBOARD.md):** every pre-registered prediction (57 across twelve documents), each graded by a rule written before the data exists, and its status. Sixteen have been read: the five self-transfer predictions (one failed), the two forecast predictions (both passed), the coding audit's placebo (failed), and eight of the backcast's ten (three passed, five failed). The other 41 are pending.
+**[Scoreboard](SCOREBOARD.md):** every pre-registered prediction (61 across thirteen documents), each graded by a rule written before the data exists, and its status. Sixteen have been read: the five self-transfer predictions (one failed), the two forecast predictions (both passed), the coding audit's placebo (failed), and eight of the backcast's ten (three passed, five failed). The other 45 are pending.
 
 Prices are set from information up to the booking, then scored on months the model has never seen. Every test was **pre-registered**: the protocol, the frozen model hashes and the list of what may not change afterwards were committed *locally* before the window was read. They reached GitHub together with the results, so the commit times are the author's own and cannot be independently checked; the two model files are in the repository so the frozen hashes can be verified. The next test (BTS data for September to December 2026, not yet published) has its protocol, frozen hashes and falsifiable expectations in [`PREREGISTRATION_2026H2.md`](PREREGISTRATION_2026H2.md), written and tagged before the data exists.
 

@@ -183,3 +183,21 @@ def test_frozen_summary_hash():
     for hub in HUBS:
         for month, p in frozen["prob_above_pooled"][hub].items():
             assert 0 <= p <= 1 and pooled[month] > 0
+
+
+def test_the_hub_season_grades_follow_the_pre_registration():
+    from mcp import grade
+
+    rows = [{"z": 0.0, "hier_mean": 0.0, "hier_sd": 0.1, "pooled_mean": 0.01} for _ in range(30)]
+    graded = grade.grade_hub_season([{"rows": rows[:15]}, {"rows": rows[15:]}])
+    assert graded["K1"]["pass"] and graded["K2"]["pass"]
+    far = [dict(r, pooled_mean=0.5) for r in rows]
+    assert not grade.grade_hub_season([{"rows": far[:15]}, {"rows": far[15:]}])["K1"]["pass"]
+    wide = [dict(r, z=1.0) for r in rows]
+    assert not grade.grade_hub_season([{"rows": wide[:15]}, {"rows": wide[15:]}])["K2"]["pass"]
+    status = json.loads((ROOT / "results" / "prereg_status.json").read_text(encoding="utf-8"))
+    ids = {e["id"]: e for e in status["expectations"]}
+    assert all(ids[k]["tag"] == "prereg-v7-hub-season" for k in ("K1", "K2", "K3", "K4"))
+    assert ids["K1"]["status"] == ids["K2"]["status"] == "pending"
+    workflow = (ROOT / ".github" / "workflows" / "preregistration-tags.yml").read_text(encoding="utf-8")
+    assert "prereg-v7-hub-season " in workflow and "PREREGISTRATION_V7_HUB_SEASON.md" in workflow
