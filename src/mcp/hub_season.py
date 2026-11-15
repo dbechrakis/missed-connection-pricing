@@ -1,0 +1,166 @@
+"""A season by hub (VALIDATION.md 7O, exploratory, on months already seen). Numpy only.
+
+The panel is the log ratio of realized to expected claims by hub and month. Three numpy candidates and the scorer for the hierarchical
+candidate of `mcp.hub_season_fit` live here, so that the main test suite never imports PyMC.
+
+    cd src
+    python -m mcp.hub_season dev      # the three numpy candidates, written to results/hub_season_dev.json
+"""
+from __future__ import annotations
+
+import json
+import sys
+
+import numpy as np
+import pandas as pd
+
+from mcp import risk
+from mcp.capital import without_pandemic
+from mcp.connections import ROOT
+from mcp.v6 import fit_season
+
+WEEKS = ROOT / "results" / "risk_weeks_2019_2026.csv"
+DEV = ROOT / "results" / "hub_season_dev.json"
+FITS = ROOT / "results" / "hub_season_fits"
+MIN_MONTHS = 10
+MIN_GAIN = 0.005
+CANDIDATES = ("none", "pooled", "by_hub", "hier")
+
+
+def hub_month_panel(weeks: pd.DataFrame) -> pd.DataFrame:
+    """One row per hub and month outside the pandemic: claims and expected summed over weeks and over both values of `sold`, and
+    z = log(claims / expected)."""
+    g = without_pandemic(weeks).groupby(["hub", "ym"])[["claims", "expected"]].sum().reset_index()
+    g["z"] = np.log(g["claims"] / g["expected"])
+    g["year"] = g["ym"].str[:4].astype(int)
+    g["month"] = g["ym"].str[5:7]
+    return g.sort_values(["hub", "ym"]).reset_index(drop=True)
+
+
+def all_hub_series(panel: pd.DataFrame) -> pd.Series:
+    """The monthly log ratio over all hubs, the series the frozen calendar was fitted on."""
+    g = panel.groupby("ym")[["claims", "expected"]].sum()
+    return np.log(g["claims"] / g["expected"])
+
+
+def folds(panel: pd.DataFrame, min_months: int = MIN_MONTHS) -> list[int]:
+    months = panel.groupby("year")["ym"].nunique()
+    return [int(y) for y in months.index[months >= min_months]]
+
+
+def _spread(residuals: np.ndarray) -> float:
+    return float(np.sqrt(np.mean(np.square(residuals))))
+
+
+def candidate_none(train: pd.DataFrame, targets: pd.DataFrame) -> pd.DataFrame:
+    """z = 0. The spread is the root mean square of z in the fitting years."""
+    sd = _spread(train["z"].to_numpy())
+    return targets[["hub", "ym"]].assign(mean=0.0, sd=sd)
+
+
+def candidate_pooled(train: pd.DataFrame, targets: pd.DataFrame) -> pd.DataFrame:
+    """The frozen rule: one calendar for all hubs, deviations shrunk by n over n plus 1, refitted on the other years. The spread is the
+    root mean square residual of the hub panel in the fitting years."""
+    season = fit_season(all_hub_series(train))
+    level = lambda month: season["mu"] + season["effects"][month]  # noqa: E731
+    fitted = train["month"].map(level).to_numpy(float)
+    sd = _spread(train["z"].to_numpy() - fitted)
+    mean = targets["ym"].str[5:7].map(level).to_numpy(float)
+    return targets[["hub", "ym"]].assign(mean=mean, sd=sd)
+
+
+def candidate_by_hub(train: pd.DataFrame, targets: pd.DataFrame) -> pd.DataFrame:
+    """Each hub's own twelve monthly means, no pooling across hubs, the same shrinkage within the hub."""
+    fits = {hub: fit_season(g.set_index("ym")["z"]) for hub, g in train.groupby("hub")}
+    level = lambda hub, month: fits[hub]["mu"] + fits[hub]["effects"][month]  # noqa: E731
+    fitted = np.array([level(h, m) for h, m in zip(train["hub"], train["month"], strict=True)])
+    sd = _spread(train["z"].to_numpy() - fitted)
+    mean = np.array([level(h, ym[5:7]) for h, ym in zip(targets["hub"], targets["ym"], strict=True)])
+    return targets[["hub", "ym"]].assign(mean=mean, sd=sd)
+
+
+NUMPY_CANDIDATES = {"none": candidate_none, "pooled": candidate_pooled, "by_hub": candidate_by_hub}
+
+
+def leave_one_year_out_panel(panel: pd.DataFrame, candidate, min_months: int = MIN_MONTHS) -> pd.DataFrame:
+    """For each fold year, the candidate's prediction of that year's hub-months from the other years. The candidate receives only the
+    hub and month of the targets, never their values."""
+    out = []
+    for year in folds(panel, min_months):
+        train = panel[panel["year"] != year]
+        targets = panel.loc[panel["year"] == year, ["hub", "ym"]]
+        pred = candidate(train, targets)
+        out.append(pred.assign(year=year))
+    return pd.concat(out, ignore_index=True)
+
+
+def score(predictions: pd.DataFrame, panel: pd.DataFrame, level: float = 0.90) -> dict:
+    """Mean absolute error, ranked probability score and coverage of the central interval, pooled and per fold. Log-ratio units."""
+    merged = predictions.merge(panel[["hub", "ym", "z"]], on=["hub", "ym"], how="left")
+    if merged["z"].isna().any():
+        raise ValueError("a prediction has no observed month")
+
+    def one(g: pd.DataFrame) -> dict:
+        lo, hi = risk.normal_interval(g["mean"], g["sd"], level)
+        return {"n": int(len(g)), "mae": float(np.mean(np.abs(g["z"] - g["mean"]))),
+                "crps": float(np.mean(risk.crps_normal(g["z"], g["mean"], g["sd"]))), "coverage": risk.interval_coverage(g["z"], lo, hi)}
+
+    per_fold = {str(y): one(g) for y, g in merged.groupby("year")}
+    return {"pooled": one(merged), "per_fold": per_fold}
+
+
+def earns_its_place(scores_a: dict, scores_b: dict, min_gain: float = MIN_GAIN) -> dict:
+    """A earns its place over B if its ranked probability score is lower in at least all folds but one and the mean gain is above
+    `min_gain`. Each argument is the `per_fold` part of `score`."""
+    keys = sorted(scores_a)
+    if keys != sorted(scores_b):
+        raise ValueError("the two score tables cover different folds")
+    gains = [scores_b[k]["crps"] - scores_a[k]["crps"] for k in keys]
+    wins = int(sum(g > 0 for g in gains))
+    mean_gain = float(np.mean(gains))
+    return {"folds": len(keys), "folds_won": wins, "mean_gain": mean_gain, "earns_its_place": bool(wins >= len(keys) - 1 and mean_gain > min_gain)}
+
+
+def load_hier(fold: int, directory=None) -> dict:
+    return json.loads(((directory or FITS) / f"{fold}.json").read_text(encoding="utf-8"))
+
+
+def candidate_hier_from_fits(directory=None):
+    """The hierarchical candidate, read from the posterior summaries of `mcp.hub_season_fit`. Each fit is for one held-out year and holds the
+    mean and standard deviation of the predictive distribution of z for each hub and calendar month."""
+    def candidate(train: pd.DataFrame, targets: pd.DataFrame) -> pd.DataFrame:
+        year = int(targets["ym"].iloc[0][:4])
+        fit = load_hier(year, directory)
+        mean = np.array([fit["predictive"][h][ym[5:7]]["mean"] for h, ym in zip(targets["hub"], targets["ym"], strict=True)])
+        sd = np.array([fit["predictive"][h][ym[5:7]]["sd"] for h, ym in zip(targets["hub"], targets["ym"], strict=True)])
+        return targets[["hub", "ym"]].assign(mean=mean, sd=sd)
+    return candidate
+
+
+def dev(weeks: pd.DataFrame | None = None, with_hier: bool = False) -> dict:
+    weeks = pd.read_csv(WEEKS) if weeks is None else weeks
+    panel = hub_month_panel(weeks)
+    candidates = dict(NUMPY_CANDIDATES)
+    if with_hier:
+        candidates["hier"] = candidate_hier_from_fits()
+    scores = {name: score(leave_one_year_out_panel(panel, fn), panel) for name, fn in candidates.items()}
+    out = {"data": "results/risk_weeks_2019_2026.csv, outside the pandemic months", "hubs": sorted(panel["hub"].unique()),
+           "months": int(panel["ym"].nunique()), "hub_months": int(len(panel)), "folds": folds(panel), "n_folds": len(folds(panel)),
+           "scores": scores,
+           "verdicts": {"by_hub_vs_pooled": earns_its_place({k: v for k, v in scores["by_hub"]["per_fold"].items()}, scores["pooled"]["per_fold"])}}
+    if with_hier:
+        out["verdicts"]["hier_vs_pooled"] = earns_its_place(scores["hier"]["per_fold"], scores["pooled"]["per_fold"])
+    return out
+
+
+def main() -> None:
+    cmd = sys.argv[1] if len(sys.argv) > 1 else "dev"
+    if cmd != "dev":
+        raise SystemExit("usage: python -m mcp.hub_season dev")
+    result = dev(with_hier=FITS.exists() and any(FITS.glob("[0-9]*.json")))
+    DEV.write_text(json.dumps(result, indent=1) + "\n", encoding="utf-8", newline="\n")
+    print(json.dumps(result["verdicts"], indent=1))
+
+
+if __name__ == "__main__":
+    main()
