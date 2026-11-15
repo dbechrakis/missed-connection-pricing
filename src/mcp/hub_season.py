@@ -25,6 +25,8 @@ FITS = ROOT / "results" / "hub_season_fits"
 MIN_MONTHS = 10
 MIN_GAIN = 0.005
 CANDIDATES = ("none", "pooled", "by_hub", "hier")
+FROZEN = ROOT / "models" / "v7_hub_season.json"
+FORWARD_MONTHS = ("03", "04", "05", "06", "07", "08")
 
 
 def hub_month_panel(weeks: pd.DataFrame) -> pd.DataFrame:
@@ -137,6 +139,36 @@ def candidate_hier_from_fits(directory=None):
     return candidate
 
 
+def departures(fit: dict, level: float = 0.9) -> list[dict]:
+    """Hub-months whose multiplier differs from the shared calendar with posterior probability above `level`, in either direction."""
+    out = []
+    for hub, months in fit["prob_d_positive"].items():
+        for month, p in months.items():
+            if p > level or p < 1 - level:
+                out.append({"hub": hub, "month": month, "prob_above_shared": p, "multiplier": fit["multipliers"][hub][month]["mean"]})
+    return out
+
+
+def freeze_summary(fit: dict) -> dict:
+    """The frozen forward predictor: for each hub and month of March to August, the predictive mean and standard deviation of z, and the
+    posterior probability that the hub's multiplier is above the frozen pooled multiplier of `models/v6_season.json`."""
+    hubs = sorted(fit["predictive"])
+    return {"model": "hierarchical season by hub, VALIDATION.md 7O", "fitted_on": "2019-01 to 2026-08 outside the pandemic months, 350 hub-months",
+            "seed": fit["seed"], "target_accept": fit["target_accept"], "tau_d_prior_scale": fit["tau_d_prior_scale"],
+            "input_sha256": fit["input_sha256"], "versions": fit["versions"], "diagnostics": fit["diagnostics"], "scales": fit["scales"],
+            "predictive": {h: {m: fit["predictive"][h][m] for m in FORWARD_MONTHS} for h in hubs},
+            "prob_above_pooled": {h: {m: fit["prob_above_pooled"][h][m] for m in FORWARD_MONTHS} for h in hubs},
+            "rule": "predictive of z = log(realized / expected claims) for a hub and a calendar month of a new year, including a fresh shared monthly shock and a fresh residual"}
+
+
+def freeze() -> str:
+    if FROZEN.exists():
+        raise SystemExit(f"{FROZEN.name} exists and is frozen")
+    FROZEN.write_text(json.dumps(freeze_summary(load_hier("full")), indent=1) + "\n", encoding="utf-8", newline="\n")
+    import hashlib
+    return hashlib.sha256(FROZEN.read_bytes()).hexdigest()
+
+
 def dev(weeks: pd.DataFrame | None = None, with_hier: bool = False) -> dict:
     weeks = pd.read_csv(WEEKS) if weeks is None else weeks
     panel = hub_month_panel(weeks)
@@ -150,13 +182,19 @@ def dev(weeks: pd.DataFrame | None = None, with_hier: bool = False) -> dict:
            "verdicts": {"by_hub_vs_pooled": earns_its_place({k: v for k, v in scores["by_hub"]["per_fold"].items()}, scores["pooled"]["per_fold"])}}
     if with_hier:
         out["verdicts"]["hier_vs_pooled"] = earns_its_place(scores["hier"]["per_fold"], scores["pooled"]["per_fold"])
+        full = load_hier("full")
+        out["full_record"] = {"tau_d": full["scales"]["tau_d"], "scales": full["scales"], "diagnostics": full["diagnostics"],
+                              "departures_above_0_9": departures(full), "n_departures_above_0_9": len(departures(full))}
     return out
 
 
 def main() -> None:
     cmd = sys.argv[1] if len(sys.argv) > 1 else "dev"
+    if cmd == "freeze":
+        print(freeze())
+        return
     if cmd != "dev":
-        raise SystemExit("usage: python -m mcp.hub_season dev")
+        raise SystemExit("usage: python -m mcp.hub_season dev | freeze")
     result = dev(with_hier=FITS.exists() and any(FITS.glob("[0-9]*.json")))
     DEV.write_text(json.dumps(result, indent=1) + "\n", encoding="utf-8", newline="\n")
     print(json.dumps(result["verdicts"], indent=1))

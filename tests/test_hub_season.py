@@ -112,3 +112,74 @@ def test_the_committed_development_results_cover_the_three_numpy_candidates():
     result = json.loads((ROOT / "results" / "hub_season_dev.json").read_text(encoding="utf-8"))
     assert {"none", "pooled", "by_hub"} <= set(result["scores"])
     assert result["n_folds"] == len(result["folds"]) == 4 and result["hub_months"] == 350
+
+
+def _section_7o() -> str:
+    text = (ROOT / "VALIDATION.md").read_text(encoding="utf-8")
+    return text[text.index("### 7O."):]
+
+
+def _load(name: str) -> dict:
+    return json.loads((ROOT / "results" / name).read_text(encoding="utf-8"))
+
+
+def test_the_numbers_of_7o_match_the_results_files():
+    text = _section_7o()
+    dev, sens, arm = _load("hub_season_dev.json"), _load("hub_season_sensitivity.json"), _load("hub_season_arm_c.json")
+    scores, folds = dev["scores"], dev["folds"]
+    for name in ("none", "pooled", "by_hub", "hier"):
+        s = scores[name]
+        row = f"| `{name}` | {s['pooled']['mae']:.4f} | {s['pooled']['crps']:.4f} | {s['pooled']['coverage'] * 100:.1f}% | " + " | ".join(f"{s['per_fold'][str(y)]['crps']:.4f}" for y in folds) + " |"
+        assert row in text, row
+    e, b = dev["verdicts"]["hier_vs_pooled"], dev["verdicts"]["by_hub_vs_pooled"]
+    assert f"lower score in {e['folds_won']} of {e['folds']} folds and the mean gain over `pooled` is {e['mean_gain']:+.4f}" in text
+    assert f"lower score in {b['folds_won']} of {b['folds']} folds and the mean gain is {b['mean_gain']:+.4f}" in text
+    assert e["earns_its_place"] is False and b["earns_its_place"] is False
+    assert round(scores["hier"]["pooled"]["mae"], 3) == round(scores["pooled"]["pooled"]["mae"], 3)
+    assert round(scores["hier"]["pooled"]["crps"], 3) == round(scores["pooled"]["pooled"]["crps"], 3)
+    tau = dev["full_record"]["tau_d"]
+    assert f"mean {tau['mean']:.3f} and a 90% interval of {tau['q05']:.3f} to {tau['q95']:.3f}" in text
+    assert f"for **{dev['full_record']['n_departures_above_0_9']}** of the 60 hub-months" in text
+    assert dev["n_folds"] == len(folds) == 4 and f"**{dev['n_folds']} folds**" in text
+    pp = dev["prior_predictive"]
+    assert f"{pp['z_q05']:.3f} to {pp['z_q95']:.3f} in z" in text and -1.2 < pp["z_q05"] and pp["z_q95"] < 1.2
+    for scale, x in sens.items():
+        g = x["earns_its_place_vs_pooled"]
+        assert f"| {scale} | {x['tau_d']['mean']:.3f} | {x['tau_d']['q05']:.3f} to {x['tau_d']['q95']:.3f} | {g['folds_won']} of {g['folds']} | {g['mean_gain']:+.4f} |" in text
+        assert g["earns_its_place"] is False
+    a = arm["verdicts"]
+    assert f"`hier` wins {a['hier_vs_pooled']['folds_won']} of {a['hier_vs_pooled']['folds']} folds with a mean gain of {a['hier_vs_pooled']['mean_gain']:+.4f}" in text
+    assert a["hier_vs_pooled"]["earns_its_place"] is False
+
+
+def test_the_readme_sentence_about_the_hub_season_matches_7o():
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    e = _load("hub_season_dev.json")["verdicts"]["hier_vs_pooled"]
+    assert f"in {e['folds_won']} of {e['folds']} years" in readme and "A season by hub did not beat one calendar" in readme
+
+
+def test_every_fit_passed_its_checks_and_records_its_inputs():
+    names = sorted((ROOT / "results" / "hub_season_fits").rglob("*.json"))
+    assert len(names) == 5 + 10 + 5
+    sha = hashlib.sha256((ROOT / "results" / "risk_weeks_2019_2026.csv").read_bytes()).hexdigest()
+    for path in names:
+        fit = json.loads(path.read_text(encoding="utf-8"))
+        d = fit["diagnostics"]
+        assert d["passed"] and d["rhat_max"] < 1.01 and d["ess_bulk_min"] > 400 and d["ess_tail_min"] > 400 and d["divergences"] == 0 and d["chains"] == 4
+        assert fit["seed"] == 20261115 and fit["input_sha256"] == sha and fit["target_accept"] in (0.95, 0.99)
+
+
+def test_frozen_summary_hash():
+    raw = (ROOT / "models" / "v7_hub_season.json").read_bytes()
+    assert hashlib.sha256(raw).hexdigest() in _section_7o()
+    frozen = json.loads(raw)
+    assert sorted(frozen["predictive"]) == HUBS
+    for hub in HUBS:
+        assert sorted(frozen["predictive"][hub]) == ["03", "04", "05", "06", "07", "08"]
+        assert all(v["sd"] > 0 for v in frozen["predictive"][hub].values())
+    full = json.loads((ROOT / "results" / "hub_season_fits" / "full.json").read_text(encoding="utf-8"))
+    assert frozen == H.freeze_summary(full)
+    pooled = json.loads((ROOT / "models" / "v6_season.json").read_text(encoding="utf-8"))["multiplier"]
+    for hub in HUBS:
+        for month, p in frozen["prob_above_pooled"][hub].items():
+            assert 0 <= p <= 1 and pooled[month] > 0
