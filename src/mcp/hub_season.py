@@ -188,13 +188,57 @@ def dev(weeks: pd.DataFrame | None = None, with_hier: bool = False) -> dict:
     return out
 
 
+def hub_month_table(rows: pd.DataFrame) -> pd.DataFrame:
+    """Per hub and month of the rows of one v6 window, the realized and expected claims of `mcp.v6.monthly_table` and z = log of their ratio."""
+    w, p, c, y = (rows[k].to_numpy(float) for k in ("weight", "p", "claim_cost", "y_gap"))
+    frame = pd.DataFrame({"hub": rows["hub"].to_numpy(), "ym": rows["ym"].to_numpy(), "claims": w * y * c, "expected": w * p * c})
+    g = frame.groupby(["hub", "ym"])[["claims", "expected"]].sum().reset_index()
+    g["z"] = np.log(g["claims"] / g["expected"])
+    return g
+
+
+def predict_window(table: pd.DataFrame, season: dict, frozen: dict, pooled_sd: float) -> list[dict]:
+    """The two frozen predictors for each hub-month of a window: `pooled` (the frozen multipliers, the same for every hub) and `hier`."""
+    out = []
+    for r in table.itertuples():
+        month = r.ym[5:7]
+        hier = frozen["predictive"][r.hub][month]
+        out.append({"hub": r.hub, "ym": r.ym, "z": float(r.z), "pooled_mean": float(np.log(season["multiplier"][month])), "pooled_sd": pooled_sd,
+                    "hier_mean": hier["mean"], "hier_sd": hier["sd"]})
+    return out
+
+
+def read(window: str) -> dict:
+    """The single read of the hub-level forward test (PREREGISTRATION_V7_HUB_SEASON.md). It runs only after `mcp.v6 read` has written the result of
+    the same window, and refuses a second run."""
+    from mcp import v6
+    result = ROOT / "results" / f"v7_hub_season_{window}.json"
+    if result.exists():
+        raise SystemExit(f"{result.name} exists: each window is read once (PREREGISTRATION_V7_HUB_SEASON.md section 6)")
+    if not (ROOT / "results" / f"v6_forward_{window}.json").exists():
+        raise SystemExit(f"results/v6_forward_{window}.json does not exist: the hub-level test never reads a window before v6 has (section 5)")
+    v6.require_scheduled_reads()
+    from mcp import backcast as B
+    rows_dir = B.DATA / "v6_forward" / window / "rows_A"
+    rows = pd.concat([pd.read_parquet(f) for f in sorted(rows_dir.glob("*.parquet"))], ignore_index=True)
+    panel = hub_month_panel(pd.read_csv(WEEKS))
+    pooled_sd = float(candidate_pooled(panel, panel[["hub", "ym"]])["sd"].iloc[0])
+    frozen = json.loads(FROZEN.read_text(encoding="utf-8"))
+    out = {"window": window, "rows": predict_window(hub_month_table(rows), v6.load_season(), frozen, pooled_sd)}
+    result.write_text(json.dumps(out, indent=1) + "\n", encoding="utf-8", newline="\n")
+    return out
+
+
 def main() -> None:
     cmd = sys.argv[1] if len(sys.argv) > 1 else "dev"
     if cmd == "freeze":
         print(freeze())
         return
+    if cmd in ("read",) and len(sys.argv) > 2 and sys.argv[2] in ("spring2027", "summer2027"):
+        read(sys.argv[2])
+        return
     if cmd != "dev":
-        raise SystemExit("usage: python -m mcp.hub_season dev | freeze")
+        raise SystemExit("usage: python -m mcp.hub_season dev | freeze | read spring2027 | read summer2027")
     result = dev(with_hier=FITS.exists() and any(FITS.glob("[0-9]*.json")))
     DEV.write_text(json.dumps(result, indent=1) + "\n", encoding="utf-8", newline="\n")
     print(json.dumps(result["verdicts"], indent=1))

@@ -201,3 +201,26 @@ def test_the_hub_season_grades_follow_the_pre_registration():
     assert ids["K1"]["status"] == ids["K2"]["status"] == "pending"
     workflow = (ROOT / ".github" / "workflows" / "preregistration-tags.yml").read_text(encoding="utf-8")
     assert "prereg-v7-hub-season " in workflow and "PREREGISTRATION_V7_HUB_SEASON.md" in workflow
+
+
+def test_the_read_groups_rows_by_hub_and_month_and_applies_both_frozen_predictors():
+    rows = pd.DataFrame({"hub": ["ATL", "ATL", "DEN"], "ym": ["2027-03"] * 3, "weight": [1.0, 2.0, 1.0], "p": [0.1, 0.1, 0.2],
+                         "claim_cost": [100.0, 100.0, 50.0], "y_gap": [1.0, 0.0, 1.0]})
+    table = H.hub_month_table(rows)
+    atl = table[table["hub"] == "ATL"].iloc[0]
+    assert atl["claims"] == 100.0 and atl["expected"] == pytest.approx(30.0) and atl["z"] == pytest.approx(np.log(100 / 30))
+    season = {"multiplier": {"03": 0.9358}}
+    frozen = {"predictive": {"ATL": {"03": {"mean": 0.1, "sd": 0.2}}, "DEN": {"03": {"mean": -0.1, "sd": 0.3}}}}
+    out = H.predict_window(table, season, frozen, 0.18)
+    assert [r["hub"] for r in out] == ["ATL", "DEN"] and out[0]["pooled_mean"] == pytest.approx(np.log(0.9358))
+    assert out[1]["hier_sd"] == 0.3 and out[0]["pooled_sd"] == 0.18
+
+
+def test_the_read_refuses_before_v6_has_read_and_refuses_a_second_run(tmp_path, monkeypatch):
+    monkeypatch.setattr(H, "ROOT", tmp_path)
+    (tmp_path / "results").mkdir()
+    with pytest.raises(SystemExit, match="never reads a window before v6"):
+        H.read("spring2027")
+    (tmp_path / "results" / "v7_hub_season_spring2027.json").write_text("{}")
+    with pytest.raises(SystemExit, match="read once"):
+        H.read("spring2027")
