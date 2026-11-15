@@ -215,12 +215,15 @@ def grade_schedule(res: dict) -> dict:
 
 
 def grade_hub_season(results: list[dict]) -> dict:
-    """K1 and K2 from results/v7_hub_season_<window>.json (both windows), as in PREREGISTRATION_V7_HUB_SEASON.md. K3 and K4 have no prediction."""
-    rows = [r for res in results for r in res["rows"]]
+    """K1 and K2 from results/v7_hub_season_<window>.json (both windows), as in PREREGISTRATION_V7_HUB_SEASON.md and its addendum. K3 and K4 have no prediction.
+    A hub-month without a finite z is left out. With fewer than 24 of the 30 left, nothing is graded."""
+    rows = [r for res in results for r in res["rows"] if math.isfinite(r["z"])]
+    if len(rows) < 24:
+        return {k: {"pass": False, "value": f"only {len(rows)} of 30 hub-months can be scored, so K1 and K2 are not graded"} for k in ("K1", "K2")}
     mae = {k: sum(abs(r["z"] - r[f"{k}_mean"]) for r in rows) / len(rows) for k in ("hier", "pooled")}
     covered = sum(abs(r["z"] - r["hier_mean"]) <= 1.6449 * r["hier_sd"] for r in rows)
     return {"K1": {"pass": abs(mae["hier"] - mae["pooled"]) < 0.02, "value": f"mean absolute error {mae['hier']:.3f} for hier and {mae['pooled']:.3f} for pooled over {len(rows)} hub-months"},
-            "K2": {"pass": 21 <= covered <= 30 and len(rows) == 30, "value": f"{covered} of {len(rows)} hub-months inside the 90% interval of hier"}}
+            "K2": {"pass": 21 / 30 <= covered / len(rows) <= 1.0, "value": f"{covered} of {len(rows)} hub-months inside the 90% interval of hier"}}
 
 
 def render(status: dict) -> str:

@@ -201,6 +201,7 @@ def test_the_hub_season_grades_follow_the_pre_registration():
     assert ids["K1"]["status"] == ids["K2"]["status"] == "pending"
     workflow = (ROOT / ".github" / "workflows" / "preregistration-tags.yml").read_text(encoding="utf-8")
     assert "prereg-v7-hub-season " in workflow and "PREREGISTRATION_V7_HUB_SEASON.md" in workflow
+    assert "prereg-v7-hub-season-addendum " in workflow
 
 
 def test_the_read_groups_rows_by_hub_and_month_and_applies_both_frozen_predictors():
@@ -224,3 +225,17 @@ def test_the_read_refuses_before_v6_has_read_and_refuses_a_second_run(tmp_path, 
     (tmp_path / "results" / "v7_hub_season_spring2027.json").write_text("{}")
     with pytest.raises(SystemExit, match="read once"):
         H.read("spring2027")
+
+
+def test_the_addendum_rules_for_unscorable_hub_months_and_the_covered_edge():
+    from mcp import grade
+
+    rows = [{"z": 1.6449 * 0.1, "hier_mean": 0.0, "hier_sd": 0.1, "pooled_mean": 0.0} for _ in range(30)]
+    assert grade.grade_hub_season([{"rows": rows[:15]}, {"rows": rows[15:]}])["K2"]["pass"]
+    bad = [dict(r, z=float("-inf")) for r in rows[:6]] + rows[6:]
+    graded = grade.grade_hub_season([{"rows": bad[:15]}, {"rows": bad[15:]}])
+    assert graded["K1"]["pass"] and "24 hub-months" in graded["K2"]["value"]
+    too_few = [dict(r, z=float("nan")) for r in rows[:7]] + rows[7:]
+    assert "not graded" in grade.grade_hub_season([{"rows": too_few[:15]}, {"rows": too_few[15:]}])["K1"]["value"]
+    text = (ROOT / "PREREGISTRATION_V7_HUB_SEASON_ADDENDUM.md").read_text(encoding="utf-8")
+    assert "prereg-v7-hub-season-addendum" in text and ";" not in text

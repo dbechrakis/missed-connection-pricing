@@ -214,9 +214,9 @@ def read(window: str) -> dict:
     from mcp import v6
     result = ROOT / "results" / f"v7_hub_season_{window}.json"
     if result.exists():
-        raise SystemExit(f"{result.name} exists: each window is read once (PREREGISTRATION_V7_HUB_SEASON.md section 6)")
+        raise SystemExit(f"{result.name} exists: each window is read once (PREREGISTRATION_V7_HUB_SEASON_ADDENDUM.md section 1)")
     if not (ROOT / "results" / f"v6_forward_{window}.json").exists():
-        raise SystemExit(f"results/v6_forward_{window}.json does not exist: the hub-level test never reads a window before v6 has (section 5)")
+        raise SystemExit(f"results/v6_forward_{window}.json does not exist: the hub-level test never reads a window before v6 has (PREREGISTRATION_V7_HUB_SEASON.md section 5)")
     v6.require_scheduled_reads()
     from mcp import backcast as B
     rows_dir = B.DATA / "v6_forward" / window / "rows_A"
